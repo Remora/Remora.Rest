@@ -21,13 +21,12 @@
 //
 
 using System;
-using System.Drawing;
 using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Remora.Rest.Json;
 using Remora.Rest.Json.Internal;
+using Remora.Rest.Json.Policies;
 
 namespace Remora.Rest.Extensions
 {
@@ -56,6 +55,11 @@ namespace Remora.Rest.Extensions
 
             services.Configure<JsonSerializerOptions>(clientBuilder.Name, options =>
             {
+                var snakeCase = new SnakeCaseNamingPolicy();
+
+                options.PropertyNamingPolicy = snakeCase;
+                options.DictionaryKeyPolicy = snakeCase;
+
                 options
                     .AddConverter<OptionalConverterFactory>()
                     .AddConverter<NullableConverterFactory>()
