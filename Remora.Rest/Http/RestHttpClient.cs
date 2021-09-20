@@ -72,7 +72,7 @@ namespace Remora.Rest
         }
 
         /// <inheritdoc />
-        public void RemoveCustomization(RestRequestCustomization customization)
+        void IRestHttpClient.RemoveCustomization(RestRequestCustomization customization)
         {
             _customizations.Remove(customization);
         }

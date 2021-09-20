@@ -45,7 +45,7 @@ namespace Remora.Rest
         /// Removes a customization from the client.
         /// </summary>
         /// <param name="customization">The customization to remove.</param>
-        void RemoveCustomization(RestRequestCustomization customization);
+        internal void RemoveCustomization(RestRequestCustomization customization);
 
         /// <summary>
         /// Performs a GET request to the REST API at the given endpoint.
