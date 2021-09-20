@@ -20,9 +20,14 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+using System;
+using System.Drawing;
+using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Remora.Rest.Json;
+using Remora.Rest.Json.Internal;
 
 namespace Remora.Rest.Extensions
 {
@@ -36,15 +41,33 @@ namespace Remora.Rest.Extensions
         /// Adds a REST-specialized HTTP client, allowing subsequent optional configuration of the backend client.
         /// </summary>
         /// <param name="services">The services.</param>
+        /// <param name="jsonOptions">Additional JSON configuration, if any.</param>
         /// <typeparam name="TRestHttpClient">The HTTP client type to add.</typeparam>
         /// <returns>The client builder for the <typeparamref name="TRestHttpClient"/> type.</returns>
         public static IHttpClientBuilder AddRestHttpClient<TRestHttpClient>
         (
-            this IServiceCollection services
+            this IServiceCollection services,
+            Action<JsonSerializerOptions>? jsonOptions = null
         ) where TRestHttpClient : class, IRestHttpClient
         {
             services.TryAddTransient<TRestHttpClient>();
-            return services.AddHttpClient<TRestHttpClient>();
+
+            var clientBuilder = services.AddHttpClient<TRestHttpClient>();
+
+            services.Configure<JsonSerializerOptions>(clientBuilder.Name, options =>
+            {
+                options
+                    .AddConverter<OptionalConverterFactory>()
+                    .AddConverter<NullableConverterFactory>()
+                    .AddConverter<OneOfConverterFactory>();
+            });
+
+            if (jsonOptions is not null)
+            {
+                services.Configure(clientBuilder.Name, jsonOptions);
+            }
+
+            return clientBuilder;
         }
     }
 }
