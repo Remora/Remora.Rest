@@ -15,6 +15,7 @@ ProjectSection(SolutionItems) = preProject
 	stylecop.json = stylecop.json
 	stylecop.ruleset = stylecop.ruleset
 	.gitignore = .gitignore
+	README.md = README.md
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Xunit", "Remora.Rest.Xunit\Remora.Rest.Xunit.csproj", "{E289F7EF-3A06-40BE-A31D-4B1872F6DB7B}"
