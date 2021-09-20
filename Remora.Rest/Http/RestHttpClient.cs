@@ -520,9 +520,9 @@ namespace Remora.Rest
 
                 return new RestResultError<TError>(error);
             }
-            catch
+            catch (Exception e)
             {
-                return new HttpResultError(response.StatusCode, response.ReasonPhrase);
+                return e;
             }
         }
 
@@ -610,9 +610,9 @@ namespace Remora.Rest
 
                 return new RestResultError<TError>(error);
             }
-            catch
+            catch (Exception e)
             {
-                return new HttpResultError(response.StatusCode, response.ReasonPhrase);
+                return e;
             }
         }
     }
