@@ -38,7 +38,7 @@
         <PackageIcon>shark.png</PackageIcon>
 
         <BaseDescription>
-            Remora.Rest is a compact .NET library for interfacing with REST APIs.
+            Reusable tooling for interacting with JSON-driven REST APIs.
         </BaseDescription>
     </PropertyGroup>
 
