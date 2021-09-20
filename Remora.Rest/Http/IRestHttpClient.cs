@@ -145,20 +145,6 @@ namespace Remora.Rest
         /// </summary>
         /// <param name="endpoint">The endpoint.</param>
         /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <returns>A deletion result which may or may not have succeeded.</returns>
-        Task<Result> DeleteAsync
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            CancellationToken ct = default
-        );
-
-        /// <summary>
-        /// Performs a DELETE request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
         /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
         /// <param name="ct">The cancellation token for this operation.</param>
         /// <typeparam name="TEntity">The type of entity to create.</typeparam>
@@ -168,6 +154,20 @@ namespace Remora.Rest
             string endpoint,
             Action<RestRequestBuilder>? configureRequestBuilder = null,
             bool allowNullReturn = false,
+            CancellationToken ct = default
+        );
+
+        /// <summary>
+        /// Performs a DELETE request to the REST API at the given endpoint.
+        /// </summary>
+        /// <param name="endpoint">The endpoint.</param>
+        /// <param name="configureRequestBuilder">The request builder for the request.</param>
+        /// <param name="ct">The cancellation token for this operation.</param>
+        /// <returns>A deletion result which may or may not have succeeded.</returns>
+        Task<Result> DeleteAsync
+        (
+            string endpoint,
+            Action<RestRequestBuilder>? configureRequestBuilder = null,
             CancellationToken ct = default
         );
 
