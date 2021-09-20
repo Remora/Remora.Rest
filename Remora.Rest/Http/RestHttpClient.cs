@@ -62,12 +62,7 @@ namespace Remora.Rest
             _customizations = new List<RestRequestCustomization>();
         }
 
-        /// <summary>
-        /// Creates a customization that will be applied to all requests made by the
-        /// <see cref="RestHttpClient{TError}"/>. The customization is removed when it is disposed.
-        /// </summary>
-        /// <param name="requestCustomizer">The action that customizes the request.</param>
-        /// <returns>The created customization.</returns>
+        /// <inheritdoc />
         public RestRequestCustomization WithCustomization(Action<RestRequestBuilder> requestCustomizer)
         {
             var customization = new RestRequestCustomization(this, requestCustomizer);
@@ -76,24 +71,13 @@ namespace Remora.Rest
             return customization;
         }
 
-        /// <summary>
-        /// Removes a customization from the client.
-        /// </summary>
-        /// <param name="customization">The customization to remove.</param>
+        /// <inheritdoc />
         public void RemoveCustomization(RestRequestCustomization customization)
         {
             _customizations.Remove(customization);
         }
 
-        /// <summary>
-        /// Performs a GET request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <typeparam name="TEntity">The entity type to retrieve.</typeparam>
-        /// <returns>A retrieval result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result<TEntity>> GetAsync<TEntity>
         (
             string endpoint,
@@ -132,13 +116,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a GET request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <returns>A retrieval result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result<Stream>> GetContentAsync
         (
             string endpoint,
@@ -188,15 +166,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a POST request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <typeparam name="TEntity">The entity type to create.</typeparam>
-        /// <returns>A creation result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result<TEntity>> PostAsync<TEntity>
         (
             string endpoint,
@@ -235,13 +205,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a POST request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <returns>A post result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result> PostAsync
         (
             string endpoint,
@@ -279,15 +243,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a PATCH request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <typeparam name="TEntity">The entity type to modify.</typeparam>
-        /// <returns>A modification result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result<TEntity>> PatchAsync<TEntity>
         (
             string endpoint,
@@ -326,13 +282,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a PATCH request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <returns>A modification result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result> PatchAsync
         (
             string endpoint,
@@ -370,13 +320,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a DELETE request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <returns>A deletion result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result> DeleteAsync
         (
             string endpoint,
@@ -414,15 +358,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a DELETE request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <typeparam name="TEntity">The type of entity to create.</typeparam>
-        /// <returns>A result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result<TEntity>> DeleteAsync<TEntity>
         (
             string endpoint,
@@ -461,15 +397,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a PUT request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <typeparam name="TEntity">The type of entity to create.</typeparam>
-        /// <returns>A result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result<TEntity>> PutAsync<TEntity>
         (
             string endpoint,
@@ -508,13 +436,7 @@ namespace Remora.Rest
             }
         }
 
-        /// <summary>
-        /// Performs a PUT request to the REST API at the given endpoint.
-        /// </summary>
-        /// <param name="endpoint">The endpoint.</param>
-        /// <param name="configureRequestBuilder">The request builder for the request.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <returns>A result which may or may not have succeeded.</returns>
+        /// <inheritdoc />
         public async Task<Result> PutAsync
         (
             string endpoint,
