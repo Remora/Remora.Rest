@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest", "Remora.Rest\Remora.Rest.csproj", "{73CC33AB-6A72-47B4-80D7-4880340EF3DF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{54F6B070-C37B-4D9B-98C9-1D69D17791CC}"
+ProjectSection(SolutionItems) = preProject
+	Tests\Directory.Build.props = Tests\Directory.Build.props
+EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Tests", "Tests\Remora.Rest.Tests\Remora.Rest.Tests.csproj", "{063999E1-511A-4EB8-9C23-9A2A19A97E56}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata", "metadata", "{0C122B49-2255-4E2E-A883-98270FC82290}"
+ProjectSection(SolutionItems) = preProject
+	Directory.Build.props = Directory.Build.props
+	stylecop.json = stylecop.json
+	stylecop.ruleset = stylecop.ruleset
+	.gitignore = .gitignore
+EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Xunit", "Remora.Rest.Xunit\Remora.Rest.Xunit.csproj", "{E289F7EF-3A06-40BE-A31D-4B1872F6DB7B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{73CC33AB-6A72-47B4-80D7-4880340EF3DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73CC33AB-6A72-47B4-80D7-4880340EF3DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73CC33AB-6A72-47B4-80D7-4880340EF3DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73CC33AB-6A72-47B4-80D7-4880340EF3DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{063999E1-511A-4EB8-9C23-9A2A19A97E56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{063999E1-511A-4EB8-9C23-9A2A19A97E56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{063999E1-511A-4EB8-9C23-9A2A19A97E56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{063999E1-511A-4EB8-9C23-9A2A19A97E56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E289F7EF-3A06-40BE-A31D-4B1872F6DB7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E289F7EF-3A06-40BE-A31D-4B1872F6DB7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E289F7EF-3A06-40BE-A31D-4B1872F6DB7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E289F7EF-3A06-40BE-A31D-4B1872F6DB7B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{063999E1-511A-4EB8-9C23-9A2A19A97E56} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
+	EndGlobalSection
+EndGlobal

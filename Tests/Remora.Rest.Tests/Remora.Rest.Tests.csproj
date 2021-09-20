@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Remora.Rest.Xunit\Remora.Rest.Xunit.csproj" />
+      <ProjectReference Include="..\..\Remora.Rest\Remora.Rest.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data" />
+      <Folder Include="Tests" />
+    </ItemGroup>
+</Project>
