@@ -176,7 +176,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetSByte(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetSByte(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -191,7 +192,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetInt16(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetInt16(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -206,7 +208,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetInt32(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetInt32(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -221,7 +224,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetInt64(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetInt64(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -236,7 +240,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetByte(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetByte(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -251,7 +256,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetUInt16(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetUInt16(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -266,7 +272,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetUInt32(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetUInt32(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -281,7 +288,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetUInt64(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetUInt64(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -296,7 +304,7 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind == JsonValueKind.String && j.GetString() == value
+                j => j.ValueKind is JsonValueKind.String && j.GetString() == value
             );
 
             return this;
@@ -313,10 +321,10 @@ namespace Remora.Rest.Xunit.Json
             {
                 if (value)
                 {
-                    return j.ValueKind == JsonValueKind.True;
+                    return j.ValueKind is JsonValueKind.True;
                 }
 
-                return j.ValueKind == JsonValueKind.False;
+                return j.ValueKind is JsonValueKind.False;
             });
 
             return this;
@@ -331,7 +339,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetDecimal(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetDecimal(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -347,7 +356,8 @@ namespace Remora.Rest.Xunit.Json
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             _matchers.Add
             (
-                j => j.TryGetSingle(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetSingle(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -363,7 +373,8 @@ namespace Remora.Rest.Xunit.Json
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             _matchers.Add
             (
-                j => j.TryGetDouble(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.Number && j.TryGetDouble(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -379,7 +390,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetGuid(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.String && j.TryGetGuid(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -394,7 +406,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetDateTime(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.String && j.TryGetDateTime(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -409,7 +422,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetDateTimeOffset(out var actualValue) && value == actualValue
+                j => j.ValueKind is JsonValueKind.String && j.TryGetDateTimeOffset(out var actualValue)
+                                                         && value == actualValue
             );
 
             return this;
@@ -424,7 +438,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.TryGetBytesFromBase64(out var actualValue) && value.SequenceEqual(actualValue)
+                j => j.ValueKind is JsonValueKind.String && j.TryGetBytesFromBase64(out var actualValue)
+                                                         && value.SequenceEqual(actualValue)
             );
 
             return this;

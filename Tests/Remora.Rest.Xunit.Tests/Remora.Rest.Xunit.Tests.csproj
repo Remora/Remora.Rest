@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Remora.Rest.Xunit\Remora.Rest.Xunit.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Tests\JsonElementMatcherBuilderTests.cs">
+        <DependentUpon>JsonElementMatcherTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Tests\JsonObjectMatcherBuilderTests.cs">
+        <DependentUpon>JsonObjectMatcherTests.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Tests\JsonArrayMatcherBuilderTests.cs">
+        <DependentUpon>JsonArrayMatcherTests.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+</Project>

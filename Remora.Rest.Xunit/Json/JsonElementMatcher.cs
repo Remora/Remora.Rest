@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using JetBrains.Annotations;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json
 {
@@ -49,10 +50,25 @@ namespace Remora.Rest.Xunit.Json
         /// Determines whether the matcher fully matches the given element.
         /// </summary>
         /// <param name="elementEnumerator">The element enumerator.</param>
+        /// <param name="assert">
+        /// Whether to let assertions bubble up, or to catch and return false in the case of a failed assertion.
+        /// </param>
         /// <returns>Whether the matcher matches the element.</returns>
-        public bool Matches(JsonElement elementEnumerator)
+        public bool Matches(JsonElement elementEnumerator, bool assert = true)
         {
-            return _matchers.All(m => m(elementEnumerator));
+            try
+            {
+                return _matchers.All(m => m(elementEnumerator));
+            }
+            catch (XunitException)
+            {
+                if (assert)
+                {
+                    throw;
+                }
+
+                return false;
+            }
         }
     }
 }

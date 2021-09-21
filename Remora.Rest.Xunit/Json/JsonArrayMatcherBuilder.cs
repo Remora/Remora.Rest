@@ -80,7 +80,7 @@ namespace Remora.Rest.Xunit.Json
             elementMatcherBuilder?.Invoke(elementMatcher);
 
             var matcher = elementMatcher.Build();
-            _matchers.Add(j => j.Any(matcher.Matches));
+            _matchers.Add(j => j.Any(e => matcher.Matches(e)));
 
             return this;
         }
@@ -96,7 +96,7 @@ namespace Remora.Rest.Xunit.Json
             elementMatcherBuilder?.Invoke(elementMatcher);
 
             var matcher = elementMatcher.Build();
-            _matchers.Add(j => j.Count(matcher.Matches) == 1);
+            _matchers.Add(j => j.Count(e => matcher.Matches(e)) == 1);
 
             return this;
         }
