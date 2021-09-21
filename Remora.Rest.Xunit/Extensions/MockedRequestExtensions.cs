@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using JetBrains.Annotations;
 using Remora.Rest.Xunit.Json;
@@ -51,15 +52,23 @@ namespace Remora.Rest.Xunit.Extensions
         /// Adds a requirement that the request has an authorization header.
         /// </summary>
         /// <param name="request">The mocked request.</param>
+        /// <param name="headerPredicate">The predicate check.</param>
         /// <returns>The request; with the new requirement.</returns>
-        public static MockedRequest WithAuthentication(this MockedRequest request)
+        public static MockedRequest WithAuthentication
+        (
+            this MockedRequest request,
+            Func<AuthenticationHeaderValue, bool>? headerPredicate = null
+        )
         {
-            return request.With
-            (
-                m => m
-                    .Headers.Authorization?.Scheme == "Bot" &&
-                     !string.IsNullOrWhiteSpace(m.Headers.Authorization.Parameter)
-            );
+            return request.With(m =>
+            {
+                if (m.Headers.Authorization is null)
+                {
+                    return false;
+                }
+
+                return headerPredicate is null || headerPredicate(m.Headers.Authorization);
+            });
         }
 
         /// <summary>
