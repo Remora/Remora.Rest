@@ -23,6 +23,7 @@
 using System.Text.Json;
 using Remora.Rest.Xunit.Json;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Tests
 {
@@ -69,15 +70,15 @@ namespace Remora.Rest.Xunit.Tests
                     .WithProperty("value", p => p.Is(0))
                     .Build();
 
-                Assert.True(matcher.Matches(document.RootElement, false));
+                Assert.True(matcher.Matches(document.RootElement));
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method returns false if the
+            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method asserts if the
             /// required property is not present.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfPropertyIsNotPresent()
+            public void AssertsIfPropertyIsNotPresent()
             {
                 var json = "{ \"value\": 0 }";
 
@@ -87,15 +88,15 @@ namespace Remora.Rest.Xunit.Tests
                     .WithProperty("missing_property")
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<ContainsException>(() => matcher.Matches(document.RootElement));
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method returns false if the
+            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method asserts if the
             /// required property is present, but the property value does not match.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfPropertyIsPresentButDoesNotMatch()
+            public void AssertsIfPropertyIsPresentButDoesNotMatch()
             {
                 var json = "{ \"value\": 0 }";
 
@@ -105,7 +106,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithProperty("value", p => p.Is(1))
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -133,11 +134,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method returns false if the
+            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method asserts if the
             /// forbidden property is present.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfPropertyIsPresent()
+            public void AssertsIfPropertyIsPresent()
             {
                 var json = "{ \"value\": 0 }";
 
@@ -147,7 +148,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithoutProperty("value")
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<DoesNotContainException>(() => matcher.Matches(document.RootElement));
             }
         }
     }

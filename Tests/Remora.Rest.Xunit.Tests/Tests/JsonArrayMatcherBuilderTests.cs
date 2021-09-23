@@ -24,6 +24,7 @@ using System;
 using System.Text.Json;
 using Remora.Rest.Xunit.Json;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Tests
 {
@@ -55,11 +56,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(long)"/> method returns false for an array
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(long)"/> method asserts for an array
             /// with a mismatching number of elements.
             /// </summary>
             [Fact]
-            public void ReturnsFalseForArrayWithMismatchingConstantCount()
+            public void AssertsForArrayWithMismatchingConstantCount()
             {
                 var json = "[ 1 ]";
                 var document = JsonDocument.Parse(json);
@@ -68,7 +69,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithCount(2)
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
 
             /// <summary>
@@ -89,11 +90,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(Func{long, bool})"/> method returns false
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(Func{long, bool})"/> method asserts
             /// for an array with a mismatching number of elements.
             /// </summary>
             [Fact]
-            public void ReturnsFalseForArrayWithMismatchingPredicateCount()
+            public void AssertsForArrayWithMismatchingPredicateCount()
             {
                 var json = "[ 1 ]";
                 var document = JsonDocument.Parse(json);
@@ -102,7 +103,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithCount(c => c is > 1 and < 3)
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
         }
 
@@ -146,11 +147,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAtLeastCount"/> method returns false for an
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAtLeastCount"/> method asserts for an
             /// array with a lesser number of elements.
             /// </summary>
             [Fact]
-            public void ReturnsFalseForArrayWithLesserCount()
+            public void AssertsForArrayWithLesserCount()
             {
                 var json = "[ 1 ]";
                 var document = JsonDocument.Parse(json);
@@ -159,7 +160,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithAtLeastCount(2)
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<NotInRangeException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
         }
 
@@ -186,11 +187,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithNoMoreThanCount"/> method returns false for an
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithNoMoreThanCount"/> method asserts for an
             /// array with a greater number of elements.
             /// </summary>
             [Fact]
-            public void ReturnsFalseForArrayWithGreaterCount()
+            public void AssertsForArrayWithGreaterCount()
             {
                 var json = "[ 1, 2 ]";
                 var document = JsonDocument.Parse(json);
@@ -199,7 +200,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithNoMoreThanCount(1)
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<InRangeException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
 
             /// <summary>
@@ -260,11 +261,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAnyElement"/> method returns false if no
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAnyElement"/> method asserts if no
             /// element in the array matches.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfNoElementMatches()
+            public void AssertsIfNoElementMatches()
             {
                 var json = "[ 1, 2, 3 ]";
                 var document = JsonDocument.Parse(json);
@@ -273,7 +274,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithAnyElement(e => e.Is(4))
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
         }
 
@@ -300,11 +301,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAnyElement"/> method returns false if multiple
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAnyElement"/> method asserts if multiple
             /// elements in the array match.
             /// </summary>
             [Fact]
-            public void ReturnsTrueIfMultipleElementsMatch()
+            public void AssertsIfMultipleElementsMatch()
             {
                 var json = "[ 1, 1, 2, 3 ]";
                 var document = JsonDocument.Parse(json);
@@ -313,15 +314,15 @@ namespace Remora.Rest.Xunit.Tests
                     .WithSingleElement(e => e.Is(1))
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<SingleException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAnyElement"/> method returns false if no
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAnyElement"/> method asserts if no
             /// element in the array matches.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfNoElementMatches()
+            public void AssertsIfNoElementMatches()
             {
                 var json = "[ 1, 2, 3 ]";
                 var document = JsonDocument.Parse(json);
@@ -330,7 +331,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithSingleElement(e => e.Is(4))
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<SingleException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
         }
 
@@ -357,11 +358,11 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithElement"/> method returns false if the element
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithElement"/> method asserts if the element
             /// at the specified index does not match.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfElementAtIndexDoesNotMatch()
+            public void AssertsIfElementAtIndexDoesNotMatch()
             {
                 var json = "[ 1, 2, 3 ]";
                 var document = JsonDocument.Parse(json);
@@ -370,15 +371,15 @@ namespace Remora.Rest.Xunit.Tests
                     .WithElement(0, e => e.Is(4))
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithElement"/> method returns false if the element
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithElement"/> method asserts if the element
             /// at the specified index does not match, but another element does.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfElementAtOtherIndexMatches()
+            public void AssertsIfElementAtOtherIndexMatches()
             {
                 var json = "[ 1, 2, 3 ]";
                 var document = JsonDocument.Parse(json);
@@ -387,15 +388,15 @@ namespace Remora.Rest.Xunit.Tests
                     .WithElement(1, e => e.Is(1))
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithElement"/> method returns false if requested
+            /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithElement"/> method asserts if requested
             /// element index is out of range.
             /// </summary>
             [Fact]
-            public void ReturnsFalseIfIndexIsOutOfRange()
+            public void AssertsIfIndexIsOutOfRange()
             {
                 var json = "[ 1, 2, 3 ]";
                 var document = JsonDocument.Parse(json);
@@ -404,7 +405,7 @@ namespace Remora.Rest.Xunit.Tests
                     .WithElement(3, e => e.Is(4))
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement.EnumerateArray()));
+                Assert.Throws<InRangeException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
             }
         }
     }

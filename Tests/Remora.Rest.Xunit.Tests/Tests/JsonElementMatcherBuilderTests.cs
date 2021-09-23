@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Remora.Rest.Xunit.Json;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Tests
 {
@@ -56,7 +57,7 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsObject"/> method returns false for an element
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsObject"/> method asserts for an element
             /// that is not a JSON object.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
@@ -68,7 +69,7 @@ namespace Remora.Rest.Xunit.Tests
             [InlineData("true")]
             [InlineData("false")]
             [InlineData("null")]
-            public void ReturnsFalseForNonObjectElement(string json)
+            public void AssertsForNonObjectElement(string json)
             {
                 var document = JsonDocument.Parse(json);
 
@@ -76,7 +77,7 @@ namespace Remora.Rest.Xunit.Tests
                     .IsObject()
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -103,7 +104,7 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsArray"/> method returns false for an element
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsArray"/> method asserts for an element
             /// that is not a JSON array.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
@@ -115,7 +116,7 @@ namespace Remora.Rest.Xunit.Tests
             [InlineData("true")]
             [InlineData("false")]
             [InlineData("null")]
-            public void ReturnsFalseForNonArrayElement(string json)
+            public void AssertsForNonArrayElement(string json)
             {
                 var document = JsonDocument.Parse(json);
 
@@ -123,7 +124,7 @@ namespace Remora.Rest.Xunit.Tests
                     .IsArray()
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -159,7 +160,7 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsValue"/> method returns false for an element
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsValue"/> method asserts for an element
             /// that is not of the specified value type.
             /// </summary>
             /// <param name="valueKind">The type of value the JSON should be.</param>
@@ -173,7 +174,7 @@ namespace Remora.Rest.Xunit.Tests
             [InlineData(JsonValueKind.Object, "true")]
             [InlineData(JsonValueKind.Null, "false")]
             [InlineData(JsonValueKind.True, "null")]
-            public void ReturnsFalseForIncorrectElementType(JsonValueKind valueKind, string json)
+            public void AssertsForIncorrectElementType(JsonValueKind valueKind, string json)
             {
                 var document = JsonDocument.Parse(json);
 
@@ -181,7 +182,7 @@ namespace Remora.Rest.Xunit.Tests
                     .IsValue(valueKind)
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -208,7 +209,7 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsNull"/> method returns false for an element
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsNull"/> method asserts for an element
             /// that is not null.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
@@ -220,7 +221,7 @@ namespace Remora.Rest.Xunit.Tests
             [InlineData("0.0")]
             [InlineData("true")]
             [InlineData("false")]
-            public void ReturnsFalseForNonNullElement(string json)
+            public void AssertsForNonNullElement(string json)
             {
                 var document = JsonDocument.Parse(json);
 
@@ -228,7 +229,7 @@ namespace Remora.Rest.Xunit.Tests
                     .IsNull()
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -257,7 +258,7 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsBoolean"/> method returns false for an element
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsBoolean"/> method asserts for an element
             /// that is not a JSON boolean.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
@@ -268,7 +269,7 @@ namespace Remora.Rest.Xunit.Tests
             [InlineData("0")]
             [InlineData("0.0")]
             [InlineData("null")]
-            public void ReturnsFalseForNonBooleanElement(string json)
+            public void AssertsForNonBooleanElement(string json)
             {
                 var document = JsonDocument.Parse(json);
 
@@ -276,7 +277,7 @@ namespace Remora.Rest.Xunit.Tests
                     .IsBoolean()
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -305,7 +306,7 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsNumber"/> method returns false for an element
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsNumber"/> method asserts for an element
             /// that is not a JSON number.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
@@ -316,7 +317,7 @@ namespace Remora.Rest.Xunit.Tests
             [InlineData("true")]
             [InlineData("false")]
             [InlineData("null")]
-            public void ReturnsFalseForNonNumberElement(string json)
+            public void AssertsForNonNumberElement(string json)
             {
                 var document = JsonDocument.Parse(json);
 
@@ -324,7 +325,7 @@ namespace Remora.Rest.Xunit.Tests
                     .IsNumber()
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -351,7 +352,7 @@ namespace Remora.Rest.Xunit.Tests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsString"/> method returns false for an element
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.IsString"/> method asserts for an element
             /// that is not a JSON string.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
@@ -363,7 +364,7 @@ namespace Remora.Rest.Xunit.Tests
             [InlineData("0")]
             [InlineData("0.0")]
             [InlineData("null")]
-            public void ReturnsFalseForNonStringElement(string json)
+            public void AssertsForNonStringElement(string json)
             {
                 var document = JsonDocument.Parse(json);
 
@@ -371,7 +372,7 @@ namespace Remora.Rest.Xunit.Tests
                     .IsString()
                     .Build();
 
-                Assert.False(matcher.Matches(document.RootElement, false));
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
         }
 
@@ -403,11 +404,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(sbyte)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(sbyte)"/> method asserts for an
                 /// element that is an <see cref="sbyte"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForSByteElementWithUnequalValue()
+                public void AssertsForSByteElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -416,11 +417,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((sbyte)1)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(sbyte)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(sbyte)"/> method asserts for an
                 /// element that is not an <see cref="sbyte"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -429,11 +430,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("128")]
-                [InlineData("-129")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonSByteElement(string json)
+                public void AssertsForNonSByteElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -441,7 +439,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((sbyte)0)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(sbyte)"/> method asserts for an
+                /// element that is not representable as a <see cref="sbyte"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("128")]
+                [InlineData("-129")]
+                public void AssertsForSByteUnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is((sbyte)0)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -468,11 +486,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(short)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(short)"/> method asserts for an
                 /// element that is an <see cref="short"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForInt16ElementWithUnequalValue()
+                public void AssertsForInt16ElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -481,11 +499,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((short)1)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(short)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(short)"/> method asserts for an
                 /// element that is not an <see cref="short"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -494,11 +512,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("32768")]
-                [InlineData("-32769")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonInt16Element(string json)
+                public void AssertsForNonInt16Element(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -506,7 +521,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((short)0)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(short)"/> method asserts for an
+                /// element that is not representable as a <see cref="short"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("32768")]
+                [InlineData("-32769")]
+                public void AssertsForInt16UnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is((short)0)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -533,11 +568,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(int)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(int)"/> method asserts for an
                 /// element that is an <see cref="int"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForInt32ElementWithUnequalValue()
+                public void AssertsForInt32ElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -546,11 +581,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(int)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(int)"/> method asserts for an
                 /// element that is not an <see cref="int"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -559,11 +594,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("2147483647")]
-                [InlineData("-2147483649")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonInt32Element(string json)
+                public void AssertsForNonInt32Element(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -571,7 +603,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(0)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(int)"/> method asserts for an
+                /// element that is not representable as a <see cref="int"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("2147483648")]
+                [InlineData("-2147483649")]
+                public void AssertsForInt32UnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(0)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -598,11 +650,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(long)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(long)"/> method asserts for an
                 /// element that is an <see cref="long"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForInt64ElementWithUnequalValue()
+                public void AssertsForInt64ElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -611,11 +663,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1L)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(long)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(long)"/> method asserts for an
                 /// element that is not an <see cref="long"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -624,11 +676,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("9223372036854775808")]
-                [InlineData("-9223372036854775809")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonInt64Element(string json)
+                public void AssertsForNonInt64Element(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -636,7 +685,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(0L)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(long)"/> method asserts for an
+                /// element that is not representable as a <see cref="long"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("9223372036854775808")]
+                [InlineData("-9223372036854775809")]
+                public void AssertsForInt64UnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(0L)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -663,11 +732,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(byte)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(byte)"/> method asserts for an
                 /// element that is an <see cref="byte"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForByteElementWithUnequalValue()
+                public void AssertsForByteElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -676,11 +745,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((byte)1)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(byte)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(byte)"/> method asserts for an
                 /// element that is not an <see cref="byte"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -689,11 +758,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("256")]
-                [InlineData("-1")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonByteElement(string json)
+                public void AssertsForNonByteElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -701,7 +767,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((byte)0)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(byte)"/> method asserts for an
+                /// element that is not representable as a <see cref="byte"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("256")]
+                [InlineData("-1")]
+                public void AssertsForByteUnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is((byte)0)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -728,11 +814,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ushort)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ushort)"/> method asserts for an
                 /// element that is an <see cref="ushort"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForUInt16ElementWithUnequalValue()
+                public void AssertsForUInt16ElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -741,11 +827,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((ushort)1)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ushort)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ushort)"/> method asserts for an
                 /// element that is not an <see cref="ushort"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -754,11 +840,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("65536")]
-                [InlineData("-1")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonUInt16Element(string json)
+                public void AssertsForNonUInt16Element(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -766,7 +849,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is((ushort)0)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ushort)"/> method asserts for an
+                /// element that is not representable as a <see cref="ushort"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("65536")]
+                [InlineData("-1")]
+                public void AssertsForUInt16UnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is((ushort)0)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -793,11 +896,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(uint)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(uint)"/> method asserts for an
                 /// element that is an <see cref="uint"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForUInt32ElementWithUnequalValue()
+                public void AssertsForUInt32ElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -806,11 +909,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1U)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(uint)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(uint)"/> method asserts for an
                 /// element that is not an <see cref="uint"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -819,11 +922,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("4294967296")]
-                [InlineData("-1")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonUInt32Element(string json)
+                public void AssertsForNonUInt32Element(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -831,7 +931,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(0U)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(uint)"/> method asserts for an
+                /// element that is not representable as a <see cref="uint"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("4294967296")]
+                [InlineData("-1")]
+                public void AssertsForUInt32UnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(0U)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -858,11 +978,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ulong)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ulong)"/> method asserts for an
                 /// element that is an <see cref="ulong"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForUInt64ElementWithUnequalValue()
+                public void AssertsForUInt64ElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -871,11 +991,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1UL)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ulong)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ulong)"/> method asserts for an
                 /// element that is not an <see cref="ulong"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -884,11 +1004,8 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("[ ]")]
                 [InlineData("true")]
                 [InlineData("false")]
-                [InlineData("0.0")]
-                [InlineData("18446744073709551616")]
-                [InlineData("-1")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonUInt64Element(string json)
+                public void AssertsForNonUInt64Element(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -896,7 +1013,27 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(0UL)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(ulong)"/> method asserts for an
+                /// element that is not representable as a <see cref="ulong"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("0.0")]
+                [InlineData("18446744073709551616")]
+                [InlineData("-1")]
+                public void AssertsForUInt64UnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(0UL)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -923,11 +1060,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(string)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(string)"/> method asserts for an
                 /// element that is an <see cref="string"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForStringElementWithUnequalValue()
+                public void AssertsForStringElementWithUnequalValue()
                 {
                     var json = "\"string\"";
                     var document = JsonDocument.Parse(json);
@@ -936,11 +1073,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is("not string")
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(string)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(string)"/> method asserts for an
                 /// element that is not an <see cref="string"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -952,7 +1089,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("0")]
                 [InlineData("0.0")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonStringElement(string json)
+                public void AssertsForNonStringElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -960,7 +1097,7 @@ namespace Remora.Rest.Xunit.Tests
                         .Is("string")
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -987,11 +1124,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(bool)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(bool)"/> method asserts for an
                 /// element that is an <see cref="bool"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForBooleanElementWithUnequalValue()
+                public void AssertsForBooleanElementWithUnequalValue()
                 {
                     var json = "true";
                     var document = JsonDocument.Parse(json);
@@ -1000,11 +1137,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(false)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(bool)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(bool)"/> method asserts for an
                 /// element that is not an <see cref="bool"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1014,7 +1151,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("0")]
                 [InlineData("0.0")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonBoolElement(string json)
+                public void AssertsForNonBoolElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1022,7 +1159,7 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(true)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -1049,11 +1186,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(decimal)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(decimal)"/> method asserts for an
                 /// element that is an <see cref="decimal"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForDecimalElementWithUnequalValue()
+                public void AssertsForDecimalElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -1062,11 +1199,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1M)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(decimal)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(decimal)"/> method asserts for an
                 /// element that is not an <see cref="decimal"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1076,7 +1213,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("true")]
                 [InlineData("false")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonDecimalElement(string json)
+                public void AssertsForNonDecimalElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1084,7 +1221,7 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1M)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -1111,11 +1248,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(float)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(float)"/> method asserts for an
                 /// element that is an <see cref="float"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForFloatElementWithUnequalValue()
+                public void AssertsForFloatElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -1124,11 +1261,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1f)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(float)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(float)"/> method asserts for an
                 /// element that is not an <see cref="float"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1138,7 +1275,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("true")]
                 [InlineData("false")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonFloatElement(string json)
+                public void AssertsForNonFloatElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1146,7 +1283,7 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1f)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -1173,11 +1310,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(double)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(double)"/> method asserts for an
                 /// element that is an <see cref="double"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForDoubleElementWithUnequalValue()
+                public void AssertsForDoubleElementWithUnequalValue()
                 {
                     var json = "0";
                     var document = JsonDocument.Parse(json);
@@ -1186,11 +1323,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1d)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(double)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(double)"/> method asserts for an
                 /// element that is not an <see cref="double"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1200,7 +1337,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("true")]
                 [InlineData("false")]
                 [InlineData("null")]
-                public void ReturnsFalseForNonDoubleElement(string json)
+                public void AssertsForNonDoubleElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1208,7 +1345,7 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(1d)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -1237,11 +1374,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.Guid)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.Guid)"/> method asserts for an
                 /// element that is an <see cref="System.Guid"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForGuidElementWithUnequalValue()
+                public void AssertsForGuidElementWithUnequalValue()
                 {
                     var guid = System.Guid.NewGuid();
                     var json = $"\"{guid.ToString()}\"";
@@ -1252,11 +1389,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(System.Guid.NewGuid())
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.Guid)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.Guid)"/> method asserts for an
                 /// element that is not an <see cref="System.Guid"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1268,8 +1405,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("null")]
                 [InlineData("0")]
                 [InlineData("0.0")]
-                [InlineData("\"somestring\"")]
-                public void ReturnsFalseForNonGuidElement(string json)
+                public void AssertsForNonGuidElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1277,7 +1413,25 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(System.Guid.NewGuid())
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.Guid)"/> method asserts for an
+                /// element that is not representable as an <see cref="System.Guid"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("\"somestring\"")]
+                public void AssertsForGuidUnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(System.Guid.NewGuid())
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -1306,11 +1460,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTime)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTime)"/> method asserts for an
                 /// element that is an <see cref="System.DateTime"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForDateTimeElementWithUnequalValue()
+                public void AssertsForDateTimeElementWithUnequalValue()
                 {
                     var dateTime = System.DateTime.Parse("2000-01-01T00:00:00");
                     var json = "\"2000-01-01T00:00:00\"";
@@ -1321,11 +1475,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(dateTime + TimeSpan.FromDays(1))
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTime)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTime)"/> method asserts for an
                 /// element that is not an <see cref="System.DateTime"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1337,8 +1491,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("null")]
                 [InlineData("0")]
                 [InlineData("0.0")]
-                [InlineData("\"somestring\"")]
-                public void ReturnsFalseForNonDateTimeElement(string json)
+                public void AssertsForNonDateTimeElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1346,7 +1499,25 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(System.DateTime.Today)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTime)"/> method asserts for an
+                /// element that is not representable as an <see cref="System.DateTime"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("\"somestring\"")]
+                public void AssertsForDateTimeUnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(System.DateTime.UtcNow)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -1375,11 +1546,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for an
                 /// element that is an <see cref="System.DateTimeOffset"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForDateTimeOffsetElementWithUnequalValue()
+                public void AssertsForDateTimeOffsetElementWithUnequalValue()
                 {
                     var dateTimeOffset = System.DateTimeOffset.Parse("2000-01-01T00:00:00Z");
                     var json = "\"2000-01-01T00:00:00Z\"";
@@ -1390,11 +1561,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(dateTimeOffset + TimeSpan.FromDays(1))
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for an
                 /// element that is not an <see cref="System.DateTimeOffset"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1406,8 +1577,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("null")]
                 [InlineData("0")]
                 [InlineData("0.0")]
-                [InlineData("\"somestring\"")]
-                public void ReturnsFalseForNonDateTimeOffsetElement(string json)
+                public void AssertsForNonDateTimeOffsetElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1415,7 +1585,25 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(System.DateTimeOffset.UtcNow)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for an
+                /// element that is not representable as an <see cref="System.DateTimeOffset"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("\"somestring\"")]
+                public void AssertsForDateTimeOffsetUnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(System.DateTimeOffset.UtcNow)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
@@ -1466,11 +1654,11 @@ namespace Remora.Rest.Xunit.Tests
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(IEnumerable{byte})"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(IEnumerable{byte})"/> method asserts for an
                 /// element that is an <see cref="IEnumerable{T}"/> value, not equal to the value under test.
                 /// </summary>
                 [Fact]
-                public void ReturnsFalseForByteEnumerationElementWithUnequalValue()
+                public void AssertsForByteEnumerationElementWithUnequalValue()
                 {
                     var bytes = Array.Empty<byte>();
                     var json = "\"bm9zeSBmdWNrZXIgYWludCB5YQ==\"";
@@ -1481,11 +1669,11 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(bytes)
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
                 }
 
                 /// <summary>
-                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(IEnumerable{byte})"/> method returns false for an
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(IEnumerable{byte})"/> method asserts for an
                 /// element that is not an <see cref="IEnumerable{T}"/>.
                 /// </summary>
                 /// <param name="json">The JSON to test.</param>
@@ -1497,8 +1685,7 @@ namespace Remora.Rest.Xunit.Tests
                 [InlineData("null")]
                 [InlineData("0")]
                 [InlineData("0.0")]
-                [InlineData("\"somestring\"")]
-                public void ReturnsFalseForNonByteEnumerationElement(string json)
+                public void AssertsForNonByteEnumerationElement(string json)
                 {
                     var document = JsonDocument.Parse(json);
 
@@ -1506,7 +1693,25 @@ namespace Remora.Rest.Xunit.Tests
                         .Is(Array.Empty<byte>())
                         .Build();
 
-                    Assert.False(matcher.Matches(document.RootElement, false));
+                    Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(IEnumerable{byte})"/> method asserts for an
+                /// element that is not representable as an <see cref="IEnumerable{T}"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("\"somestring\"")]
+                public void AssertsForByteEnumerationUnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(Array.Empty<byte>())
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
         }
