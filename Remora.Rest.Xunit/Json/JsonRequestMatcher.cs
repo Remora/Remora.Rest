@@ -20,11 +20,11 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-using System;
 using System.Net.Http;
 using System.Text.Json;
 using JetBrains.Annotations;
 using RichardSzalay.MockHttp;
+using Xunit;
 using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json
@@ -47,12 +47,9 @@ namespace Remora.Rest.Xunit.Json
         /// <inheritdoc />
         public bool Matches(HttpRequestMessage message)
         {
-            if (message.Content is null)
-            {
-                return false;
-            }
+            Assert.NotNull(message.Content);
 
-            var content = message.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
+            var content = message.Content!.ReadAsStreamAsync().GetAwaiter().GetResult();
             try
             {
                 using var json = JsonDocument.Parse(content);

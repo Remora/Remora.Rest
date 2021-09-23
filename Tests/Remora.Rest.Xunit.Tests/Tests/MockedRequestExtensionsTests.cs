@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -60,8 +61,7 @@ namespace Remora.Rest.Xunit.Tests
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
                 request.Content = new StringContent("wooga");
 
-                var response = await client.SendAsync(request);
-                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                await Assert.ThrowsAsync<NullException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -106,8 +106,7 @@ namespace Remora.Rest.Xunit.Tests
 
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-                var response = await client.SendAsync(request);
-                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -128,8 +127,7 @@ namespace Remora.Rest.Xunit.Tests
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "booga");
 
-                var response = await client.SendAsync(request);
-                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                await Assert.ThrowsAsync<TrueException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -196,8 +194,7 @@ namespace Remora.Rest.Xunit.Tests
 
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-                var response = await client.SendAsync(request);
-                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -281,6 +278,323 @@ namespace Remora.Rest.Xunit.Tests
                 var json = "{ \"value\": 0 }";
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await client.SendAsync(request);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+        }
+
+        /// <summary>
+        /// Tests the
+        /// <see cref="Extensions.MockedRequestExtensions.WithMultipartFormData(MockedRequest,string,string)"/> method
+        /// and its overloads.
+        /// </summary>
+        public class WithMultipartFormData
+        {
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has no content.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFieldRequestHasNoContent()
+            {
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("value", "0")
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request content is not multipart content.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFieldRequestIsNotMultipartContent()
+            {
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("value", "0")
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new StringContent("fail");
+
+                await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has no form data field with the correct name.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFieldRequestHasNoFormDataWithName()
+            {
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("value", "0")
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new StringContent("something else"), "not value");
+
+                request.Content = multipart;
+
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has a form data field with the correct name but
+            /// the wrong type.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFieldRequestHasFormDataWithCorrectNameButWrongType()
+            {
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("value", "0")
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new ByteArrayContent(Array.Empty<byte>()), "value");
+
+                request.Content = multipart;
+
+                await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has a form data field with the correct name but
+            /// the wrong value.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFieldRequestHasFormDataWithCorrectNameButWrongValue()
+            {
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("value", "0")
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new StringContent("not value"), "value");
+
+                request.Content = multipart;
+
+                await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method returns true if the request has a form data field where the name and value match.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFieldRequestHasFormDataWithCorrectNameAndCorrectValue()
+            {
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("value", "0")
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new StringContent("0"), "value");
+
+                request.Content = multipart;
+
+                var response = await client.SendAsync(request);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has no content.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFileRequestHasNoContent()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("file", "filename.txt", stream)
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request content is not multipart content.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFileRequestIsNotMultipartContent()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("file", "filename.txt", stream)
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new StringContent("fail");
+
+                await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has no form data field with the correct name.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFileRequestHasNoFormDataWithName()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("file", "filename.txt", stream)
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new StringContent("something else"), "not value");
+
+                request.Content = multipart;
+
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has a form data field with the correct name but
+            /// the wrong type.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndFilenameButWrongType()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("file", "filename.txt", stream)
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new ByteArrayContent(Array.Empty<byte>()), "file", "filename.txt");
+
+                request.Content = multipart;
+
+                await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has a form data field with the correct name but
+            /// the wrong value.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndValueButWrongFilename()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("file", "filename.txt", stream)
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new StreamContent(stream), "file", "wrong.txt");
+
+                request.Content = multipart;
+
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has a form data field with the correct name but
+            /// the wrong value.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndFilenameButWrongValue()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("file", "filename.txt", stream)
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new StreamContent(new MemoryStream()), "file", "filename.txt");
+
+                request.Content = multipart;
+
+                await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method returns true if the request has a form data field where the name and value match.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public async Task PassesIfFileRequestHasFormDataWithCorrectNameAndFilenameAndValue()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithMultipartFormData("file", "filename.txt", stream)
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                var multipart = new MultipartFormDataContent();
+                multipart.Add(new StreamContent(stream), "file", "filename.txt");
+
+                request.Content = multipart;
 
                 var response = await client.SendAsync(request);
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);

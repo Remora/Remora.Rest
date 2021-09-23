@@ -29,6 +29,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Remora.Rest.Xunit.Json;
 using RichardSzalay.MockHttp;
+using Xunit;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Extensions
 {
@@ -45,7 +47,11 @@ namespace Remora.Rest.Xunit.Extensions
         /// <returns>The request; with the new requirement.</returns>
         public static MockedRequest WithNoContent(this MockedRequest request)
         {
-            return request.With(m => m.Content is null);
+            return request.With(m =>
+            {
+                Assert.Null(m.Content);
+                return true;
+            });
         }
 
         /// <summary>
@@ -62,12 +68,16 @@ namespace Remora.Rest.Xunit.Extensions
         {
             return request.With(m =>
             {
-                if (m.Headers.Authorization is null)
+                Assert.NotNull(m.Headers.Authorization);
+                if (headerPredicate is null)
                 {
-                    return false;
+                    return true;
                 }
 
-                return headerPredicate is null || headerPredicate(m.Headers.Authorization);
+                var predicateMatches = headerPredicate(m.Headers.Authorization!);
+                Assert.True(predicateMatches, "The authentication predicate did not match.");
+
+                return true;
             });
         }
 
@@ -107,23 +117,23 @@ namespace Remora.Rest.Xunit.Extensions
             (
                 m =>
                 {
-                    if (m.Content is not MultipartFormDataContent formContent)
-                    {
-                        return false;
-                    }
+                    Assert.NotNull(m.Content);
+                    Assert.IsType<MultipartFormDataContent>(m.Content);
 
+                    var formContent = (MultipartFormDataContent)m.Content!;
                     var contentWithName = formContent.FirstOrDefault
                     (
                         c => c.Headers.Any(h => h.Value.Any(v => v.Contains($"name={name}")))
                     );
 
-                    if (contentWithName is not StringContent stringContent)
-                    {
-                        return false;
-                    }
+                    Assert.NotNull(contentWithName);
+                    Assert.IsType<StringContent>(contentWithName);
+                    var stringContent = (StringContent)contentWithName!;
 
                     var actualValue = stringContent.ReadAsStringAsync().GetAwaiter().GetResult();
-                    return value == actualValue;
+
+                    Assert.Equal(value, actualValue);
+                    return true;
                 }
             );
         }
@@ -148,10 +158,10 @@ namespace Remora.Rest.Xunit.Extensions
             (
                 m =>
                 {
-                    if (m.Content is not MultipartFormDataContent formContent)
-                    {
-                        return false;
-                    }
+                    Assert.NotNull(m.Content);
+                    Assert.IsType<MultipartFormDataContent>(m.Content);
+
+                    var formContent = (MultipartFormDataContent)m.Content!;
 
                     var contentWithName = formContent.FirstOrDefault
                     (
@@ -160,17 +170,17 @@ namespace Remora.Rest.Xunit.Extensions
                             c.Headers.Any(h => h.Value.Any(v => v.Contains($"filename={fileName}")))
                     );
 
-                    if (contentWithName is not StreamContent streamContent)
-                    {
-                        return false;
-                    }
+                    Assert.NotNull(contentWithName);
+                    Assert.IsType<StreamContent>(contentWithName);
+                    var streamContent = (StreamContent)contentWithName!;
 
                     // Reflection hackery
                     var innerStream = (Stream)typeof(StreamContent)
                         .GetField("_content", BindingFlags.Instance | BindingFlags.NonPublic)!
                         .GetValue(streamContent)!;
 
-                    return value == innerStream;
+                    Assert.Equal(value, innerStream);
+                    return true;
                 }
             );
         }
