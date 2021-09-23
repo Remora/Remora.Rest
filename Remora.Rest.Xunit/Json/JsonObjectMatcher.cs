@@ -50,25 +50,10 @@ namespace Remora.Rest.Xunit.Json
         /// Determines whether the matcher fully matches the given object.
         /// </summary>
         /// <param name="jsonObject">The json object.</param>
-        /// <param name="assert">
-        /// Whether to let assertions bubble up, or to catch and return false in the case of a failed assertion.
-        /// </param>
         /// <returns>Whether the matcher matches the object.</returns>
-        public bool Matches(JsonElement jsonObject, bool assert = true)
+        public bool Matches(JsonElement jsonObject)
         {
-            try
-            {
-                return _matchers.All(m => m(jsonObject));
-            }
-            catch (XunitException)
-            {
-                if (assert)
-                {
-                    throw;
-                }
-
-                return false;
-            }
+            return _matchers.All(m => m(jsonObject));
         }
     }
 }

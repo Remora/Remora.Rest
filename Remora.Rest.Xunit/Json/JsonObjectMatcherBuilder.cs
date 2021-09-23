@@ -65,13 +65,7 @@ namespace Remora.Rest.Xunit.Json
                     var matcherBuilder = new JsonElementMatcherBuilder();
                     elementMatcherBuilder(matcherBuilder);
 
-                    var valueMatches = matcherBuilder.Build().Matches(property);
-                    if (!valueMatches)
-                    {
-                        throw new TrueException($"The value of \"{name}\" did not match.", valueMatches);
-                    }
-
-                    return valueMatches;
+                    return matcherBuilder.Build().Matches(property);
                 }
             );
 

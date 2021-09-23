@@ -22,9 +22,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using JetBrains.Annotations;
+using Xunit;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json
 {
@@ -47,16 +48,18 @@ namespace Remora.Rest.Xunit.Json
             (
                 j =>
                 {
-                    var isObject = j.ValueKind == JsonValueKind.Object;
+                    Assert.Equal(JsonValueKind.Object, j.ValueKind);
                     if (objectMatcherBuilder is null)
                     {
-                        return isObject;
+                        return true;
                     }
 
                     var objectMatcher = new JsonObjectMatcherBuilder();
                     objectMatcherBuilder(objectMatcher);
 
-                    return isObject && objectMatcher.Build().Matches(j);
+                    objectMatcher.Build().Matches(j);
+
+                    return true;
                 }
             );
 
@@ -74,16 +77,18 @@ namespace Remora.Rest.Xunit.Json
             (
                 j =>
                 {
-                    var isArray = j.ValueKind == JsonValueKind.Array;
+                    Assert.Equal(JsonValueKind.Array, j.ValueKind);
                     if (arrayMatcherBuilder is null)
                     {
-                        return isArray;
+                        return true;
                     }
 
                     var arrayMatcher = new JsonArrayMatcherBuilder();
                     arrayMatcherBuilder(arrayMatcher);
 
-                    return isArray && arrayMatcher.Build().Matches(j.EnumerateArray());
+                    arrayMatcher.Build().Matches(j.EnumerateArray());
+
+                    return true;
                 }
             );
 
@@ -102,13 +107,8 @@ namespace Remora.Rest.Xunit.Json
             (
                 j =>
                 {
-                    var isCorrectKind = j.ValueKind == valueKind;
-                    if (valueMatcher is null)
-                    {
-                        return isCorrectKind;
-                    }
-
-                    return isCorrectKind && valueMatcher(j);
+                    Assert.Equal(valueKind, j.ValueKind);
+                    return valueMatcher is null || valueMatcher(j);
                 }
             );
 
@@ -121,7 +121,12 @@ namespace Remora.Rest.Xunit.Json
         /// <returns>The builder, with the requirement added.</returns>
         public JsonElementMatcherBuilder IsNull()
         {
-            _matchers.Add(j => j.ValueKind == JsonValueKind.Null);
+            _matchers.Add(j =>
+            {
+                Assert.Equal(JsonValueKind.Null, j.ValueKind);
+                return true;
+            });
+
             return this;
         }
 
@@ -133,7 +138,15 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.True or JsonValueKind.False
+                j =>
+                {
+                    if (j.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                    {
+                        return true;
+                    }
+
+                    throw new EqualException("True or False", j.ValueKind.ToString());
+                }
             );
 
             return this;
@@ -145,10 +158,11 @@ namespace Remora.Rest.Xunit.Json
         /// <returns>The builder, with the requirement added.</returns>
         public JsonElementMatcherBuilder IsNumber()
         {
-            _matchers.Add
-            (
-                j => j.ValueKind == JsonValueKind.Number
-            );
+            _matchers.Add(j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+                return true;
+            });
 
             return this;
         }
@@ -159,10 +173,11 @@ namespace Remora.Rest.Xunit.Json
         /// <returns>The builder, with the requirement added.</returns>
         public JsonElementMatcherBuilder IsString()
         {
-            _matchers.Add
-            (
-                j => j.ValueKind == JsonValueKind.String
-            );
+            _matchers.Add(j =>
+            {
+                Assert.Equal(JsonValueKind.String, j.ValueKind);
+                return true;
+            });
 
             return this;
         }
@@ -176,8 +191,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetSByte(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetSByte(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(SByte), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -192,8 +217,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetInt16(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetInt16(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Int16), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -208,8 +243,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetInt32(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetInt32(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Int32), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -224,8 +269,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetInt64(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetInt64(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Int64), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -240,8 +295,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetByte(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetByte(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Byte), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -256,8 +321,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetUInt16(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetUInt16(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(UInt16), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -272,8 +347,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetUInt32(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetUInt32(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(UInt32), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -288,8 +373,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetUInt64(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetUInt64(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(UInt64), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -304,7 +399,12 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.String && j.GetString() == value
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.String, j.ValueKind);
+                    Assert.Equal(value, j.GetString());
+                    return true;
+                }
             );
 
             return this;
@@ -319,12 +419,8 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add(j =>
             {
-                if (value)
-                {
-                    return j.ValueKind is JsonValueKind.True;
-                }
-
-                return j.ValueKind is JsonValueKind.False;
+                Assert.Equal(value ? JsonValueKind.True : JsonValueKind.False, j.ValueKind);
+                return true;
             });
 
             return this;
@@ -339,8 +435,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetDecimal(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetDecimal(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Decimal), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -353,11 +459,20 @@ namespace Remora.Rest.Xunit.Json
         /// <returns>The builder, with the requirement added.</returns>
         public JsonElementMatcherBuilder Is(float value)
         {
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetSingle(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetSingle(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Single), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -370,11 +485,20 @@ namespace Remora.Rest.Xunit.Json
         /// <returns>The builder, with the requirement added.</returns>
         public JsonElementMatcherBuilder Is(double value)
         {
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.Number && j.TryGetDouble(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                    if (!j.TryGetDouble(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Double), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -390,8 +514,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.String && j.TryGetGuid(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                    if (!j.TryGetGuid(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(Guid), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -406,8 +540,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.String && j.TryGetDateTime(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                    if (!j.TryGetDateTime(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(DateTime), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -422,8 +566,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.String && j.TryGetDateTimeOffset(out var actualValue)
-                                                         && value == actualValue
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                    if (!j.TryGetDateTimeOffset(out var actualValue))
+                    {
+                        throw new IsTypeException(nameof(DateTimeOffset), "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;
@@ -438,8 +592,18 @@ namespace Remora.Rest.Xunit.Json
         {
             _matchers.Add
             (
-                j => j.ValueKind is JsonValueKind.String && j.TryGetBytesFromBase64(out var actualValue)
-                                                         && value.SequenceEqual(actualValue)
+                j =>
+                {
+                    Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                    if (!j.TryGetBytesFromBase64(out var actualValue))
+                    {
+                        throw new IsTypeException("IEnumerable<byte>", "Number");
+                    }
+
+                    Assert.Equal(value, actualValue);
+                    return true;
+                }
             );
 
             return this;

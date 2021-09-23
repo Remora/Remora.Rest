@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using JetBrains.Annotations;
+using Xunit;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json
 {
@@ -43,7 +45,16 @@ namespace Remora.Rest.Xunit.Json
         /// <returns>The builder, with the added requirement.</returns>
         public JsonArrayMatcherBuilder WithCount(Func<long, bool> countPredicate)
         {
-            _matchers.Add(j => countPredicate(j.LongCount()));
+            _matchers.Add(j =>
+            {
+                var match = countPredicate(j.LongCount());
+                if (!match)
+                {
+                    throw new XunitException("Count predicate did not match.");
+                }
+
+                return true;
+            });
 
             return this;
         }
@@ -53,21 +64,33 @@ namespace Remora.Rest.Xunit.Json
         /// </summary>
         /// <param name="count">The required length.</param>
         /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithCount(long count) => WithCount(c => c == count);
+        public JsonArrayMatcherBuilder WithCount(long count) => WithCount(c =>
+        {
+            Assert.Equal(count, c);
+            return true;
+        });
 
         /// <summary>
         /// Adds a requirement that the array is of an exact length.
         /// </summary>
         /// <param name="count">The required length.</param>
         /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithAtLeastCount(long count) => WithCount(c => c >= count);
+        public JsonArrayMatcherBuilder WithAtLeastCount(long count) => WithCount(c =>
+        {
+            Assert.NotInRange(c, 0, count - 1);
+            return true;
+        });
 
         /// <summary>
         /// Adds a requirement that the array is of an exact length.
         /// </summary>
         /// <param name="count">The required length.</param>
         /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithNoMoreThanCount(long count) => WithCount(c => c <= count);
+        public JsonArrayMatcherBuilder WithNoMoreThanCount(long count) => WithCount(c =>
+        {
+            Assert.InRange(c, 0, count);
+            return true;
+        });
 
         /// <summary>
         /// Adds a requirement that any element matches the given element builder.
@@ -80,7 +103,27 @@ namespace Remora.Rest.Xunit.Json
             elementMatcherBuilder?.Invoke(elementMatcher);
 
             var matcher = elementMatcher.Build();
-            _matchers.Add(j => j.Any(e => matcher.Matches(e)));
+            _matchers.Add(j =>
+            {
+                var anyMatch = j.Any(e =>
+                {
+                    try
+                    {
+                        return matcher.Matches(e);
+                    }
+                    catch (XunitException)
+                    {
+                        return false;
+                    }
+                });
+
+                if (!anyMatch)
+                {
+                    throw new XunitException("No elements in the JSON array matched.");
+                }
+
+                return true;
+            });
 
             return this;
         }
@@ -96,7 +139,27 @@ namespace Remora.Rest.Xunit.Json
             elementMatcherBuilder?.Invoke(elementMatcher);
 
             var matcher = elementMatcher.Build();
-            _matchers.Add(j => j.Count(e => matcher.Matches(e)) == 1);
+            _matchers.Add(j =>
+            {
+                var matchingCount = j.Count(e =>
+                {
+                    try
+                    {
+                        return matcher.Matches(e);
+                    }
+                    catch (XunitException)
+                    {
+                        return false;
+                    }
+                });
+
+                return matchingCount switch
+                {
+                    > 1 => throw SingleException.MoreThanOne(),
+                    < 1 => throw SingleException.Empty(),
+                    _ => true
+                };
+            });
 
             return this;
         }
@@ -117,7 +180,12 @@ namespace Remora.Rest.Xunit.Json
             elementMatcherBuilder?.Invoke(elementMatcher);
 
             var matcher = elementMatcher.Build();
-            _matchers.Add(j => j.Count() > index && matcher.Matches(j.ElementAt(index)));
+
+            _matchers.Add(j =>
+            {
+                Assert.InRange(index, 0, j.Count() - 1);
+                return matcher.Matches(j.ElementAt(index));
+            });
 
             return this;
         }

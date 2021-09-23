@@ -20,10 +20,12 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+using System;
 using System.Net.Http;
 using System.Text.Json;
 using JetBrains.Annotations;
 using RichardSzalay.MockHttp;
+using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json
 {
@@ -51,9 +53,15 @@ namespace Remora.Rest.Xunit.Json
             }
 
             var content = message.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
-            using var json = JsonDocument.Parse(content);
-
-            return _elementMatcher.Matches(json.RootElement);
+            try
+            {
+                using var json = JsonDocument.Parse(content);
+                return _elementMatcher.Matches(json.RootElement);
+            }
+            catch (JsonException)
+            {
+                throw new IsTypeException("JSON", "Unknown");
+            }
         }
     }
 }
