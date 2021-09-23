@@ -79,7 +79,8 @@ namespace Remora.Rest.Xunit.Extensions
         /// <returns>The request; with the new requirements.</returns>
         public static MockedRequest WithJson
         (
-            this MockedRequest request, Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null
+            this MockedRequest request,
+            Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null
         )
         {
             var elementMatcher = new JsonElementMatcherBuilder();
