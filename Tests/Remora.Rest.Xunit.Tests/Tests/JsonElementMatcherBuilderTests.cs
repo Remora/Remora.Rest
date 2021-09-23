@@ -79,6 +79,38 @@ namespace Remora.Rest.Xunit.Tests
 
                 Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
             }
+
+            /// <summary>
+            /// Tests whether the method asserts when an inner matcher asserts.
+            /// </summary>
+            [Fact]
+            public void AssertsWithInnerMatcher()
+            {
+                var json = "{ \"value\": 0 }";
+                var document = JsonDocument.Parse(json);
+
+                var matcher = new JsonElementMatcherBuilder()
+                    .IsObject(o => o.WithProperty("missing_property"))
+                    .Build();
+
+                Assert.Throws<ContainsException>(() => matcher.Matches(document.RootElement));
+            }
+
+            /// <summary>
+            /// Tests whether the method passes when an inner matcher passes.
+            /// </summary>
+            [Fact]
+            public void PassesWithInnerMatcher()
+            {
+                var json = "{ \"value\": 0 }";
+                var document = JsonDocument.Parse(json);
+
+                var matcher = new JsonElementMatcherBuilder()
+                    .IsObject(o => o.WithProperty("value"))
+                    .Build();
+
+                Assert.True(matcher.Matches(document.RootElement));
+            }
         }
 
         /// <summary>
@@ -125,6 +157,38 @@ namespace Remora.Rest.Xunit.Tests
                     .Build();
 
                 Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+            }
+
+            /// <summary>
+            /// Tests whether the method asserts when an inner matcher asserts.
+            /// </summary>
+            [Fact]
+            public void AssertsWithInnerMatcher()
+            {
+                var json = "[ ]";
+                var document = JsonDocument.Parse(json);
+
+                var matcher = new JsonElementMatcherBuilder()
+                    .IsArray(a => a.WithCount(1))
+                    .Build();
+
+                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+            }
+
+            /// <summary>
+            /// Tests whether the method passes when an inner matcher passes.
+            /// </summary>
+            [Fact]
+            public void PassesWithInnerMatcher()
+            {
+                var json = "[ ]";
+                var document = JsonDocument.Parse(json);
+
+                var matcher = new JsonElementMatcherBuilder()
+                    .IsArray(a => a.WithCount(0))
+                    .Build();
+
+                Assert.True(matcher.Matches(document.RootElement));
             }
         }
 
@@ -1222,6 +1286,24 @@ namespace Remora.Rest.Xunit.Tests
                         .Build();
 
                     Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+                }
+
+                /// <summary>
+                /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(decimal)"/> method asserts for an
+                /// element that is not representable as a <see cref="decimal"/>.
+                /// </summary>
+                /// <param name="json">The JSON to test.</param>
+                [Theory]
+                [InlineData("8.5070592e+37")]
+                public void AssertsForDecimalUnrepresentableElement(string json)
+                {
+                    var document = JsonDocument.Parse(json);
+
+                    var matcher = new JsonElementMatcherBuilder()
+                        .Is(1M)
+                        .Build();
+
+                    Assert.Throws<IsTypeException>(() => matcher.Matches(document.RootElement));
                 }
             }
 
