@@ -50,12 +50,7 @@ namespace Remora.Rest.Json
             {
                 case JsonTokenType.String:
                 {
-                    var value = reader.GetString();
-                    if (value is null)
-                    {
-                        throw new JsonException();
-                    }
-
+                    var value = reader.GetString()!;
                     if (!Snowflake.TryParse(value, out var snowflake))
                     {
                         throw new JsonException();

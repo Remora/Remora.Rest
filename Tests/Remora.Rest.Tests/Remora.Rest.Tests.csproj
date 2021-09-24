@@ -11,6 +11,5 @@
 
     <ItemGroup>
       <Folder Include="Data" />
-      <Folder Include="Tests" />
     </ItemGroup>
 </Project>
