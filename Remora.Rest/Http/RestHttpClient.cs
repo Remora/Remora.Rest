@@ -21,14 +21,17 @@
 //
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
+using Remora.Rest.Extensions;
 using Remora.Rest.Results;
 using Remora.Results;
 
@@ -78,9 +81,20 @@ namespace Remora.Rest
         }
 
         /// <inheritdoc />
+        public Task<Result<TEntity>> GetAsync<TEntity>
+        (
+            string endpoint,
+            Action<RestRequestBuilder>? configureRequestBuilder = null,
+            bool allowNullReturn = false,
+            CancellationToken ct = default
+        )
+            => GetAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
+
+        /// <inheritdoc />
         public async Task<Result<TEntity>> GetAsync<TEntity>
         (
             string endpoint,
+            string jsonPath,
             Action<RestRequestBuilder>? configureRequestBuilder = null,
             bool allowNullReturn = false,
             CancellationToken ct = default
@@ -108,7 +122,7 @@ namespace Remora.Rest
                     ct
                 );
 
-                return await UnpackResponseAsync<TEntity>(response, allowNullReturn, ct);
+                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
             }
             catch (Exception e)
             {
@@ -167,9 +181,20 @@ namespace Remora.Rest
         }
 
         /// <inheritdoc />
+        public Task<Result<TEntity>> PostAsync<TEntity>
+        (
+            string endpoint,
+            Action<RestRequestBuilder>? configureRequestBuilder = null,
+            bool allowNullReturn = false,
+            CancellationToken ct = default
+        )
+            => PostAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
+
+        /// <inheritdoc />
         public async Task<Result<TEntity>> PostAsync<TEntity>
         (
             string endpoint,
+            string jsonPath,
             Action<RestRequestBuilder>? configureRequestBuilder = null,
             bool allowNullReturn = false,
             CancellationToken ct = default
@@ -197,7 +222,7 @@ namespace Remora.Rest
                     ct
                 );
 
-                return await UnpackResponseAsync<TEntity>(response, allowNullReturn, ct);
+                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
             }
             catch (Exception e)
             {
@@ -244,9 +269,20 @@ namespace Remora.Rest
         }
 
         /// <inheritdoc />
+        public Task<Result<TEntity>> PatchAsync<TEntity>
+        (
+            string endpoint,
+            Action<RestRequestBuilder>? configureRequestBuilder = null,
+            bool allowNullReturn = false,
+            CancellationToken ct = default
+        )
+            => PatchAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
+
+        /// <inheritdoc />
         public async Task<Result<TEntity>> PatchAsync<TEntity>
         (
             string endpoint,
+            string jsonPath,
             Action<RestRequestBuilder>? configureRequestBuilder = null,
             bool allowNullReturn = false,
             CancellationToken ct = default
@@ -274,7 +310,7 @@ namespace Remora.Rest
                     ct
                 );
 
-                return await UnpackResponseAsync<TEntity>(response, allowNullReturn, ct);
+                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
             }
             catch (Exception e)
             {
@@ -359,9 +395,20 @@ namespace Remora.Rest
         }
 
         /// <inheritdoc />
+        public Task<Result<TEntity>> DeleteAsync<TEntity>
+        (
+            string endpoint,
+            Action<RestRequestBuilder>? configureRequestBuilder = null,
+            bool allowNullReturn = false,
+            CancellationToken ct = default
+        )
+            => DeleteAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
+
+        /// <inheritdoc />
         public async Task<Result<TEntity>> DeleteAsync<TEntity>
         (
             string endpoint,
+            string jsonPath,
             Action<RestRequestBuilder>? configureRequestBuilder = null,
             bool allowNullReturn = false,
             CancellationToken ct = default
@@ -389,7 +436,7 @@ namespace Remora.Rest
                     ct
                 );
 
-                return await UnpackResponseAsync<TEntity>(response, allowNullReturn, ct);
+                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
             }
             catch (Exception e)
             {
@@ -398,9 +445,20 @@ namespace Remora.Rest
         }
 
         /// <inheritdoc />
+        public Task<Result<TEntity>> PutAsync<TEntity>
+        (
+            string endpoint,
+            Action<RestRequestBuilder>? configureRequestBuilder = null,
+            bool allowNullReturn = false,
+            CancellationToken ct = default
+        )
+            => PutAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
+
+        /// <inheritdoc />
         public async Task<Result<TEntity>> PutAsync<TEntity>
         (
             string endpoint,
+            string jsonPath,
             Action<RestRequestBuilder>? configureRequestBuilder = null,
             bool allowNullReturn = false,
             CancellationToken ct = default
@@ -428,7 +486,7 @@ namespace Remora.Rest
                     ct
                 );
 
-                return await UnpackResponseAsync<TEntity>(response, allowNullReturn, ct);
+                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
             }
             catch (Exception e)
             {
@@ -531,6 +589,7 @@ namespace Remora.Rest
         /// error.
         /// </summary>
         /// <param name="response">The response to unpack.</param>
+        /// <param name="jsonPath">The path to the json node to deserialize.</param>
         /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
         /// <param name="ct">The cancellation token for this operation.</param>
         /// <typeparam name="TEntity">The entity type to unpack.</typeparam>
@@ -538,6 +597,7 @@ namespace Remora.Rest
         private async Task<Result<TEntity>> UnpackResponseAsync<TEntity>
         (
             HttpResponseMessage response,
+            string jsonPath = "",
             bool allowNullReturn = false,
             CancellationToken ct = default
         )
@@ -561,12 +621,37 @@ namespace Remora.Rest
                 await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
                 #endif
 
-                var entity = await JsonSerializer.DeserializeAsync<TEntity>
-                (
-                    contentStream,
-                    _serializerOptions,
-                    ct
-                );
+                TEntity? entity;
+
+                if (string.IsNullOrEmpty(jsonPath))
+                {
+                    entity = await JsonSerializer.DeserializeAsync<TEntity>
+                    (
+                        contentStream,
+                        _serializerOptions,
+                        ct
+                    );
+                }
+                else
+                {
+                    var doc = await JsonSerializer.DeserializeAsync<JsonDocument>
+                    (
+                        contentStream,
+                        _serializerOptions,
+                        ct
+                    );
+
+                    var element = doc.SelectElement(jsonPath);
+
+                    if (!element.HasValue)
+                    {
+                        return allowNullReturn
+                            ? Result<TEntity>.FromSuccess(default!)
+                            : throw new InvalidOperationException("The requested path does not exist or the found content is empty.");
+                    }
+
+                    entity = element.Value.ToObject<TEntity>(_serializerOptions);
+                }
 
                 if (entity is not null)
                 {
