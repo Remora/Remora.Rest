@@ -30,7 +30,6 @@ using JetBrains.Annotations;
 using Remora.Rest.Xunit.Json;
 using RichardSzalay.MockHttp;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Extensions
 {
