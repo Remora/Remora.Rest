@@ -26,7 +26,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Remora.Rest.Core;
 
-namespace Remora.Discord.API.Json;
+namespace Remora.Rest.Json;
 
 /// <inheritdoc />
 public class SnowflakeDictionaryConverter<TElement> : JsonConverter<IReadOnlyDictionary<Snowflake, TElement>>

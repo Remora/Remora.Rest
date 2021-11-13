@@ -33,7 +33,7 @@
         <RepositoryBranch>master</RepositoryBranch>
         <PackageOutputPath>$(MSBuildThisFileDirectory)nuget</PackageOutputPath>
         <PackageProjectUrl>https://github.com/Nihlus/Remora.Rest</PackageProjectUrl>
-        <PackageTags>discord;bot;api;</PackageTags>
+        <PackageTags>rest;http;json;api;</PackageTags>
         <PackageIconUrl>https://cdn.gullberg.tk/remora/icon/shark.png</PackageIconUrl>
         <PackageIcon>shark.png</PackageIcon>
 
