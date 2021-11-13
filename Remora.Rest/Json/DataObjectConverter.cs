@@ -467,7 +467,7 @@ namespace Remora.Rest.Json
                 {
                     // This converter should only be in effect for the duration of this property; we'll need to clone
                     // the options.
-                    var clonedOptions = options.Clone();
+                    var clonedOptions = new JsonSerializerOptions(options);
                     clonedOptions.Converters.Insert(0, converter);
 
                     propertyValue = JsonSerializer.Deserialize(ref reader, propertyType, clonedOptions);
@@ -575,7 +575,7 @@ namespace Remora.Rest.Json
                 {
                     // This converter should only be in effect for the duration of this property; we'll need to clone
                     // the options.
-                    var clonedOptions = options.Clone();
+                    var clonedOptions = new JsonSerializerOptions(options);
                     clonedOptions.Converters.Insert(0, converter);
 
                     JsonSerializer.Serialize(writer, propertyValue, propertyType, clonedOptions);

@@ -64,36 +64,5 @@ namespace Remora.Rest.Extensions
 
             return options;
         }
-
-        /// <summary>
-        /// Clones the given serializer options, creating a new independent object with the same settings. The
-        /// converters in the original options are copied to a new list in the new options.
-        /// </summary>
-        /// <param name="options">The options to clone.</param>
-        /// <returns>The cloned options.</returns>
-        public static JsonSerializerOptions Clone(this JsonSerializerOptions options)
-        {
-            var newOptions = new JsonSerializerOptions
-            {
-                AllowTrailingCommas = options.AllowTrailingCommas,
-                DefaultBufferSize = options.DefaultBufferSize,
-                DictionaryKeyPolicy = options.DictionaryKeyPolicy,
-                Encoder = options.Encoder,
-                IgnoreNullValues = options.IgnoreNullValues,
-                IgnoreReadOnlyProperties = options.IgnoreReadOnlyProperties,
-                MaxDepth = options.MaxDepth,
-                PropertyNameCaseInsensitive = options.PropertyNameCaseInsensitive,
-                PropertyNamingPolicy = options.PropertyNamingPolicy,
-                ReadCommentHandling = options.ReadCommentHandling,
-                WriteIndented = options.WriteIndented
-            };
-
-            foreach (var converter in options.Converters)
-            {
-                newOptions.Converters.Add(converter);
-            }
-
-            return newOptions;
-        }
     }
 }
