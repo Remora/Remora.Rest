@@ -35,12 +35,12 @@ namespace Remora.Rest.Extensions
     public static class JsonExtensions
     {
         /// <summary>
-        /// Deserializes the current <see cref="JsonElement"/> to the specified <see cref="TEntity"/>.
+        /// Deserializes the current <see cref="JsonElement"/> to the specified <typeparamref name="TEntity"/>.
         /// </summary>
         /// <typeparam name="TEntity">The type to return.</typeparam>
         /// <param name="element">The <see cref="JsonElement"/> to deserialize.</param>
         /// <param name="options">The <see cref="JsonSerializerOptions"/>.</param>
-        /// <returns>The converted <see cref="TEntity"/> object or null.</returns>
+        /// <returns>The converted <typeparamref name="TEntity"/> object or null.</returns>
         public static TEntity? ToObject<TEntity>(this JsonElement element, JsonSerializerOptions? options = null)
         {
             var bufferWriter = new ArrayBufferWriter<byte>();
@@ -50,12 +50,12 @@ namespace Remora.Rest.Extensions
         }
 
         /// <summary>
-        /// Deserializes the current <see cref="JsonDocument"/> to the specified <see cref="TEntity"/>.
+        /// Deserializes the current <see cref="JsonDocument"/> to the specified <typeparamref name="TEntity"/>.
         /// </summary>
         /// <typeparam name="TEntity">The type to return.</typeparam>
         /// <param name="document">The <see cref="JsonDocument"/> to deserialize.</param>
         /// <param name="options">The <see cref="JsonSerializerOptions"/>.</param>
-        /// <returns>The converted <see cref="TEntity"/> object or null.</returns>
+        /// <returns>The converted <typeparamref name="TEntity"/> object or null.</returns>
         public static TEntity? ToObject<TEntity>(this JsonDocument document, JsonSerializerOptions? options = null)
             => document.RootElement.ToObject<TEntity>(options);
     }
