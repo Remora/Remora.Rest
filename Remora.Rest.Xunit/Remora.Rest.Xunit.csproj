@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup>
         <Description>
             $(BaseDescription)
 
-            This package contains supporting types for writing expressive unit tests of REST-focused API wrappers, 
+            This package contains supporting types for writing expressive unit tests of REST-focused API wrappers,
             allowing simple and direct testing of expected clientside behaviour.
         </Description>
     </PropertyGroup>
