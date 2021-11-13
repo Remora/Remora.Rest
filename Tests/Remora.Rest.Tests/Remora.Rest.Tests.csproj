@@ -10,6 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Data" />
+        <PackageReference Include="xunit.analyzers" Version="0.10.0" />
     </ItemGroup>
+
 </Project>
