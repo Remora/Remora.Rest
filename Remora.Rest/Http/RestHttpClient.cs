@@ -40,7 +40,7 @@ namespace Remora.Rest
     /// </summary>
     /// <typeparam name="TError">A type which represents an error payload returned by the API.</typeparam>
     [PublicAPI]
-    public class RestHttpClient<TError> : IRestHttpClient where TError : IResultError
+    public class RestHttpClient<TError> : IRestHttpClient
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _serializerOptions;
@@ -54,11 +54,11 @@ namespace Remora.Rest
         public RestHttpClient
         (
             HttpClient httpClient,
-            IOptions<JsonSerializerOptions> serializerOptions
+            JsonSerializerOptions serializerOptions
         )
         {
             _httpClient = httpClient;
-            _serializerOptions = serializerOptions.Value;
+            _serializerOptions = serializerOptions;
 
             _customizations = new List<RestRequestCustomization>();
         }

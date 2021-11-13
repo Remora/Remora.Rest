@@ -24,7 +24,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
-namespace Remora.Rest
+namespace Remora.Rest.Core
 {
     /// <summary>
     /// Represents a snowflake, used as a unique ID.

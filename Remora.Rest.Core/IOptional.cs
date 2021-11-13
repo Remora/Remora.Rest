@@ -22,7 +22,7 @@
 
 using JetBrains.Annotations;
 
-namespace Remora.Rest
+namespace Remora.Rest.Core
 {
     /// <summary>
     /// Defines basic functionality for an optional.

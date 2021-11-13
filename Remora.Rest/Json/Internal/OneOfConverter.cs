@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OneOf;
+using Remora.Rest.Core;
 using Remora.Rest.Extensions;
 
 namespace Remora.Rest.Json.Internal
@@ -36,7 +37,7 @@ namespace Remora.Rest.Json.Internal
     /// Converts instances of <see cref="IOneOf"/> to and from JSON.
     /// </summary>
     /// <typeparam name="TOneOf">The OneOf type.</typeparam>
-    internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
+    public class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
         where TOneOf : IOneOf
     {
         /// <summary>

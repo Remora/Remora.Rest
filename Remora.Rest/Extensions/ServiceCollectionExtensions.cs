@@ -20,13 +20,14 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-using System;
+using System.Net.Http;
 using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using Remora.Rest.Json;
 using Remora.Rest.Json.Internal;
-using Remora.Rest.Json.Policies;
 
 namespace Remora.Rest.Extensions
 {
@@ -37,41 +38,53 @@ namespace Remora.Rest.Extensions
     public static class ServiceCollectionExtensions
     {
         /// <summary>
+        /// Configures supporting JSON converters for REST APIs, optionally scoped to a set of named options.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        /// <param name="optionsName">The name of the JSON options to configure, if any.</param>
+        /// <returns>The services, with the converters configured.</returns>
+        public static IServiceCollection ConfigureRestJsonConverters
+        (
+            this IServiceCollection services,
+            string? optionsName = null
+        )
+        {
+            return services.Configure<JsonSerializerOptions>(optionsName, options =>
+            {
+                options
+                    .AddConverter<ColorConverter>()
+                    .AddConverter<OptionalConverterFactory>()
+                    .AddConverter<NullableConverterFactory>()
+                    .AddConverter<OneOfConverterFactory>()
+                    .AddConverter<ISO8601DateTimeOffsetConverter>();
+            });
+        }
+
+        /// <summary>
         /// Adds a REST-specialized HTTP client, allowing subsequent optional configuration of the backend client.
         /// </summary>
         /// <param name="services">The services.</param>
-        /// <param name="jsonOptions">Additional JSON configuration, if any.</param>
-        /// <typeparam name="TRestHttpClient">The HTTP client type to add.</typeparam>
-        /// <returns>The client builder for the <typeparamref name="TRestHttpClient"/> type.</returns>
-        public static IHttpClientBuilder AddRestHttpClient<TRestHttpClient>
+        /// <param name="optionsName">The name of the JSON options to retrieve, if any.</param>
+        /// <typeparam name="TError">The error that the created client will handle.</typeparam>
+        /// <returns>The client builder for the REST client.</returns>
+        public static IHttpClientBuilder AddRestHttpClient<TError>
         (
             this IServiceCollection services,
-            Action<JsonSerializerOptions>? jsonOptions = null
-        ) where TRestHttpClient : class, IRestHttpClient
+            string? optionsName = null
+        )
         {
-            services.TryAddTransient<TRestHttpClient>();
+            var httpClientBuilder = services.AddHttpClient<RestHttpClient<TError>>();
 
-            var clientBuilder = services.AddHttpClient<TRestHttpClient>();
-
-            services.Configure<JsonSerializerOptions>(clientBuilder.Name, options =>
+            services.Replace(ServiceDescriptor.Transient(s =>
             {
-                var snakeCase = new SnakeCaseNamingPolicy();
+                var client = s.GetRequiredService<IHttpClientFactory>().CreateClient(httpClientBuilder.Name);
+                var options = s.GetRequiredService<IOptionsMonitor<JsonSerializerOptions>>().Get(optionsName);
 
-                options.PropertyNamingPolicy = snakeCase;
-                options.DictionaryKeyPolicy = snakeCase;
+                return new RestHttpClient<TError>(client, options);
+            }));
 
-                options
-                    .AddConverter<OptionalConverterFactory>()
-                    .AddConverter<NullableConverterFactory>()
-                    .AddConverter<OneOfConverterFactory>();
-            });
-
-            if (jsonOptions is not null)
-            {
-                services.Configure(clientBuilder.Name, jsonOptions);
-            }
-
-            return clientBuilder;
+            services.TryAddTransient<IRestHttpClient>(s => s.GetRequiredService<RestHttpClient<TError>>());
+            return httpClientBuilder;
         }
     }
 }

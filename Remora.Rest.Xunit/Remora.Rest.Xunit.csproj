@@ -14,9 +14,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0"/>
-        <PackageReference Include="xunit.assert" Version="2.4.1"/>
-        <PackageReference Include="System.Text.Json" Version="5.0.2"/>
+        <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
+        <PackageReference Include="xunit.assert" Version="2.4.1" />
+        <PackageReference Include="System.Text.Json" Version="5.0.2" />
     </ItemGroup>
 
     <ItemGroup>

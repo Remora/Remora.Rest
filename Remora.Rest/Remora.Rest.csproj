@@ -21,4 +21,8 @@
         <PackageReference Include="System.Text.Json" Version="5.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Remora.Rest.Core\Remora.Rest.Core.csproj" />
+    </ItemGroup>
+
 </Project>

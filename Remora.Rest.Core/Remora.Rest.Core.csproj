@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Description>
+            $(BaseDescription)
+
+            This package contains core types for working with REST-oriented data models, such as logically optional
+            fields and snowflake identifiers.
+        </Description>
+    </PropertyGroup>
+
+</Project>

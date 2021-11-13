@@ -26,10 +26,10 @@ using Xunit;
 // ReSharper disable SA1600
 #pragma warning disable 1591, SA1600
 
-namespace Remora.Rest.Tests
+namespace Remora.Rest.Core.Tests.Optional
 {
     /// <summary>
-    /// Tests the <see cref="Remora.Rest.Optional{T}"/> struct.
+    /// Tests the <see cref="Optional{TValue}"/> struct.
     /// </summary>
     public class OptionalTests
     {

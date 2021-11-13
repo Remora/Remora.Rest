@@ -22,6 +22,7 @@
 
 using System.Text.Json;
 using JetBrains.Annotations;
+using Remora.Rest.Core;
 
 namespace Remora.Rest.Extensions
 {

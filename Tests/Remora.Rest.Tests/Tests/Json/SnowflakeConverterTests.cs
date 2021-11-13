@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using Remora.Rest.Core;
 using Remora.Rest.Json;
 using Xunit;
 

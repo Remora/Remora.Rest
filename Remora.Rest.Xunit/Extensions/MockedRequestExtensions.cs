@@ -99,6 +99,24 @@ namespace Remora.Rest.Xunit.Extensions
         }
 
         /// <summary>
+        /// Adds a requirement that the multipart request has a JSON payload.
+        /// </summary>
+        /// <param name="request">The mocked request.</param>
+        /// <param name="elementMatcherBuilder">The additional requirements on the JSON payload.</param>
+        /// <returns>The request; with the new requirements.</returns>
+        public static MockedRequest WithMultipartJsonPayload
+        (
+            this MockedRequest request,
+            Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null
+        )
+        {
+            var elementMatcher = new JsonElementMatcherBuilder();
+            elementMatcherBuilder?.Invoke(elementMatcher);
+
+            return request.With(new MultipartJsonPayloadRequestMatcher(elementMatcher.Build()));
+        }
+
+        /// <summary>
         /// Adds a requirement that the request has multipart form data with the given string field.
         /// </summary>
         /// <param name="request">The mocked request.</param>

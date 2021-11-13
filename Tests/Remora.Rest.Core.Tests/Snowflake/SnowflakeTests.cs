@@ -26,7 +26,7 @@ using Xunit;
 // ReSharper disable SA1600
 #pragma warning disable 1591, SA1600
 
-namespace Remora.Rest.Tests
+namespace Remora.Rest.Core.Tests.Snowflake
 {
     /// <summary>
     /// Tests the <see cref="Snowflake"/> struct.
@@ -42,28 +42,28 @@ namespace Remora.Rest.Tests
             public void ReturnsTrueForValidSnowflake()
             {
                 var value = "143867839282020352";
-                Assert.True(Snowflake.TryParse(value, out _));
+                Assert.True(Core.Snowflake.TryParse(value, out _));
             }
 
             [Fact]
             public void ReturnsFalseForStringWithLetters()
             {
                 var value = "i4e867839282020e52";
-                Assert.False(Snowflake.TryParse(value, out _));
+                Assert.False(Core.Snowflake.TryParse(value, out _));
             }
 
             [Fact]
             public void ReturnsFalseForEmptyString()
             {
                 var value = string.Empty;
-                Assert.False(Snowflake.TryParse(value, out _));
+                Assert.False(Core.Snowflake.TryParse(value, out _));
             }
 
             [Fact]
             public void ReturnsFalseForSnowflakeBeforeEpoch()
             {
                 var value = "-1";
-                Assert.False(Snowflake.TryParse(value, out _));
+                Assert.False(Core.Snowflake.TryParse(value, out _));
             }
         }
 
@@ -75,7 +75,7 @@ namespace Remora.Rest.Tests
             [Fact]
             public void ReturnsCorrectValue()
             {
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.Equal(143867839282020352u, snowflake.Value);
             }
@@ -90,7 +90,7 @@ namespace Remora.Rest.Tests
             public void ReturnsCorrectValue()
             {
                 var time = DateTimeOffset.Parse("2016-02-01T23:59:25.820Z");
-                var snowflake = new Snowflake(6100074798283489280u);
+                var snowflake = new Core.Snowflake(6100074798283489280u);
 
                 Assert.Equal(time, snowflake.Timestamp);
             }
@@ -99,7 +99,7 @@ namespace Remora.Rest.Tests
             public void ReturnsCorrectValueWithEpoch()
             {
                 var time = DateTimeOffset.Parse("2016-02-01T23:59:25.820Z");
-                var snowflake = new Snowflake(143867839282020352u, 1420070400000);
+                var snowflake = new Core.Snowflake(143867839282020352u, 1420070400000);
 
                 Assert.Equal(time, snowflake.Timestamp);
             }
@@ -114,7 +114,7 @@ namespace Remora.Rest.Tests
             public void ReturnsCorrectValue()
             {
                 var workerID = 1;
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.Equal(workerID, snowflake.InternalWorkerID);
             }
@@ -129,7 +129,7 @@ namespace Remora.Rest.Tests
             public void ReturnsCorrectValue()
             {
                 var processID = 0;
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.Equal(processID, snowflake.InternalProcessID);
             }
@@ -144,7 +144,7 @@ namespace Remora.Rest.Tests
             public void ReturnsCorrectValue()
             {
                 var increment = 0;
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.Equal(increment, snowflake.Increment);
             }
@@ -159,7 +159,7 @@ namespace Remora.Rest.Tests
             public void CreatesSnowflakeWithUtcNowTime()
             {
                 var now = DateTimeOffset.UtcNow;
-                var snowflake = Snowflake.CreateTimestampSnowflake();
+                var snowflake = Core.Snowflake.CreateTimestampSnowflake();
 
                 // Some allowance is made here because of clock inaccuracies and the potential for scheduler differences
                 // between the two above time measurements.
@@ -175,7 +175,7 @@ namespace Remora.Rest.Tests
             public void CanCreateFromTimestamp()
             {
                 var yearOfHell = new DateTimeOffset(2020, 1, 1, 6, 0, 0, TimeSpan.Zero);
-                var snowflake = Snowflake.CreateTimestampSnowflake(yearOfHell);
+                var snowflake = Core.Snowflake.CreateTimestampSnowflake(yearOfHell);
 
                 Assert.Equal(yearOfHell.ToUnixTimeMilliseconds(), snowflake.Timestamp.ToUnixTimeMilliseconds());
             }
@@ -189,7 +189,7 @@ namespace Remora.Rest.Tests
             [Fact]
             public void PrintsValue()
             {
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.Equal("143867839282020352", snowflake.ToString());
             }
@@ -204,7 +204,7 @@ namespace Remora.Rest.Tests
             public void ReturnsFalseForNonSnowflakeObject()
             {
                 var notSnowflake = "henlo";
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 // ReSharper disable once SuspiciousTypeConversion.Global
                 Assert.False(snowflake.Equals(notSnowflake));
@@ -213,8 +213,8 @@ namespace Remora.Rest.Tests
             [Fact]
             public void ReturnsFalseForSnowflakeWithDifferentValue()
             {
-                var snowflake = new Snowflake(143867839282020352u);
-                var otherSnowflake = new Snowflake(169780104564572169u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
+                var otherSnowflake = new Core.Snowflake(169780104564572169u);
 
                 Assert.False(snowflake.Equals(otherSnowflake));
             }
@@ -222,7 +222,7 @@ namespace Remora.Rest.Tests
             [Fact]
             public void ReturnsTrueForSelf()
             {
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.True(snowflake.Equals(snowflake));
             }
@@ -230,8 +230,8 @@ namespace Remora.Rest.Tests
             [Fact]
             public void ReturnsTrueForSnowflakeWithSameValue()
             {
-                var snowflake = new Snowflake(143867839282020352u);
-                var otherSnowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
+                var otherSnowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.True(snowflake.Equals(otherSnowflake));
             }
@@ -246,7 +246,7 @@ namespace Remora.Rest.Tests
             public void HasSameHashAsValue()
             {
                 var value = 143867839282020352u;
-                var snowflake = new Snowflake(143867839282020352u);
+                var snowflake = new Core.Snowflake(143867839282020352u);
 
                 Assert.Equal(value.GetHashCode(), snowflake.GetHashCode());
             }
@@ -263,8 +263,8 @@ namespace Remora.Rest.Tests
             [InlineData(1, 0)]
             public void ComparesSameAsValue(ulong first, ulong second)
             {
-                var firstSnowflake = new Snowflake(first);
-                var secondSnowflake = new Snowflake(second);
+                var firstSnowflake = new Core.Snowflake(first);
+                var secondSnowflake = new Core.Snowflake(second);
 
                 Assert.Equal(first.CompareTo(second), firstSnowflake.CompareTo(secondSnowflake));
             }
@@ -284,8 +284,8 @@ namespace Remora.Rest.Tests
             [InlineData(169780104564572169U, 169780104564572169U)]
             public void EquatesSameAsValue(ulong first, ulong second)
             {
-                var firstSnowflake = new Snowflake(first);
-                var secondSnowflake = new Snowflake(second);
+                var firstSnowflake = new Core.Snowflake(first);
+                var secondSnowflake = new Core.Snowflake(second);
 
                 Assert.Equal(first == second, firstSnowflake == secondSnowflake);
             }
@@ -305,8 +305,8 @@ namespace Remora.Rest.Tests
             [InlineData(169780104564572169U, 169780104564572169U)]
             public void EquatesSameAsValue(ulong first, ulong second)
             {
-                var firstSnowflake = new Snowflake(first);
-                var secondSnowflake = new Snowflake(second);
+                var firstSnowflake = new Core.Snowflake(first);
+                var secondSnowflake = new Core.Snowflake(second);
 
                 Assert.Equal(first != second, firstSnowflake != secondSnowflake);
             }
@@ -323,8 +323,8 @@ namespace Remora.Rest.Tests
             [InlineData(1, 0)]
             public void ComparesSameAsValue(ulong first, ulong second)
             {
-                var firstSnowflake = new Snowflake(first);
-                var secondSnowflake = new Snowflake(second);
+                var firstSnowflake = new Core.Snowflake(first);
+                var secondSnowflake = new Core.Snowflake(second);
 
                 Assert.Equal(first < second, firstSnowflake < secondSnowflake);
             }
@@ -341,8 +341,8 @@ namespace Remora.Rest.Tests
             [InlineData(1, 0)]
             public void ComparesSameAsValue(ulong first, ulong second)
             {
-                var firstSnowflake = new Snowflake(first);
-                var secondSnowflake = new Snowflake(second);
+                var firstSnowflake = new Core.Snowflake(first);
+                var secondSnowflake = new Core.Snowflake(second);
 
                 Assert.Equal(first > second, firstSnowflake > secondSnowflake);
             }
@@ -359,8 +359,8 @@ namespace Remora.Rest.Tests
             [InlineData(1, 0)]
             public void ComparesSameAsValue(ulong first, ulong second)
             {
-                var firstSnowflake = new Snowflake(first);
-                var secondSnowflake = new Snowflake(second);
+                var firstSnowflake = new Core.Snowflake(first);
+                var secondSnowflake = new Core.Snowflake(second);
 
                 Assert.Equal(first <= second, firstSnowflake <= secondSnowflake);
             }
@@ -377,8 +377,8 @@ namespace Remora.Rest.Tests
             [InlineData(1, 0)]
             public void ComparesSameAsValue(ulong first, ulong second)
             {
-                var firstSnowflake = new Snowflake(first);
-                var secondSnowflake = new Snowflake(second);
+                var firstSnowflake = new Core.Snowflake(first);
+                var secondSnowflake = new Core.Snowflake(second);
 
                 Assert.Equal(first >= second, firstSnowflake >= secondSnowflake);
             }

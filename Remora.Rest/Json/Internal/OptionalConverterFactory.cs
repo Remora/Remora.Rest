@@ -24,13 +24,14 @@ using System;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Remora.Rest.Core;
 
 namespace Remora.Rest.Json.Internal
 {
     /// <summary>
     /// Creates converters for <see cref="Optional{TValue}"/>.
     /// </summary>
-    internal class OptionalConverterFactory : JsonConverterFactory
+    public class OptionalConverterFactory : JsonConverterFactory
     {
         /// <inheritdoc />
         public override bool CanConvert(Type typeToConvert)

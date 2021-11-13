@@ -38,9 +38,9 @@ namespace Remora.Rest
     public class RestRequestBuilder
     {
         /// <summary>
-        /// Holds the endpoint.
+        /// Gets the endpoint of the request.
         /// </summary>
-        private readonly string _endpoint;
+        public string Endpoint { get; }
 
         /// <summary>
         /// Holds the configured query parameters.
@@ -100,7 +100,7 @@ namespace Remora.Rest
         /// <param name="endpoint">The API endpoint.</param>
         public RestRequestBuilder(string endpoint)
         {
-            _endpoint = endpoint;
+            this.Endpoint = endpoint;
 
             _queryParameters = new Dictionary<string, string>();
             _jsonObjectConfigurators = new List<Action<Utf8JsonWriter>>();
@@ -252,7 +252,7 @@ namespace Remora.Rest
             var request = new HttpRequestMessage
             (
                 _method,
-                _endpoint + (queryParameters.Count > 0 ? "?" + queryParameters : string.Empty)
+                this.Endpoint + (queryParameters.Count > 0 ? "?" + queryParameters : string.Empty)
             );
 
             // Add headers

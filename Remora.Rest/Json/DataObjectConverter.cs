@@ -28,6 +28,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
+using Remora.Rest.Core;
 using Remora.Rest.Extensions;
 
 namespace Remora.Rest.Json

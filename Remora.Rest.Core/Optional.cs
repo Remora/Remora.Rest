@@ -26,13 +26,13 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
-namespace Remora.Rest
+namespace Remora.Rest.Core
 {
     /// <summary>
     /// Represents an optional value. This is mainly used for JSON de/serializalization where a value can be either
     /// present, null, or completely missing.
     ///
-    /// While a <see cref="Nullable{T}"/> allows for a value to be logically present but contain a null value,
+    /// While a <see cref="Nullable"/> allows for a value to be logically present but contain a null value,
     /// <see cref="Optional{TValue}"/> allows for a value to be logically missing. For example, an optional without a
     /// value would never be serialized, but a nullable with a null value would (albeit as "null").
     /// </summary>
