@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using JetBrains.Annotations;
-using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json
 {
