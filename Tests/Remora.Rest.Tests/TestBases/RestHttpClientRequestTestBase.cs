@@ -166,7 +166,7 @@ namespace Remora.Rest.Tests.TestBases
         {
             var serviceCollection = new ServiceCollection();
 
-            var clientBuilder = serviceCollection.AddRestHttpClient<RestHttpClient<TestError>>();
+            var clientBuilder = serviceCollection.AddRestHttpClient<TestError>();
             clientBuilder.ConfigurePrimaryHttpMessageHandler
             (
                 _ =>
