@@ -25,55 +25,54 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Remora.Rest.Core;
 
-namespace Remora.Rest.Json
+namespace Remora.Rest.Json;
+
+/// <inheritdoc />
+public class SnowflakeConverter : JsonConverter<Snowflake>
 {
-    /// <inheritdoc />
-    public class SnowflakeConverter : JsonConverter<Snowflake>
+    /// <summary>
+    /// Gets the epoch used for converting snowflakes.
+    /// </summary>
+    public ulong Epoch { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SnowflakeConverter"/> class.
+    /// </summary>
+    /// <param name="epoch">The epoch to use.</param>
+    public SnowflakeConverter(ulong epoch)
     {
-        /// <summary>
-        /// Gets the epoch used for converting snowflakes.
-        /// </summary>
-        public ulong Epoch { get; }
+        this.Epoch = epoch;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SnowflakeConverter"/> class.
-        /// </summary>
-        /// <param name="epoch">The epoch to use.</param>
-        public SnowflakeConverter(ulong epoch)
+    /// <inheritdoc />
+    public override Snowflake Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        switch (reader.TokenType)
         {
-            this.Epoch = epoch;
-        }
-
-        /// <inheritdoc />
-        public override Snowflake Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            switch (reader.TokenType)
+            case JsonTokenType.String:
             {
-                case JsonTokenType.String:
-                {
-                    var value = reader.GetString()!;
-                    if (!Snowflake.TryParse(value, out var snowflake))
-                    {
-                        throw new JsonException();
-                    }
-
-                    return snowflake.Value;
-                }
-                case JsonTokenType.Number:
-                {
-                    return new Snowflake(reader.GetUInt64(), this.Epoch);
-                }
-                default:
+                var value = reader.GetString()!;
+                if (!Snowflake.TryParse(value, out var snowflake))
                 {
                     throw new JsonException();
                 }
+
+                return snowflake.Value;
+            }
+            case JsonTokenType.Number:
+            {
+                return new Snowflake(reader.GetUInt64(), this.Epoch);
+            }
+            default:
+            {
+                throw new JsonException();
             }
         }
+    }
 
-        /// <inheritdoc />
-        public override void Write(Utf8JsonWriter writer, Snowflake value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.Value.ToString());
-        }
+    /// <inheritdoc />
+    public override void Write(Utf8JsonWriter writer, Snowflake value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value.Value.ToString());
     }
 }

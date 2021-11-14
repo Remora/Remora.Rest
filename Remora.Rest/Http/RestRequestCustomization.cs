@@ -23,40 +23,39 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Remora.Rest
+namespace Remora.Rest;
+
+/// <summary>
+/// Represents a set of customizations that will be applied to a REST request made to the API.
+/// </summary>
+[PublicAPI]
+public class RestRequestCustomization : IDisposable
 {
+    private readonly IRestHttpClient _parentClient;
+
     /// <summary>
-    /// Represents a set of customizations that will be applied to a REST request made to the API.
+    /// Gets the request customizer.
     /// </summary>
-    [PublicAPI]
-    public class RestRequestCustomization : IDisposable
+    internal Action<RestRequestBuilder> RequestCustomizer { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RestRequestCustomization"/> class.
+    /// </summary>
+    /// <param name="parentClient">The client that created the customization.</param>
+    /// <param name="requestCustomizer">The request customizer.</param>
+    internal RestRequestCustomization
+    (
+        IRestHttpClient parentClient,
+        Action<RestRequestBuilder> requestCustomizer
+    )
     {
-        private readonly IRestHttpClient _parentClient;
+        _parentClient = parentClient;
+        this.RequestCustomizer = requestCustomizer;
+    }
 
-        /// <summary>
-        /// Gets the request customizer.
-        /// </summary>
-        internal Action<RestRequestBuilder> RequestCustomizer { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RestRequestCustomization"/> class.
-        /// </summary>
-        /// <param name="parentClient">The client that created the customization.</param>
-        /// <param name="requestCustomizer">The request customizer.</param>
-        internal RestRequestCustomization
-        (
-            IRestHttpClient parentClient,
-            Action<RestRequestBuilder> requestCustomizer
-        )
-        {
-            _parentClient = parentClient;
-            this.RequestCustomizer = requestCustomizer;
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            _parentClient.RemoveCustomization(this);
-        }
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _parentClient.RemoveCustomization(this);
     }
 }

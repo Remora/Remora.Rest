@@ -24,44 +24,43 @@ using System.Text.Json;
 using JetBrains.Annotations;
 using Remora.Rest.Core;
 
-namespace Remora.Rest.Extensions
+namespace Remora.Rest.Extensions;
+
+/// <summary>
+/// Defines extension methods for the <see cref="Utf8JsonWriter"/> class.
+/// </summary>
+[PublicAPI]
+public static class Utf8JsonWriterExtensions
 {
     /// <summary>
-    /// Defines extension methods for the <see cref="Utf8JsonWriter"/> class.
+    /// Writes the given optional to the json writer as its serialized representation. If the value is null, a null
+    /// is written.
     /// </summary>
-    [PublicAPI]
-    public static class Utf8JsonWriterExtensions
+    /// <param name="json">The JSON writer.</param>
+    /// <param name="name">The name of the property.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="jsonOptions">The json options, if any.</param>
+    /// <typeparam name="T">The underlying type.</typeparam>
+    public static void Write<T>
+    (
+        this Utf8JsonWriter json,
+        string name,
+        in Optional<T> value,
+        JsonSerializerOptions? jsonOptions = default
+    )
     {
-        /// <summary>
-        /// Writes the given optional to the json writer as its serialized representation. If the value is null, a null
-        /// is written.
-        /// </summary>
-        /// <param name="json">The JSON writer.</param>
-        /// <param name="name">The name of the property.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="jsonOptions">The json options, if any.</param>
-        /// <typeparam name="T">The underlying type.</typeparam>
-        public static void Write<T>
-        (
-            this Utf8JsonWriter json,
-            string name,
-            in Optional<T> value,
-            JsonSerializerOptions? jsonOptions = default
-        )
+        if (!value.HasValue)
         {
-            if (!value.HasValue)
-            {
-                return;
-            }
-
-            if (value.Value is null)
-            {
-                json.WriteNull(name);
-                return;
-            }
-
-            json.WritePropertyName(name);
-            JsonSerializer.Serialize(json, value.Value, jsonOptions);
+            return;
         }
+
+        if (value.Value is null)
+        {
+            json.WriteNull(name);
+            return;
+        }
+
+        json.WritePropertyName(name);
+        JsonSerializer.Serialize(json, value.Value, jsonOptions);
     }
 }

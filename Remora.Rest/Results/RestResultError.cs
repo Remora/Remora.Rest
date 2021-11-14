@@ -25,13 +25,12 @@ using Remora.Results;
 
 #pragma warning disable CS1591
 
-namespace Remora.Rest.Results
-{
-    /// <summary>
-    /// Represents an error returned by the REST API.
-    /// </summary>
-    /// <typeparam name="TError">A type which represents an error payload returned by the API.</typeparam>
-    [PublicAPI]
-    public record RestResultError<TError>(TError Error)
-        : ResultError("REST request failed. See inner error object for details.");
-}
+namespace Remora.Rest.Results;
+
+/// <summary>
+/// Represents an error returned by the REST API.
+/// </summary>
+/// <typeparam name="TError">A type which represents an error payload returned by the API.</typeparam>
+[PublicAPI]
+public record RestResultError<TError>(TError Error)
+    : ResultError("REST request failed. See inner error object for details.");

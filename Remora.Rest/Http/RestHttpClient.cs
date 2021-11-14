@@ -33,629 +33,577 @@ using Remora.Rest.Extensions;
 using Remora.Rest.Results;
 using Remora.Results;
 
-namespace Remora.Rest
+namespace Remora.Rest;
+
+/// <summary>
+/// Represents a specialized HTTP client for the REST APIs.
+/// </summary>
+/// <typeparam name="TError">A type which represents an error payload returned by the API.</typeparam>
+[PublicAPI]
+public class RestHttpClient<TError> : IRestHttpClient
 {
+    private readonly HttpClient _httpClient;
+    private readonly JsonSerializerOptions _serializerOptions;
+    private readonly List<RestRequestCustomization> _customizations;
+
     /// <summary>
-    /// Represents a specialized HTTP client for the REST APIs.
+    /// Initializes a new instance of the <see cref="RestHttpClient{TError}"/> class.
     /// </summary>
-    /// <typeparam name="TError">A type which represents an error payload returned by the API.</typeparam>
-    [PublicAPI]
-    public class RestHttpClient<TError> : IRestHttpClient
+    /// <param name="httpClient">The Http client.</param>
+    /// <param name="serializerOptions">The serialization options.</param>
+    public RestHttpClient
+    (
+        HttpClient httpClient,
+        JsonSerializerOptions serializerOptions
+    )
     {
-        private readonly HttpClient _httpClient;
-        private readonly JsonSerializerOptions _serializerOptions;
-        private readonly List<RestRequestCustomization> _customizations;
+        _httpClient = httpClient;
+        _serializerOptions = serializerOptions;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RestHttpClient{TError}"/> class.
-        /// </summary>
-        /// <param name="httpClient">The Http client.</param>
-        /// <param name="serializerOptions">The serialization options.</param>
-        public RestHttpClient
-        (
-            HttpClient httpClient,
-            JsonSerializerOptions serializerOptions
-        )
+        _customizations = new List<RestRequestCustomization>();
+    }
+
+    /// <inheritdoc />
+    public RestRequestCustomization WithCustomization(Action<RestRequestBuilder> requestCustomizer)
+    {
+        var customization = new RestRequestCustomization(this, requestCustomizer);
+        _customizations.Add(customization);
+
+        return customization;
+    }
+
+    /// <inheritdoc />
+    void IRestHttpClient.RemoveCustomization(RestRequestCustomization customization)
+    {
+        _customizations.Remove(customization);
+    }
+
+    /// <inheritdoc />
+    public Task<Result<TEntity>> GetAsync<TEntity>
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+        => GetAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
+
+    /// <inheritdoc />
+    public async Task<Result<TEntity>> GetAsync<TEntity>
+    (
+        string endpoint,
+        string jsonPath,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
+
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
+
+        requestBuilder.WithMethod(HttpMethod.Get);
+
+        foreach (var customization in _customizations)
         {
-            _httpClient = httpClient;
-            _serializerOptions = serializerOptions;
-
-            _customizations = new List<RestRequestCustomization>();
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public RestRequestCustomization WithCustomization(Action<RestRequestBuilder> requestCustomizer)
+        try
         {
-            var customization = new RestRequestCustomization(this, requestCustomizer);
-            _customizations.Add(customization);
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            return customization;
+            return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<Stream>> GetContentAsync
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
+
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
+
+        requestBuilder.WithMethod(HttpMethod.Get);
+
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        void IRestHttpClient.RemoveCustomization(RestRequestCustomization customization)
+        try
         {
-            _customizations.Remove(customization);
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
+
+            var unpackedResponse = await UnpackResponseAsync(response, ct);
+            if (!unpackedResponse.IsSuccess)
+            {
+                return Result<Stream>.FromError(unpackedResponse);
+            }
+
+            #if NETSTANDARD
+            var responseContent = await response.Content.ReadAsStreamAsync();
+            #else
+            var responseContent = await response.Content.ReadAsStreamAsync(ct);
+            #endif
+
+            return Result<Stream>.FromSuccess(responseContent);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<Result<TEntity>> PostAsync<TEntity>
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+        => PostAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
+
+    /// <inheritdoc />
+    public async Task<Result<TEntity>> PostAsync<TEntity>
+    (
+        string endpoint,
+        string jsonPath,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
+
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
+
+        requestBuilder.WithMethod(HttpMethod.Post);
+
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public Task<Result<TEntity>> GetAsync<TEntity>
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
-            => GetAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
-
-        /// <inheritdoc />
-        public async Task<Result<TEntity>> GetAsync<TEntity>
-        (
-            string endpoint,
-            string jsonPath,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Get);
+    /// <inheritdoc />
+    public async Task<Result> PostAsync
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
 
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
 
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
+        requestBuilder.WithMethod(HttpMethod.Post);
 
-                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public async Task<Result<Stream>> GetContentAsync
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync(response, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Get);
+    /// <inheritdoc />
+    public Task<Result<TEntity>> PatchAsync<TEntity>
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+        => PatchAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
 
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
+    /// <inheritdoc />
+    public async Task<Result<TEntity>> PatchAsync<TEntity>
+    (
+        string endpoint,
+        string jsonPath,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
 
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
 
-                var unpackedResponse = await UnpackResponseAsync(response, ct);
-                if (!unpackedResponse.IsSuccess)
-                {
-                    return Result<Stream>.FromError(unpackedResponse);
-                }
+        requestBuilder.WithMethod(HttpMethod.Patch);
 
-                #if NETSTANDARD
-                var responseContent = await response.Content.ReadAsStreamAsync();
-                #else
-                var responseContent = await response.Content.ReadAsStreamAsync(ct);
-                #endif
-
-                return Result<Stream>.FromSuccess(responseContent);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public Task<Result<TEntity>> PostAsync<TEntity>
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
-            => PostAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
-
-        /// <inheritdoc />
-        public async Task<Result<TEntity>> PostAsync<TEntity>
-        (
-            string endpoint,
-            string jsonPath,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Post);
+    /// <inheritdoc />
+    public async Task<Result> PatchAsync
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
 
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
 
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
+        requestBuilder.WithMethod(HttpMethod.Patch);
 
-                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public async Task<Result> PostAsync
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync(response, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Post);
+    /// <inheritdoc />
+    public async Task<Result> DeleteAsync
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
 
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
 
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
+        requestBuilder.WithMethod(HttpMethod.Delete);
 
-                return await UnpackResponseAsync(response, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public Task<Result<TEntity>> PatchAsync<TEntity>
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
-            => PatchAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
-
-        /// <inheritdoc />
-        public async Task<Result<TEntity>> PatchAsync<TEntity>
-        (
-            string endpoint,
-            string jsonPath,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync(response, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Patch);
+    /// <inheritdoc />
+    public Task<Result<TEntity>> DeleteAsync<TEntity>
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+        => DeleteAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
 
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
+    /// <inheritdoc />
+    public async Task<Result<TEntity>> DeleteAsync<TEntity>
+    (
+        string endpoint,
+        string jsonPath,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
 
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
 
-                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+        requestBuilder.WithMethod(HttpMethod.Delete);
+
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public async Task<Result> PatchAsync
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Patch);
+    /// <inheritdoc />
+    public Task<Result<TEntity>> PutAsync<TEntity>
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+        => PutAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
 
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
+    /// <inheritdoc />
+    public async Task<Result<TEntity>> PutAsync<TEntity>
+    (
+        string endpoint,
+        string jsonPath,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
 
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
 
-                return await UnpackResponseAsync(response, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+        requestBuilder.WithMethod(HttpMethod.Put);
+
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public async Task<Result> DeleteAsync
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Delete);
+    /// <inheritdoc />
+    public async Task<Result> PutAsync
+    (
+        string endpoint,
+        Action<RestRequestBuilder>? configureRequestBuilder = null,
+        CancellationToken ct = default
+    )
+    {
+        configureRequestBuilder ??= _ => { };
 
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
+        var requestBuilder = new RestRequestBuilder(endpoint);
+        configureRequestBuilder(requestBuilder);
 
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
+        requestBuilder.WithMethod(HttpMethod.Put);
 
-                return await UnpackResponseAsync(response, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+        foreach (var customization in _customizations)
+        {
+            customization.RequestCustomizer(requestBuilder);
         }
 
-        /// <inheritdoc />
-        public Task<Result<TEntity>> DeleteAsync<TEntity>
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
-            => DeleteAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
-
-        /// <inheritdoc />
-        public async Task<Result<TEntity>> DeleteAsync<TEntity>
-        (
-            string endpoint,
-            string jsonPath,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            using var request = requestBuilder.Build();
+            using var response = await _httpClient.SendAsync
+            (
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                ct
+            );
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            return await UnpackResponseAsync(response, ct);
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
 
-            requestBuilder.WithMethod(HttpMethod.Delete);
-
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
-
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
-
-                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+    /// <summary>
+    /// Unpacks a response from the API, attempting to deserialize either a plain success or a parsed
+    /// error.
+    /// </summary>
+    /// <param name="response">The response to unpack.</param>
+    /// <param name="ct">The cancellation token for this operation.</param>
+    /// <returns>A retrieval result which may or may not have succeeded.</returns>
+    private async Task<Result> UnpackResponseAsync
+    (
+        HttpResponseMessage response,
+        CancellationToken ct = default
+    )
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return Result.FromSuccess();
         }
 
-        /// <inheritdoc />
-        public Task<Result<TEntity>> PutAsync<TEntity>
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
-            => PutAsync<TEntity>(endpoint, string.Empty, configureRequestBuilder, allowNullReturn, ct);
-
-        /// <inheritdoc />
-        public async Task<Result<TEntity>> PutAsync<TEntity>
-        (
-            string endpoint,
-            string jsonPath,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
+        // See if we have a JSON error to get some more details from
+        if (response.Content.Headers.ContentLength is <= 0)
         {
-            configureRequestBuilder ??= _ => { };
-
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
-
-            requestBuilder.WithMethod(HttpMethod.Put);
-
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
-
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
-
-                return await UnpackResponseAsync<TEntity>(response, jsonPath, allowNullReturn, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+            return new HttpResultError(response.StatusCode, response.ReasonPhrase);
         }
 
-        /// <inheritdoc />
-        public async Task<Result> PutAsync
-        (
-            string endpoint,
-            Action<RestRequestBuilder>? configureRequestBuilder = null,
-            CancellationToken ct = default
-        )
+        try
         {
-            configureRequestBuilder ??= _ => { };
+            #if NETSTANDARD
+            await using var contentStream = await response.Content.ReadAsStreamAsync();
+            #else
+            await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
+            #endif
 
-            var requestBuilder = new RestRequestBuilder(endpoint);
-            configureRequestBuilder(requestBuilder);
+            var error = await JsonSerializer.DeserializeAsync<TError>
+            (
+                contentStream,
+                _serializerOptions,
+                ct
+            );
 
-            requestBuilder.WithMethod(HttpMethod.Put);
-
-            foreach (var customization in _customizations)
-            {
-                customization.RequestCustomizer(requestBuilder);
-            }
-
-            try
-            {
-                using var request = requestBuilder.Build();
-                using var response = await _httpClient.SendAsync
-                (
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    ct
-                );
-
-                return await UnpackResponseAsync(response, ct);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
-        }
-
-        /// <summary>
-        /// Unpacks a response from the API, attempting to deserialize either a plain success or a parsed
-        /// error.
-        /// </summary>
-        /// <param name="response">The response to unpack.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <returns>A retrieval result which may or may not have succeeded.</returns>
-        private async Task<Result> UnpackResponseAsync
-        (
-            HttpResponseMessage response,
-            CancellationToken ct = default
-        )
-        {
-            if (response.IsSuccessStatusCode)
-            {
-                return Result.FromSuccess();
-            }
-
-            // See if we have a JSON error to get some more details from
-            if (response.Content.Headers.ContentLength is <= 0)
+            if (error is null)
             {
                 return new HttpResultError(response.StatusCode, response.ReasonPhrase);
             }
 
-            try
-            {
-                #if NETSTANDARD
-                await using var contentStream = await response.Content.ReadAsStreamAsync();
-                #else
-                await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
-                #endif
-
-                var error = await JsonSerializer.DeserializeAsync<TError>
-                (
-                    contentStream,
-                    _serializerOptions,
-                    ct
-                );
-
-                if (error is null)
-                {
-                    return new HttpResultError(response.StatusCode, response.ReasonPhrase);
-                }
-
-                return new RestResultError<TError>(error);
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
+            return new RestResultError<TError>(error);
         }
-
-        /// <summary>
-        /// Unpacks a response from the API, attempting to either get the requested entity type or a parsed
-        /// error.
-        /// </summary>
-        /// <param name="response">The response to unpack.</param>
-        /// <param name="jsonPath">The path to the json node to deserialize.</param>
-        /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
-        /// <param name="ct">The cancellation token for this operation.</param>
-        /// <typeparam name="TEntity">The entity type to unpack.</typeparam>
-        /// <returns>A retrieval result which may or may not have succeeded.</returns>
-        private async Task<Result<TEntity>> UnpackResponseAsync<TEntity>
-        (
-            HttpResponseMessage response,
-            string jsonPath = "",
-            bool allowNullReturn = false,
-            CancellationToken ct = default
-        )
+        catch (Exception e)
         {
-            if (response.IsSuccessStatusCode)
+            return e;
+        }
+    }
+
+    /// <summary>
+    /// Unpacks a response from the API, attempting to either get the requested entity type or a parsed
+    /// error.
+    /// </summary>
+    /// <param name="response">The response to unpack.</param>
+    /// <param name="jsonPath">The path to the json node to deserialize.</param>
+    /// <param name="allowNullReturn">Whether to allow null return values inside the creation result.</param>
+    /// <param name="ct">The cancellation token for this operation.</param>
+    /// <typeparam name="TEntity">The entity type to unpack.</typeparam>
+    /// <returns>A retrieval result which may or may not have succeeded.</returns>
+    private async Task<Result<TEntity>> UnpackResponseAsync<TEntity>
+    (
+        HttpResponseMessage response,
+        string jsonPath = "",
+        bool allowNullReturn = false,
+        CancellationToken ct = default
+    )
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            if (response.Content.Headers.ContentLength == 0)
             {
-                if (response.Content.Headers.ContentLength == 0)
-                {
-                    if (!allowNullReturn)
-                    {
-                        throw new InvalidOperationException("Response content null, but null returns not allowed.");
-                    }
-
-                    // Null is okay as a default here, since TEntity might be TEntity?
-                    return Result<TEntity>.FromSuccess(default!);
-                }
-
-                #if NETSTANDARD
-                await using var contentStream = await response.Content.ReadAsStreamAsync();
-                #else
-                await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
-                #endif
-
-                TEntity? entity;
-
-                if (string.IsNullOrEmpty(jsonPath))
-                {
-                    entity = await JsonSerializer.DeserializeAsync<TEntity>
-                    (
-                        contentStream,
-                        _serializerOptions,
-                        ct
-                    );
-                }
-                else
-                {
-                    var doc = await JsonSerializer.DeserializeAsync<JsonDocument>
-                    (
-                        contentStream,
-                        _serializerOptions,
-                        ct
-                    );
-
-                    var element = doc.SelectElement(jsonPath);
-
-                    if (!element.HasValue)
-                    {
-                        return allowNullReturn
-                            ? Result<TEntity>.FromSuccess(default!)
-                            : throw new InvalidOperationException("The requested path does not exist or the found content is empty.");
-                    }
-
-                    entity = element.Value.ToObject<TEntity>(_serializerOptions);
-                }
-
-                if (entity is not null)
-                {
-                    return Result<TEntity>.FromSuccess(entity);
-                }
-
                 if (!allowNullReturn)
                 {
                     throw new InvalidOperationException("Response content null, but null returns not allowed.");
@@ -665,38 +613,89 @@ namespace Remora.Rest
                 return Result<TEntity>.FromSuccess(default!);
             }
 
-            // See if we have a JSON error to get some more details from
-            if (response.Content.Headers.ContentLength is not > 0)
+            #if NETSTANDARD
+            await using var contentStream = await response.Content.ReadAsStreamAsync();
+            #else
+            await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
+            #endif
+
+            TEntity? entity;
+
+            if (string.IsNullOrEmpty(jsonPath))
             {
-                return new HttpResultError(response.StatusCode, response.ReasonPhrase);
+                entity = await JsonSerializer.DeserializeAsync<TEntity>
+                (
+                    contentStream,
+                    _serializerOptions,
+                    ct
+                );
             }
-
-            try
+            else
             {
-                #if NETSTANDARD
-                await using var contentStream = await response.Content.ReadAsStreamAsync();
-                #else
-                await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
-                #endif
-
-                var error = await JsonSerializer.DeserializeAsync<TError>
+                var doc = await JsonSerializer.DeserializeAsync<JsonDocument>
                 (
                     contentStream,
                     _serializerOptions,
                     ct
                 );
 
-                if (error is null)
+                var element = doc.SelectElement(jsonPath);
+
+                if (!element.HasValue)
                 {
-                    return new HttpResultError(response.StatusCode, response.ReasonPhrase);
+                    return allowNullReturn
+                        ? Result<TEntity>.FromSuccess(default!)
+                        : throw new InvalidOperationException("The requested path does not exist or the found content is empty.");
                 }
 
-                return new RestResultError<TError>(error);
+                entity = element.Value.ToObject<TEntity>(_serializerOptions);
             }
-            catch (Exception e)
+
+            if (entity is not null)
             {
-                return e;
+                return Result<TEntity>.FromSuccess(entity);
             }
+
+            if (!allowNullReturn)
+            {
+                throw new InvalidOperationException("Response content null, but null returns not allowed.");
+            }
+
+            // Null is okay as a default here, since TEntity might be TEntity?
+            return Result<TEntity>.FromSuccess(default!);
+        }
+
+        // See if we have a JSON error to get some more details from
+        if (response.Content.Headers.ContentLength is not > 0)
+        {
+            return new HttpResultError(response.StatusCode, response.ReasonPhrase);
+        }
+
+        try
+        {
+            #if NETSTANDARD
+            await using var contentStream = await response.Content.ReadAsStreamAsync();
+            #else
+            await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
+            #endif
+
+            var error = await JsonSerializer.DeserializeAsync<TError>
+            (
+                contentStream,
+                _serializerOptions,
+                ct
+            );
+
+            if (error is null)
+            {
+                return new HttpResultError(response.StatusCode, response.ReasonPhrase);
+            }
+
+            return new RestResultError<TError>(error);
+        }
+        catch (Exception e)
+        {
+            return e;
         }
     }
 }

@@ -22,59 +22,58 @@
 
 using System;
 
-namespace Remora.Rest.Extensions
+namespace Remora.Rest.Extensions;
+
+/// <summary>
+/// Extension methods for <see cref="byte"/> arrays, used to detect file types.
+/// </summary>
+public static class TypeDetectionExtensions
 {
+    private const ulong PNGSignature = 9894494448401390090;
+
     /// <summary>
-    /// Extension methods for <see cref="byte"/> arrays, used to detect file types.
+    /// Determines whether the array contains PNG data.
     /// </summary>
-    public static class TypeDetectionExtensions
+    /// <param name="array">The array.</param>
+    /// <returns>true if the array contains PNG data; otherwise, false.</returns>
+    public static bool IsPNG(this byte[] array)
     {
-        private const ulong PNGSignature = 9894494448401390090;
-
-        /// <summary>
-        /// Determines whether the array contains PNG data.
-        /// </summary>
-        /// <param name="array">The array.</param>
-        /// <returns>true if the array contains PNG data; otherwise, false.</returns>
-        public static bool IsPNG(this byte[] array)
+        if (array.Length < 8)
         {
-            if (array.Length < 8)
-            {
-                return false;
-            }
-
-            var signature = BitConverter.ToUInt64(array[..8]);
-            return signature == PNGSignature;
+            return false;
         }
 
-        /// <summary>
-        /// Determines whether the array contains GIF data.
-        /// </summary>
-        /// <param name="array">The array.</param>
-        /// <returns>true if the array contains GIF data; otherwise, false.</returns>
-        public static bool IsGIF(this byte[] array)
-        {
-            if (array.Length < 3)
-            {
-                return false;
-            }
+        var signature = BitConverter.ToUInt64(array[..8]);
+        return signature == PNGSignature;
+    }
 
-            return array[0] == 0x47 && array[1] == 0x49 && array[2] == 0x46;
+    /// <summary>
+    /// Determines whether the array contains GIF data.
+    /// </summary>
+    /// <param name="array">The array.</param>
+    /// <returns>true if the array contains GIF data; otherwise, false.</returns>
+    public static bool IsGIF(this byte[] array)
+    {
+        if (array.Length < 3)
+        {
+            return false;
         }
 
-        /// <summary>
-        /// Determines whether the array contains JPG data.
-        /// </summary>
-        /// <param name="array">The array.</param>
-        /// <returns>true if the array contains JPG data; otherwise, false.</returns>
-        public static bool IsJPG(this byte[] array)
-        {
-            if (array.Length < 3)
-            {
-                return false;
-            }
+        return array[0] == 0x47 && array[1] == 0x49 && array[2] == 0x46;
+    }
 
-            return array[0] == 0xFF && array[1] == 0xD8 && array[2] == 0xFF;
+    /// <summary>
+    /// Determines whether the array contains JPG data.
+    /// </summary>
+    /// <param name="array">The array.</param>
+    /// <returns>true if the array contains JPG data; otherwise, false.</returns>
+    public static bool IsJPG(this byte[] array)
+    {
+        if (array.Length < 3)
+        {
+            return false;
         }
+
+        return array[0] == 0xFF && array[1] == 0xD8 && array[2] == 0xFF;
     }
 }

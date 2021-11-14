@@ -23,30 +23,29 @@
 using JetBrains.Annotations;
 using Remora.Rest.Core;
 
-namespace Remora.Rest.Extensions
+namespace Remora.Rest.Extensions;
+
+/// <summary>
+/// Defines extensions to the <see cref="RestRequestBuilder"/> class.
+/// </summary>
+[PublicAPI]
+public static class RestRequestBuilderExtensions
 {
     /// <summary>
-    /// Defines extensions to the <see cref="RestRequestBuilder"/> class.
+    /// Adds a header to the request, provided the value is defined.
     /// </summary>
-    [PublicAPI]
-    public static class RestRequestBuilderExtensions
+    /// <param name="builder">The request builder.</param>
+    /// <param name="name">The name of the header.</param>
+    /// <param name="value">The value of the header.</param>
+    /// <returns>The builder, potentially with the header.</returns>
+    public static RestRequestBuilder AddHeader(this RestRequestBuilder builder, string name, Optional<string> value)
     {
-        /// <summary>
-        /// Adds a header to the request, provided the value is defined.
-        /// </summary>
-        /// <param name="builder">The request builder.</param>
-        /// <param name="name">The name of the header.</param>
-        /// <param name="value">The value of the header.</param>
-        /// <returns>The builder, potentially with the header.</returns>
-        public static RestRequestBuilder AddHeader(this RestRequestBuilder builder, string name, Optional<string> value)
+        if (!value.HasValue)
         {
-            if (!value.HasValue)
-            {
-                return builder;
-            }
-
-            builder.AddHeader(name, value.Value);
             return builder;
         }
+
+        builder.AddHeader(name, value.Value);
+        return builder;
     }
 }
