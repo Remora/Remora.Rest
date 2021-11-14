@@ -31,7 +31,7 @@ namespace Remora.Rest.Json.Internal
     /// Converts optional fields to their JSON representation.
     /// </summary>
     /// <typeparam name="TValue">The underlying type.</typeparam>
-    public class OptionalConverter<TValue> : JsonConverter<Optional<TValue?>>
+    internal class OptionalConverter<TValue> : JsonConverter<Optional<TValue?>>
     {
         /// <inheritdoc />
         public override Optional<TValue?> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

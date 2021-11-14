@@ -30,7 +30,7 @@ namespace Remora.Rest.Json.Internal
     /// <summary>
     /// Creates instances of <see cref="NullableConverter{TValue}"/>.
     /// </summary>
-    public class NullableConverterFactory : JsonConverterFactory
+    internal class NullableConverterFactory : JsonConverterFactory
     {
         /// <inheritdoc />
         public override bool CanConvert(Type typeToConvert)

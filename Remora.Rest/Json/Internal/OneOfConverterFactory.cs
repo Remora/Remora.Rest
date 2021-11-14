@@ -31,7 +31,7 @@ namespace Remora.Rest.Json.Internal
     /// <summary>
     /// Creates OneOf converters.
     /// </summary>
-    public class OneOfConverterFactory : JsonConverterFactory
+    internal class OneOfConverterFactory : JsonConverterFactory
     {
         /// <inheritdoc />
         public override bool CanConvert(Type typeToConvert)

@@ -31,7 +31,7 @@ namespace Remora.Rest.Json.Internal
     /// <summary>
     /// Creates converters for <see cref="Optional{TValue}"/>.
     /// </summary>
-    public class OptionalConverterFactory : JsonConverterFactory
+    internal class OptionalConverterFactory : JsonConverterFactory
     {
         /// <inheritdoc />
         public override bool CanConvert(Type typeToConvert)
