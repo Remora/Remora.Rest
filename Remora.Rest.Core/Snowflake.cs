@@ -94,8 +94,9 @@ namespace Remora.Rest.Core
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="result">The result.</param>
+        /// <param name="epoch">The time epoch used for the embedded timestamp.</param>
         /// <returns>true if a snowflake was successfully parsed; otherwise, false.</returns>
-        public static bool TryParse(string value, [NotNullWhen(true)] out Snowflake? result)
+        public static bool TryParse(string value, [NotNullWhen(true)] out Snowflake? result, ulong epoch = 0)
         {
             result = null;
 
@@ -104,7 +105,7 @@ namespace Remora.Rest.Core
                 return false;
             }
 
-            result = new Snowflake(binary);
+            result = new Snowflake(binary, epoch);
 
             return true;
         }

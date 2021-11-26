@@ -103,6 +103,15 @@ namespace Remora.Rest.Core.Tests.Snowflake
 
                 Assert.Equal(time, snowflake.Timestamp);
             }
+
+            [Fact]
+            public void ReturnsCorrectValueWithEpochParsed()
+            {
+                var time = DateTimeOffset.Parse("2016-02-01T23:59:25.820Z");
+                Core.Snowflake.TryParse("143867839282020352", out var snowflake, 1420070400000);
+
+                Assert.Equal(time, snowflake!.Value.Timestamp);
+            }
         }
 
         /// <summary>
