@@ -31,6 +31,20 @@ namespace Remora.Rest.Json;
 /// <inheritdoc />
 public class SnowflakeDictionaryConverter<TElement> : JsonConverter<IReadOnlyDictionary<Snowflake, TElement>>
 {
+    /// <summary>
+    /// Gets the epoch used for converting snowflakes.
+    /// </summary>
+    public ulong Epoch { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SnowflakeDictionaryConverter{TElement}"/> class.
+    /// </summary>
+    /// <param name="epoch">The epoch to use.</param>
+    public SnowflakeDictionaryConverter(ulong epoch)
+    {
+        this.Epoch = epoch;
+    }
+
     /// <inheritdoc />
     public override IReadOnlyDictionary<Snowflake, TElement>? Read
     (
@@ -48,7 +62,7 @@ public class SnowflakeDictionaryConverter<TElement> : JsonConverter<IReadOnlyDic
         var mappedDictionary = new Dictionary<Snowflake, TElement>();
         foreach (var (key, element) in dictionary)
         {
-            if (!Snowflake.TryParse(key, out var snowflakeKey))
+            if (!Snowflake.TryParse(key, out var snowflakeKey, this.Epoch))
             {
                 throw new JsonException();
             }
