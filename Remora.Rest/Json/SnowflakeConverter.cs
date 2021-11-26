@@ -52,7 +52,7 @@ public class SnowflakeConverter : JsonConverter<Snowflake>
             case JsonTokenType.String:
             {
                 var value = reader.GetString()!;
-                if (!Snowflake.TryParse(value, out var snowflake))
+                if (!Snowflake.TryParse(value, out var snowflake, this.Epoch))
                 {
                     throw new JsonException();
                 }
