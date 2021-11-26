@@ -26,367 +26,366 @@ using Xunit;
 // ReSharper disable SA1600
 #pragma warning disable 1591, SA1600
 
-namespace Remora.Rest.Core.Tests
+namespace Remora.Rest.Core.Tests;
+
+/// <summary>
+/// Tests the <see cref="Optional{TValue}"/> struct.
+/// </summary>
+public class OptionalTests
 {
     /// <summary>
-    /// Tests the <see cref="Optional{TValue}"/> struct.
+    /// Tests the <see cref="Optional{TValue}.HasValue"/> property.
     /// </summary>
-    public class OptionalTests
+    public class HasValue
     {
-        /// <summary>
-        /// Tests the <see cref="Optional{TValue}.HasValue"/> property.
-        /// </summary>
-        public class HasValue
+        [Fact]
+        public void ReturnsTrueWhenOptionalValueTypeContainsValue()
         {
-            [Fact]
-            public void ReturnsTrueWhenOptionalValueTypeContainsValue()
-            {
-                var optional = new Optional<int>(0);
+            var optional = new Optional<int>(0);
 
-                Assert.True(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsFalseWhenOptionalValueTypeDoesNotContainValue()
-            {
-                Optional<int> optional = default;
-
-                Assert.False(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsTrueWhenOptionalNullableValueTypeContainsValue()
-            {
-                var optional = new Optional<int?>(0);
-
-                Assert.True(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsTrueWhenOptionalNullableValueTypeContainsNull()
-            {
-                var optional = new Optional<int?>(null);
-
-                Assert.True(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsFalseWhenOptionalNullableValueTypeDoesNotContainValue()
-            {
-                Optional<int?> optional = default;
-
-                Assert.False(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsTrueWhenOptionalReferenceTypeContainsValue()
-            {
-                var optional = new Optional<string>("Hello world!");
-
-                Assert.True(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsFalseWhenOptionalReferenceTypeDoesNotContainValue()
-            {
-                Optional<string> optional = default;
-
-                Assert.False(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsTrueWhenOptionalNullableReferenceTypeContainsValue()
-            {
-                var optional = new Optional<string?>(null);
-
-                Assert.True(optional.HasValue);
-            }
-
-            [Fact]
-            public void ReturnsFalseWhenOptionalNullableReferenceTypeDoesNotContainValue()
-            {
-                Optional<string?> optional = default;
-
-                Assert.False(optional.HasValue);
-            }
+            Assert.True(optional.HasValue);
         }
 
-        /// <summary>
-        /// Tests the <see cref="Optional{TValue}.Value"/> property.
-        /// </summary>
-        public class Value
+        [Fact]
+        public void ReturnsFalseWhenOptionalValueTypeDoesNotContainValue()
         {
-            [Fact]
-            public void ReturnsCorrectValueIfValueTypeOptionalContainsValue()
-            {
-                var optional = new Optional<int>(64);
+            Optional<int> optional = default;
 
-                Assert.Equal(64, optional.Value);
-            }
-
-            [Fact]
-            public void ThrowsIfValueTypeOptionalDoesNotContainValue()
-            {
-                Optional<int> optional = default;
-
-                Assert.Throws<InvalidOperationException>(() => optional.Value);
-            }
-
-            [Fact]
-            public void ReturnsCorrectValueIfNullableValueTypeOptionalContainsValue()
-            {
-                var optional = new Optional<int?>(64);
-
-                Assert.Equal(64, optional.Value);
-            }
-
-            [Fact]
-            public void ReturnsCorrectValueIfNullableValueTypeOptionalContainsNullValue()
-            {
-                var optional = new Optional<int?>(null);
-
-                Assert.Null(optional.Value);
-            }
-
-            [Fact]
-            public void ThrowsIfNullableValueTypeOptionalDoesNotContainValue()
-            {
-                Optional<int?> optional = default;
-
-                Assert.Throws<InvalidOperationException>(() => optional.Value);
-            }
-
-            [Fact]
-            public void ReturnsCorrectValueIfReferenceTypeOptionalContainsValue()
-            {
-                var optional = new Optional<string>("Hello world!");
-
-                Assert.Equal("Hello world!", optional.Value);
-            }
-
-            [Fact]
-            public void ThrowsIfReferenceTypeOptionalDoesNotContainValue()
-            {
-                Optional<string> optional = default;
-
-                Assert.Throws<InvalidOperationException>(() => optional.Value);
-            }
-
-            [Fact]
-            public void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsValue()
-            {
-                var optional = new Optional<string?>("Hello world!");
-
-                Assert.Equal("Hello world!", optional.Value);
-            }
-
-            [Fact]
-            public void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsNullValue()
-            {
-                var optional = new Optional<string?>(null);
-
-                Assert.Null(optional.Value);
-            }
-
-            [Fact]
-            public void ThrowsIfNullableReferenceTypeOptionalDoesNotContainValue()
-            {
-                Optional<string?> optional = default;
-
-                Assert.Throws<InvalidOperationException>(() => optional.Value);
-            }
+            Assert.False(optional.HasValue);
         }
 
-        /// <summary>
-        /// Tests the <see cref="Optional{TValue}.IsDefined()"/> method and its overloads.
-        /// </summary>
-        public class IsDefined
+        [Fact]
+        public void ReturnsTrueWhenOptionalNullableValueTypeContainsValue()
         {
-            [Fact]
-            public void ReturnsFalseIfNullableOptionalHasNoValue()
-            {
-                Optional<int?> noValue = default;
-                Assert.False(noValue.IsDefined());
+            var optional = new Optional<int?>(0);
 
-                Assert.False(noValue.IsDefined(out var value));
-                Assert.Null(value);
-            }
-
-            [Fact]
-            public void ReturnsFalseIfNullableOptionalHasNullValue()
-            {
-                Optional<int?> noValue = null;
-                Assert.False(noValue.IsDefined());
-
-                Assert.False(noValue.IsDefined(out var value));
-                Assert.Null(value);
-            }
-
-            [Fact]
-            public void ReturnsTrueIfNullableOptionalHasNonNullValue()
-            {
-                Optional<int?> noValue = 1;
-                Assert.True(noValue.IsDefined());
-
-                Assert.True(noValue.IsDefined(out var value));
-                Assert.NotNull(value);
-            }
-
-            [Fact]
-            public void ReturnsFalseIfOptionalHasNoValue()
-            {
-                Optional<int> noValue = default;
-                Assert.False(noValue.IsDefined());
-                Assert.False(noValue.IsDefined(out _));
-            }
-
-            [Fact]
-            public void ReturnsTrueIfOptionalHasNonNullValue()
-            {
-                Optional<int> noValue = 1;
-                Assert.True(noValue.IsDefined());
-
-                Assert.True(noValue.IsDefined(out var value));
-                Assert.Equal(1, value);
-            }
+            Assert.True(optional.HasValue);
         }
 
-        /// <summary>
-        /// Tests the <see cref="Optional{TValue}.ToString"/> method.
-        /// </summary>
-        public new class ToString
+        [Fact]
+        public void ReturnsTrueWhenOptionalNullableValueTypeContainsNull()
         {
-            [Fact]
-            public void ResultContainsValueIfValueTypeOptionalContainsValue()
-            {
-                var optional = new Optional<int>(64);
+            var optional = new Optional<int?>(null);
 
-                Assert.Contains(64.ToString(), optional.ToString());
-            }
-
-            [Fact]
-            public void ResultIsEmptyIfValueTypeOptionalDoesNotContainValue()
-            {
-                var optional = default(Optional<int>);
-
-                Assert.Equal("Empty", optional.ToString());
-            }
-
-            [Fact]
-            public void ResultContainsValueIfNullableValueTypeOptionalContainsValue()
-            {
-                var optional = new Optional<int?>(64);
-
-                Assert.Contains(64.ToString(), optional.ToString());
-            }
-
-            [Fact]
-            public void ResultContainsNullIfNullableValueTypeOptionalContainsNullValue()
-            {
-                var optional = new Optional<int?>(null);
-
-                Assert.Contains("null", optional.ToString());
-            }
-
-            [Fact]
-            public void ResultIsEmptyIfNullableValueTypeOptionalDoesNotContainValue()
-            {
-                var optional = default(Optional<int?>);
-
-                Assert.Equal("Empty", optional.ToString());
-            }
-
-            [Fact]
-            public void ResultContainsValueIfReferenceTypeOptionalContainsValue()
-            {
-                var optional = new Optional<string>("Hello world!");
-
-                Assert.Contains("Hello world!", optional.ToString());
-            }
-
-            [Fact]
-            public void ResultIsEmptyIfReferenceTypeOptionalDoesNotContainValue()
-            {
-                var optional = default(Optional<string>);
-
-                Assert.Equal("Empty", optional.ToString());
-            }
-
-            [Fact]
-            public void ResultContainsValueIfNullableReferenceTypeOptionalContainsValue()
-            {
-                var optional = new Optional<string?>("Hello world!");
-
-                Assert.Contains("Hello world!", optional.ToString());
-            }
-
-            [Fact]
-            public void ResultContainsNullIfNullableReferenceTypeOptionalContainsNullValue()
-            {
-                var optional = new Optional<string?>(null);
-
-                Assert.Contains("null", optional.ToString());
-            }
-
-            [Fact]
-            public void ResultIsEmptyIfNullableReferenceTypeOptionalDoesNotContainValue()
-            {
-                var optional = default(Optional<string?>);
-
-                Assert.Equal("Empty", optional.ToString());
-            }
+            Assert.True(optional.HasValue);
         }
 
-        /// <summary>
-        /// Tests the implicit operator.
-        /// </summary>
-        public class ImplicitOperator
+        [Fact]
+        public void ReturnsFalseWhenOptionalNullableValueTypeDoesNotContainValue()
         {
-            [Fact]
-            public void CanCreateValueTypeOptionalImplicitly()
-            {
-                Optional<int> optional = 64;
+            Optional<int?> optional = default;
 
-                Assert.True(optional.HasValue);
-                Assert.Equal(64, optional.Value);
-            }
+            Assert.False(optional.HasValue);
+        }
 
-            [Fact]
-            public void CanCreateNullableValueTypeOptionalImplicitly()
-            {
-                Optional<int?> optional = 64;
+        [Fact]
+        public void ReturnsTrueWhenOptionalReferenceTypeContainsValue()
+        {
+            var optional = new Optional<string>("Hello world!");
 
-                Assert.True(optional.HasValue);
-                Assert.Equal(64, optional.Value);
+            Assert.True(optional.HasValue);
+        }
 
-                Optional<int?> nullOptional = null;
+        [Fact]
+        public void ReturnsFalseWhenOptionalReferenceTypeDoesNotContainValue()
+        {
+            Optional<string> optional = default;
 
-                Assert.True(nullOptional.HasValue);
-                Assert.Null(nullOptional.Value);
-            }
+            Assert.False(optional.HasValue);
+        }
 
-            [Fact]
-            public void CanCreateReferenceTypeOptionalImplicitly()
-            {
-                Optional<string> optional = "Hello world!";
+        [Fact]
+        public void ReturnsTrueWhenOptionalNullableReferenceTypeContainsValue()
+        {
+            var optional = new Optional<string?>(null);
 
-                Assert.True(optional.HasValue);
-                Assert.Equal("Hello world!", optional.Value);
-            }
+            Assert.True(optional.HasValue);
+        }
 
-            [Fact]
-            public void CanCreateNullableReferenceTypeOptionalImplicitly()
-            {
-                Optional<string?> optional = "Hello world!";
+        [Fact]
+        public void ReturnsFalseWhenOptionalNullableReferenceTypeDoesNotContainValue()
+        {
+            Optional<string?> optional = default;
 
-                Assert.True(optional.HasValue);
-                Assert.Equal("Hello world!", optional.Value);
+            Assert.False(optional.HasValue);
+        }
+    }
 
-                Optional<string?> nullOptional = null;
+    /// <summary>
+    /// Tests the <see cref="Optional{TValue}.Value"/> property.
+    /// </summary>
+    public class Value
+    {
+        [Fact]
+        public void ReturnsCorrectValueIfValueTypeOptionalContainsValue()
+        {
+            var optional = new Optional<int>(64);
 
-                Assert.True(nullOptional.HasValue);
-                Assert.Null(nullOptional.Value);
-            }
+            Assert.Equal(64, optional.Value);
+        }
+
+        [Fact]
+        public void ThrowsIfValueTypeOptionalDoesNotContainValue()
+        {
+            Optional<int> optional = default;
+
+            Assert.Throws<InvalidOperationException>(() => optional.Value);
+        }
+
+        [Fact]
+        public void ReturnsCorrectValueIfNullableValueTypeOptionalContainsValue()
+        {
+            var optional = new Optional<int?>(64);
+
+            Assert.Equal(64, optional.Value);
+        }
+
+        [Fact]
+        public void ReturnsCorrectValueIfNullableValueTypeOptionalContainsNullValue()
+        {
+            var optional = new Optional<int?>(null);
+
+            Assert.Null(optional.Value);
+        }
+
+        [Fact]
+        public void ThrowsIfNullableValueTypeOptionalDoesNotContainValue()
+        {
+            Optional<int?> optional = default;
+
+            Assert.Throws<InvalidOperationException>(() => optional.Value);
+        }
+
+        [Fact]
+        public void ReturnsCorrectValueIfReferenceTypeOptionalContainsValue()
+        {
+            var optional = new Optional<string>("Hello world!");
+
+            Assert.Equal("Hello world!", optional.Value);
+        }
+
+        [Fact]
+        public void ThrowsIfReferenceTypeOptionalDoesNotContainValue()
+        {
+            Optional<string> optional = default;
+
+            Assert.Throws<InvalidOperationException>(() => optional.Value);
+        }
+
+        [Fact]
+        public void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsValue()
+        {
+            var optional = new Optional<string?>("Hello world!");
+
+            Assert.Equal("Hello world!", optional.Value);
+        }
+
+        [Fact]
+        public void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsNullValue()
+        {
+            var optional = new Optional<string?>(null);
+
+            Assert.Null(optional.Value);
+        }
+
+        [Fact]
+        public void ThrowsIfNullableReferenceTypeOptionalDoesNotContainValue()
+        {
+            Optional<string?> optional = default;
+
+            Assert.Throws<InvalidOperationException>(() => optional.Value);
+        }
+    }
+
+    /// <summary>
+    /// Tests the <see cref="Optional{TValue}.IsDefined()"/> method and its overloads.
+    /// </summary>
+    public class IsDefined
+    {
+        [Fact]
+        public void ReturnsFalseIfNullableOptionalHasNoValue()
+        {
+            Optional<int?> noValue = default;
+            Assert.False(noValue.IsDefined());
+
+            Assert.False(noValue.IsDefined(out var value));
+            Assert.Null(value);
+        }
+
+        [Fact]
+        public void ReturnsFalseIfNullableOptionalHasNullValue()
+        {
+            Optional<int?> noValue = null;
+            Assert.False(noValue.IsDefined());
+
+            Assert.False(noValue.IsDefined(out var value));
+            Assert.Null(value);
+        }
+
+        [Fact]
+        public void ReturnsTrueIfNullableOptionalHasNonNullValue()
+        {
+            Optional<int?> noValue = 1;
+            Assert.True(noValue.IsDefined());
+
+            Assert.True(noValue.IsDefined(out var value));
+            Assert.NotNull(value);
+        }
+
+        [Fact]
+        public void ReturnsFalseIfOptionalHasNoValue()
+        {
+            Optional<int> noValue = default;
+            Assert.False(noValue.IsDefined());
+            Assert.False(noValue.IsDefined(out _));
+        }
+
+        [Fact]
+        public void ReturnsTrueIfOptionalHasNonNullValue()
+        {
+            Optional<int> noValue = 1;
+            Assert.True(noValue.IsDefined());
+
+            Assert.True(noValue.IsDefined(out var value));
+            Assert.Equal(1, value);
+        }
+    }
+
+    /// <summary>
+    /// Tests the <see cref="Optional{TValue}.ToString"/> method.
+    /// </summary>
+    public new class ToString
+    {
+        [Fact]
+        public void ResultContainsValueIfValueTypeOptionalContainsValue()
+        {
+            var optional = new Optional<int>(64);
+
+            Assert.Contains(64.ToString(), optional.ToString());
+        }
+
+        [Fact]
+        public void ResultIsEmptyIfValueTypeOptionalDoesNotContainValue()
+        {
+            var optional = default(Optional<int>);
+
+            Assert.Equal("Empty", optional.ToString());
+        }
+
+        [Fact]
+        public void ResultContainsValueIfNullableValueTypeOptionalContainsValue()
+        {
+            var optional = new Optional<int?>(64);
+
+            Assert.Contains(64.ToString(), optional.ToString());
+        }
+
+        [Fact]
+        public void ResultContainsNullIfNullableValueTypeOptionalContainsNullValue()
+        {
+            var optional = new Optional<int?>(null);
+
+            Assert.Contains("null", optional.ToString());
+        }
+
+        [Fact]
+        public void ResultIsEmptyIfNullableValueTypeOptionalDoesNotContainValue()
+        {
+            var optional = default(Optional<int?>);
+
+            Assert.Equal("Empty", optional.ToString());
+        }
+
+        [Fact]
+        public void ResultContainsValueIfReferenceTypeOptionalContainsValue()
+        {
+            var optional = new Optional<string>("Hello world!");
+
+            Assert.Contains("Hello world!", optional.ToString());
+        }
+
+        [Fact]
+        public void ResultIsEmptyIfReferenceTypeOptionalDoesNotContainValue()
+        {
+            var optional = default(Optional<string>);
+
+            Assert.Equal("Empty", optional.ToString());
+        }
+
+        [Fact]
+        public void ResultContainsValueIfNullableReferenceTypeOptionalContainsValue()
+        {
+            var optional = new Optional<string?>("Hello world!");
+
+            Assert.Contains("Hello world!", optional.ToString());
+        }
+
+        [Fact]
+        public void ResultContainsNullIfNullableReferenceTypeOptionalContainsNullValue()
+        {
+            var optional = new Optional<string?>(null);
+
+            Assert.Contains("null", optional.ToString());
+        }
+
+        [Fact]
+        public void ResultIsEmptyIfNullableReferenceTypeOptionalDoesNotContainValue()
+        {
+            var optional = default(Optional<string?>);
+
+            Assert.Equal("Empty", optional.ToString());
+        }
+    }
+
+    /// <summary>
+    /// Tests the implicit operator.
+    /// </summary>
+    public class ImplicitOperator
+    {
+        [Fact]
+        public void CanCreateValueTypeOptionalImplicitly()
+        {
+            Optional<int> optional = 64;
+
+            Assert.True(optional.HasValue);
+            Assert.Equal(64, optional.Value);
+        }
+
+        [Fact]
+        public void CanCreateNullableValueTypeOptionalImplicitly()
+        {
+            Optional<int?> optional = 64;
+
+            Assert.True(optional.HasValue);
+            Assert.Equal(64, optional.Value);
+
+            Optional<int?> nullOptional = null;
+
+            Assert.True(nullOptional.HasValue);
+            Assert.Null(nullOptional.Value);
+        }
+
+        [Fact]
+        public void CanCreateReferenceTypeOptionalImplicitly()
+        {
+            Optional<string> optional = "Hello world!";
+
+            Assert.True(optional.HasValue);
+            Assert.Equal("Hello world!", optional.Value);
+        }
+
+        [Fact]
+        public void CanCreateNullableReferenceTypeOptionalImplicitly()
+        {
+            Optional<string?> optional = "Hello world!";
+
+            Assert.True(optional.HasValue);
+            Assert.Equal("Hello world!", optional.Value);
+
+            Optional<string?> nullOptional = null;
+
+            Assert.True(nullOptional.HasValue);
+            Assert.Null(nullOptional.Value);
         }
     }
 }

@@ -43,7 +43,7 @@ public static class TypeDetectionExtensions
             return false;
         }
 
-        var signature = BitConverter.ToUInt64(array[..8]);
+        var signature = BitConverter.ToUInt64(array.AsSpan()[..8]);
         return signature == PNGSignature;
     }
 

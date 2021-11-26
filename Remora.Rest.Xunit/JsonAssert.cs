@@ -132,6 +132,7 @@ public static class JsonAssert
                 Assert.Equal(expected.GetBoolean(), actual.GetBoolean());
                 break;
             }
+            case JsonValueKind.Undefined:
             case JsonValueKind.Null:
             {
                 // Equal by definition

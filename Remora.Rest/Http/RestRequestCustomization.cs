@@ -56,6 +56,7 @@ public class RestRequestCustomization : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
         _parentClient.RemoveCustomization(this);
     }
 }

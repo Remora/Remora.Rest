@@ -44,11 +44,6 @@ public class MultipartJsonPayloadRequestMatcher : IMockedRequestMatcher
     /// <inheritdoc />
     public bool Matches(HttpRequestMessage message)
     {
-        if (message.Content is null)
-        {
-            return false;
-        }
-
         if (message.Content is not MultipartFormDataContent multipart)
         {
             return false;

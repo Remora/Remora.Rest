@@ -76,12 +76,7 @@ public static class MultipartFormDataContentExtensions
                 return false;
             }
 
-            if (c.Headers.ContentDisposition.Name?.Trim('"') != name)
-            {
-                return false;
-            }
-
-            return matcher(c);
+            return c.Headers.ContentDisposition.Name?.Trim('"') == name && matcher(c);
         });
     }
 
@@ -111,12 +106,7 @@ public static class MultipartFormDataContentExtensions
                 return false;
             }
 
-            if (c.Headers.ContentDisposition.FileName?.Trim('"') != filename)
-            {
-                return false;
-            }
-
-            return matcher(c);
+            return c.Headers.ContentDisposition.FileName?.Trim('"') == filename && matcher(c);
         });
     }
 }

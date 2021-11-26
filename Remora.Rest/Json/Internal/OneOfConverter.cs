@@ -67,7 +67,7 @@ internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
 
     static OneOfConverter()
     {
-        Type unionType = typeof(TOneOf);
+        var unionType = typeof(TOneOf);
         var unionMemberTypes = unionType.GetGenericArguments();
 
         OrderedUnionMemberTypes = unionMemberTypes

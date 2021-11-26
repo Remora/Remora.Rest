@@ -78,7 +78,21 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
 
         _dtoConstructor = FindBestMatchingConstructor(visibleProperties);
+
+/* Unmerged change from project 'Remora.Rest'
+Before:
         _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
+After:
+        _dtoProperties = DataObjectConverter<TInterface, TImplementation>.ReorderProperties(visibleProperties, _dtoConstructor);
+*/
+
+/* Unmerged change from project 'Remora.Rest'
+Before:
+        _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
+After:
+        _dtoProperties = DataObjectConverter<TInterface, TImplementation>.ReorderProperties(visibleProperties, _dtoConstructor);
+*/
+        _dtoProperties = DataObjectConverter<TInterface, TImplementation>.ReorderProperties(visibleProperties, _dtoConstructor);
         _interfaceMap = implementationType.GetInterfaceMap(typeof(TInterface));
     }
 
@@ -91,7 +105,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
     /// <exception cref="MissingMemberException">
     /// Thrown if no match between a property and a parameter can be established.
     /// </exception>
-    private IReadOnlyList<PropertyInfo> ReorderProperties
+    private static IReadOnlyList<PropertyInfo> ReorderProperties
     (
         PropertyInfo[] visibleProperties,
         ConstructorInfo constructor
@@ -138,7 +152,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         if (implementationConstructors.Length == 1)
         {
             var singleCandidate = implementationConstructors[0];
-            return IsMatchingConstructor(singleCandidate, visiblePropertyTypes)
+            return DataObjectConverter<TInterface, TImplementation>.IsMatchingConstructor(singleCandidate, visiblePropertyTypes)
                 ? singleCandidate
                 : throw new MissingMethodException
                 (
@@ -148,7 +162,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         }
 
         var matchingConstructors = implementationType.GetConstructors()
-            .Where(c => IsMatchingConstructor(c, visiblePropertyTypes)).ToList();
+            .Where(c => DataObjectConverter<TInterface, TImplementation>.IsMatchingConstructor(c, visiblePropertyTypes)).ToList();
 
         if (matchingConstructors.Count == 1)
         {
@@ -683,7 +697,11 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         return this;
     }
 
-    private bool IsMatchingConstructor(ConstructorInfo constructor, IReadOnlyCollection<Type> visiblePropertyTypes)
+    private static bool IsMatchingConstructor
+    (
+        ConstructorInfo constructor,
+        IReadOnlyCollection<Type> visiblePropertyTypes
+    )
     {
         if (constructor.GetParameters().Length != visiblePropertyTypes.Count)
         {

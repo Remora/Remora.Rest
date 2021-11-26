@@ -25,131 +25,130 @@ using Remora.Rest.Xunit.Json;
 using Xunit;
 using Xunit.Sdk;
 
-namespace Remora.Rest.Xunit.Tests
+namespace Remora.Rest.Xunit.Tests;
+
+/// <summary>
+/// Tests the <see cref="JsonObjectMatcherBuilder"/> class, and its constituent matchers.
+/// </summary>
+public class JsonObjectMatcherBuilderTests
 {
     /// <summary>
-    /// Tests the <see cref="JsonObjectMatcherBuilder"/> class, and its constituent matchers.
+    /// Tests the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method.
     /// </summary>
-    public class JsonObjectMatcherBuilderTests
+    public class WithProperty
     {
         /// <summary>
-        /// Tests the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method.
+        /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method returns true if the
+        /// required property is present.
         /// </summary>
-        public class WithProperty
+        [Fact]
+        public void ReturnsTrueIfPropertyIsPresent()
         {
-            /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method returns true if the
-            /// required property is present.
-            /// </summary>
-            [Fact]
-            public void ReturnsTrueIfPropertyIsPresent()
-            {
-                var json = "{ \"value\": 0 }";
+            var json = "{ \"value\": 0 }";
 
-                var document = JsonDocument.Parse(json);
+            var document = JsonDocument.Parse(json);
 
-                var matcher = new JsonObjectMatcherBuilder()
-                    .WithProperty("value")
-                    .Build();
+            var matcher = new JsonObjectMatcherBuilder()
+                .WithProperty("value")
+                .Build();
 
-                Assert.True(matcher.Matches(document.RootElement));
-            }
-
-            /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method returns true if the
-            /// required property is present, and the property value matches.
-            /// </summary>
-            [Fact]
-            public void ReturnsTrueIfPropertyIsPresentAndMatches()
-            {
-                var json = "{ \"value\": 0 }";
-
-                var document = JsonDocument.Parse(json);
-
-                var matcher = new JsonObjectMatcherBuilder()
-                    .WithProperty("value", p => p.Is(0))
-                    .Build();
-
-                Assert.True(matcher.Matches(document.RootElement));
-            }
-
-            /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method asserts if the
-            /// required property is not present.
-            /// </summary>
-            [Fact]
-            public void AssertsIfPropertyIsNotPresent()
-            {
-                var json = "{ \"value\": 0 }";
-
-                var document = JsonDocument.Parse(json);
-
-                var matcher = new JsonObjectMatcherBuilder()
-                    .WithProperty("missing_property")
-                    .Build();
-
-                Assert.Throws<ContainsException>(() => matcher.Matches(document.RootElement));
-            }
-
-            /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method asserts if the
-            /// required property is present, but the property value does not match.
-            /// </summary>
-            [Fact]
-            public void AssertsIfPropertyIsPresentButDoesNotMatch()
-            {
-                var json = "{ \"value\": 0 }";
-
-                var document = JsonDocument.Parse(json);
-
-                var matcher = new JsonObjectMatcherBuilder()
-                    .WithProperty("value", p => p.Is(1))
-                    .Build();
-
-                Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
-            }
+            Assert.True(matcher.Matches(document.RootElement));
         }
 
         /// <summary>
-        /// Tests the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method.
+        /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method returns true if the
+        /// required property is present, and the property value matches.
         /// </summary>
-        public class WithoutProperty
+        [Fact]
+        public void ReturnsTrueIfPropertyIsPresentAndMatches()
         {
-            /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method returns true if the
-            /// forbidden property is not present.
-            /// </summary>
-            [Fact]
-            public void ReturnsTrueIfPropertyIsNotPresent()
-            {
-                var json = "{ \"value\": 0 }";
+            var json = "{ \"value\": 0 }";
 
-                var document = JsonDocument.Parse(json);
+            var document = JsonDocument.Parse(json);
 
-                var matcher = new JsonObjectMatcherBuilder()
-                    .WithoutProperty("forbidden_property")
-                    .Build();
+            var matcher = new JsonObjectMatcherBuilder()
+                .WithProperty("value", p => p.Is(0))
+                .Build();
 
-                Assert.True(matcher.Matches(document.RootElement));
-            }
+            Assert.True(matcher.Matches(document.RootElement));
+        }
 
-            /// <summary>
-            /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method asserts if the
-            /// forbidden property is present.
-            /// </summary>
-            [Fact]
-            public void AssertsIfPropertyIsPresent()
-            {
-                var json = "{ \"value\": 0 }";
+        /// <summary>
+        /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method asserts if the
+        /// required property is not present.
+        /// </summary>
+        [Fact]
+        public void AssertsIfPropertyIsNotPresent()
+        {
+            var json = "{ \"value\": 0 }";
 
-                var document = JsonDocument.Parse(json);
+            var document = JsonDocument.Parse(json);
 
-                var matcher = new JsonObjectMatcherBuilder()
-                    .WithoutProperty("value")
-                    .Build();
+            var matcher = new JsonObjectMatcherBuilder()
+                .WithProperty("missing_property")
+                .Build();
 
-                Assert.Throws<DoesNotContainException>(() => matcher.Matches(document.RootElement));
-            }
+            Assert.Throws<ContainsException>(() => matcher.Matches(document.RootElement));
+        }
+
+        /// <summary>
+        /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithProperty"/> method asserts if the
+        /// required property is present, but the property value does not match.
+        /// </summary>
+        [Fact]
+        public void AssertsIfPropertyIsPresentButDoesNotMatch()
+        {
+            var json = "{ \"value\": 0 }";
+
+            var document = JsonDocument.Parse(json);
+
+            var matcher = new JsonObjectMatcherBuilder()
+                .WithProperty("value", p => p.Is(1))
+                .Build();
+
+            Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+        }
+    }
+
+    /// <summary>
+    /// Tests the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method.
+    /// </summary>
+    public class WithoutProperty
+    {
+        /// <summary>
+        /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method returns true if the
+        /// forbidden property is not present.
+        /// </summary>
+        [Fact]
+        public void ReturnsTrueIfPropertyIsNotPresent()
+        {
+            var json = "{ \"value\": 0 }";
+
+            var document = JsonDocument.Parse(json);
+
+            var matcher = new JsonObjectMatcherBuilder()
+                .WithoutProperty("forbidden_property")
+                .Build();
+
+            Assert.True(matcher.Matches(document.RootElement));
+        }
+
+        /// <summary>
+        /// Tests whether the <see cref="JsonObjectMatcherBuilder.WithoutProperty"/> method asserts if the
+        /// forbidden property is present.
+        /// </summary>
+        [Fact]
+        public void AssertsIfPropertyIsPresent()
+        {
+            var json = "{ \"value\": 0 }";
+
+            var document = JsonDocument.Parse(json);
+
+            var matcher = new JsonObjectMatcherBuilder()
+                .WithoutProperty("value")
+                .Build();
+
+            Assert.Throws<DoesNotContainException>(() => matcher.Matches(document.RootElement));
         }
     }
 }

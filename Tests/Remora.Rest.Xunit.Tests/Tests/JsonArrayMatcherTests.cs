@@ -26,96 +26,95 @@ using System.Text.Json;
 using Remora.Rest.Xunit.Json;
 using Xunit;
 
-namespace Remora.Rest.Xunit.Tests
+namespace Remora.Rest.Xunit.Tests;
+
+/// <summary>
+/// Tests the <see cref="JsonArrayMatcher"/> class.
+/// </summary>
+public class JsonArrayMatcherTests
 {
     /// <summary>
-    /// Tests the <see cref="JsonArrayMatcher"/> class.
+    /// Tests the <see cref="JsonArrayMatcher.Matches"/> method.
     /// </summary>
-    public class JsonArrayMatcherTests
+    public class Matches
     {
         /// <summary>
-        /// Tests the <see cref="JsonArrayMatcher.Matches"/> method.
+        /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns true if the matcher contains
+        /// no matching functions.
         /// </summary>
-        public class Matches
+        [Fact]
+        public void ReturnTrueIfNoMatchersAreConfigured()
         {
-            /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns true if the matcher contains
-            /// no matching functions.
-            /// </summary>
-            [Fact]
-            public void ReturnTrueIfNoMatchersAreConfigured()
+            var matcher = new JsonArrayMatcher(new List<Func<JsonElement.ArrayEnumerator, bool>>());
+            Assert.True(matcher.Matches(default));
+        }
+
+        /// <summary>
+        /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns true if the matcher contains
+        /// a single matching function, which returns true.
+        /// </summary>
+        [Fact]
+        public void ReturnTrueIfSingleMatcherMatches()
+        {
+            var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
             {
-                var matcher = new JsonArrayMatcher(new List<Func<JsonElement.ArrayEnumerator, bool>>());
-                Assert.True(matcher.Matches(default));
-            }
+                _ => true
+            };
 
-            /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns true if the matcher contains
-            /// a single matching function, which returns true.
-            /// </summary>
-            [Fact]
-            public void ReturnTrueIfSingleMatcherMatches()
+            var matcher = new JsonArrayMatcher(matchers);
+            Assert.True(matcher.Matches(default));
+        }
+
+        /// <summary>
+        /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns false if the matcher contains
+        /// a single matching function, which returns false.
+        /// </summary>
+        [Fact]
+        public void ReturnFalseIfSingleMatcherDoesNotMatch()
+        {
+            var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
             {
-                var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
-                {
-                    _ => true
-                };
+                _ => false
+            };
 
-                var matcher = new JsonArrayMatcher(matchers);
-                Assert.True(matcher.Matches(default));
-            }
+            var matcher = new JsonArrayMatcher(matchers);
+            Assert.False(matcher.Matches(default));
+        }
 
-            /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns false if the matcher contains
-            /// a single matching function, which returns false.
-            /// </summary>
-            [Fact]
-            public void ReturnFalseIfSingleMatcherDoesNotMatch()
+        /// <summary>
+        /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns true if the matcher contains
+        /// multiple matching functions, which all return true.
+        /// </summary>
+        [Fact]
+        public void ReturnTrueIfAllMatchersMatch()
+        {
+            var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
             {
-                var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
-                {
-                    _ => false
-                };
+                _ => true,
+                _ => true,
+                _ => true
+            };
 
-                var matcher = new JsonArrayMatcher(matchers);
-                Assert.False(matcher.Matches(default));
-            }
+            var matcher = new JsonArrayMatcher(matchers);
+            Assert.True(matcher.Matches(default));
+        }
 
-            /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns true if the matcher contains
-            /// multiple matching functions, which all return true.
-            /// </summary>
-            [Fact]
-            public void ReturnTrueIfAllMatchersMatch()
+        /// <summary>
+        /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns false if the matcher contains
+        /// multiple matching functions, at least one of which returns false.
+        /// </summary>
+        [Fact]
+        public void ReturnFalseIfOneMatcherDoesNotMatch()
+        {
+            var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
             {
-                var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
-                {
-                    _ => true,
-                    _ => true,
-                    _ => true
-                };
+                _ => true,
+                _ => false,
+                _ => true
+            };
 
-                var matcher = new JsonArrayMatcher(matchers);
-                Assert.True(matcher.Matches(default));
-            }
-
-            /// <summary>
-            /// Tests whether the <see cref="JsonArrayMatcher.Matches"/> method returns false if the matcher contains
-            /// multiple matching functions, at least one of which returns false.
-            /// </summary>
-            [Fact]
-            public void ReturnFalseIfOneMatcherDoesNotMatch()
-            {
-                var matchers = new List<Func<JsonElement.ArrayEnumerator, bool>>
-                {
-                    _ => true,
-                    _ => false,
-                    _ => true
-                };
-
-                var matcher = new JsonArrayMatcher(matchers);
-                Assert.False(matcher.Matches(default));
-            }
+            var matcher = new JsonArrayMatcher(matchers);
+            Assert.False(matcher.Matches(default));
         }
     }
 }
