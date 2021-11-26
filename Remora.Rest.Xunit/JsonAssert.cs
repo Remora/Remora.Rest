@@ -25,122 +25,121 @@ using System.Linq;
 using System.Text.Json;
 using Xunit;
 
-namespace Remora.Rest.Xunit
+namespace Remora.Rest.Xunit;
+
+/// <summary>
+/// Defines various additional assertions for xUnit.
+/// </summary>
+public static class JsonAssert
 {
     /// <summary>
-    /// Defines various additional assertions for xUnit.
+    /// Asserts that the given <see cref="JsonDocument"/> values are equivalent, that is, ordering of properties
+    /// may differ, but the logical contents must be the same.
     /// </summary>
-    public static class JsonAssert
+    /// <param name="expected">The expected object.</param>
+    /// <param name="actual">The actual object.</param>
+    /// <param name="assertOptions">The assertion options.</param>
+    public static void Equivalent
+    (
+        JsonDocument expected,
+        JsonDocument actual,
+        JsonAssertOptions? assertOptions = default
+    )
+        => Equivalent(expected.RootElement, actual.RootElement, assertOptions);
+
+    /// <summary>
+    /// Asserts that the given <see cref="JsonDocument"/> values are equivalent, that is, ordering of properties
+    /// in an object may differ, but the logical contents must be the same. Arrays must equal in both count,
+    /// elements, and order.
+    /// </summary>
+    /// <param name="expected">The expected object.</param>
+    /// <param name="actual">The actual object.</param>
+    /// <param name="assertOptions">The assertion options.</param>
+    public static void Equivalent
+    (
+        JsonElement expected,
+        JsonElement actual,
+        JsonAssertOptions? assertOptions = default
+    )
     {
-        /// <summary>
-        /// Asserts that the given <see cref="JsonDocument"/> values are equivalent, that is, ordering of properties
-        /// may differ, but the logical contents must be the same.
-        /// </summary>
-        /// <param name="expected">The expected object.</param>
-        /// <param name="actual">The actual object.</param>
-        /// <param name="assertOptions">The assertion options.</param>
-        public static void Equivalent
-        (
-            JsonDocument expected,
-            JsonDocument actual,
-            JsonAssertOptions? assertOptions = default
-        )
-            => Equivalent(expected.RootElement, actual.RootElement, assertOptions);
+        assertOptions ??= JsonAssertOptions.Default;
 
-        /// <summary>
-        /// Asserts that the given <see cref="JsonDocument"/> values are equivalent, that is, ordering of properties
-        /// in an object may differ, but the logical contents must be the same. Arrays must equal in both count,
-        /// elements, and order.
-        /// </summary>
-        /// <param name="expected">The expected object.</param>
-        /// <param name="actual">The actual object.</param>
-        /// <param name="assertOptions">The assertion options.</param>
-        public static void Equivalent
-        (
-            JsonElement expected,
-            JsonElement actual,
-            JsonAssertOptions? assertOptions = default
-        )
+        Assert.Equal(expected.ValueKind, actual.ValueKind);
+
+        switch (expected.ValueKind)
         {
-            assertOptions ??= JsonAssertOptions.Default;
-
-            Assert.Equal(expected.ValueKind, actual.ValueKind);
-
-            switch (expected.ValueKind)
+            case JsonValueKind.Object:
             {
-                case JsonValueKind.Object:
+                var actualElements = actual.EnumerateObject().ToList();
+                var expectedElements = expected.EnumerateObject().ToList();
+
+                foreach (var expectedElement in expectedElements)
                 {
-                    var actualElements = actual.EnumerateObject().ToList();
-                    var expectedElements = expected.EnumerateObject().ToList();
-
-                    foreach (var expectedElement in expectedElements)
+                    var isElementPresent = actualElements.Any(ae => ae.NameEquals(expectedElement.Name));
+                    if (!isElementPresent)
                     {
-                        var isElementPresent = actualElements.Any(ae => ae.NameEquals(expectedElement.Name));
-                        if (!isElementPresent)
+                        if (assertOptions.AllowMissing.Contains(expectedElement.Name))
                         {
-                            if (assertOptions.AllowMissing.Contains(expectedElement.Name))
-                            {
-                                continue;
-                            }
-
-                            if (assertOptions.AllowMissingBy(expectedElement))
-                            {
-                                continue;
-                            }
+                            continue;
                         }
 
-                        Assert.True
-                        (
-                            isElementPresent,
-                            $"JSON property \"{expectedElement.Name}\" is missing."
-                        );
-
-                        var matchingElement = actualElements.First(ae => ae.NameEquals(expectedElement.Name));
-
-                        Equivalent(expectedElement.Value, matchingElement.Value, assertOptions);
+                        if (assertOptions.AllowMissingBy(expectedElement))
+                        {
+                            continue;
+                        }
                     }
 
-                    break;
-                }
-                case JsonValueKind.Array:
-                {
-                    var actualElements = actual.EnumerateArray().ToList();
-                    var expectedElements = expected.EnumerateArray()
-                        .Where(e => !assertOptions.AllowSkip(e))
-                        .ToList();
+                    Assert.True
+                    (
+                        isElementPresent,
+                        $"JSON property \"{expectedElement.Name}\" is missing."
+                    );
 
-                    for (var i = 0; i < expectedElements.Count; ++i)
-                    {
-                        Equivalent(expectedElements[i], actualElements[i], assertOptions);
-                    }
+                    var matchingElement = actualElements.First(ae => ae.NameEquals(expectedElement.Name));
 
-                    break;
+                    Equivalent(expectedElement.Value, matchingElement.Value, assertOptions);
                 }
-                case JsonValueKind.String:
+
+                break;
+            }
+            case JsonValueKind.Array:
+            {
+                var actualElements = actual.EnumerateArray().ToList();
+                var expectedElements = expected.EnumerateArray()
+                    .Where(e => !assertOptions.AllowSkip(e))
+                    .ToList();
+
+                for (var i = 0; i < expectedElements.Count; ++i)
                 {
-                    Assert.Equal(expected.GetString(), actual.GetString());
-                    break;
+                    Equivalent(expectedElements[i], actualElements[i], assertOptions);
                 }
-                case JsonValueKind.Number:
-                {
-                    Assert.Equal(expected.GetDouble(), actual.GetDouble());
-                    break;
-                }
-                case JsonValueKind.True:
-                case JsonValueKind.False:
-                {
-                    Assert.Equal(expected.GetBoolean(), actual.GetBoolean());
-                    break;
-                }
-                case JsonValueKind.Null:
-                {
-                    // Equal by definition
-                    break;
-                }
-                default:
-                {
-                    throw new ArgumentOutOfRangeException(nameof(expected));
-                }
+
+                break;
+            }
+            case JsonValueKind.String:
+            {
+                Assert.Equal(expected.GetString(), actual.GetString());
+                break;
+            }
+            case JsonValueKind.Number:
+            {
+                Assert.Equal(expected.GetDouble(), actual.GetDouble());
+                break;
+            }
+            case JsonValueKind.True:
+            case JsonValueKind.False:
+            {
+                Assert.Equal(expected.GetBoolean(), actual.GetBoolean());
+                break;
+            }
+            case JsonValueKind.Null:
+            {
+                // Equal by definition
+                break;
+            }
+            default:
+            {
+                throw new ArgumentOutOfRangeException(nameof(expected));
             }
         }
     }

@@ -26,79 +26,78 @@ using System.Text.Json;
 using JetBrains.Annotations;
 using Xunit.Sdk;
 
-namespace Remora.Rest.Xunit.Json
+namespace Remora.Rest.Xunit.Json;
+
+/// <summary>
+/// Builds instances of the <see cref="JsonObjectMatcher"/> class.
+/// </summary>
+[PublicAPI]
+public class JsonObjectMatcherBuilder
 {
+    private readonly List<Func<JsonElement, bool>> _matchers = new();
+
     /// <summary>
-    /// Builds instances of the <see cref="JsonObjectMatcher"/> class.
+    /// Adds a requirement that a given property should exist.
     /// </summary>
-    [PublicAPI]
-    public class JsonObjectMatcherBuilder
+    /// <param name="name">The name of the property.</param>
+    /// <param name="elementMatcherBuilder">The additional requirements on the property value.</param>
+    /// <returns>The builder, with the requirement.</returns>
+    public JsonObjectMatcherBuilder WithProperty
+    (
+        string name,
+        Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null
+    )
     {
-        private readonly List<Func<JsonElement, bool>> _matchers = new();
-
-        /// <summary>
-        /// Adds a requirement that a given property should exist.
-        /// </summary>
-        /// <param name="name">The name of the property.</param>
-        /// <param name="elementMatcherBuilder">The additional requirements on the property value.</param>
-        /// <returns>The builder, with the requirement.</returns>
-        public JsonObjectMatcherBuilder WithProperty
+        _matchers.Add
         (
-            string name,
-            Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null
-        )
-        {
-            _matchers.Add
-            (
-                obj =>
+            obj =>
+            {
+                if (!obj.TryGetProperty(name, out var property))
                 {
-                    if (!obj.TryGetProperty(name, out var property))
-                    {
-                        throw new ContainsException(name, obj);
-                    }
-
-                    if (elementMatcherBuilder is null)
-                    {
-                        return true;
-                    }
-
-                    var matcherBuilder = new JsonElementMatcherBuilder();
-                    elementMatcherBuilder(matcherBuilder);
-
-                    return matcherBuilder.Build().Matches(property);
+                    throw new ContainsException(name, obj);
                 }
-            );
 
-            return this;
-        }
+                if (elementMatcherBuilder is null)
+                {
+                    return true;
+                }
 
-        /// <summary>
-        /// Adds a requirement that a given property should not exist.
-        /// </summary>
-        /// <param name="name">The name of the property.</param>
-        /// <returns>The builder, with the requirement.</returns>
-        public JsonObjectMatcherBuilder WithoutProperty
+                var matcherBuilder = new JsonElementMatcherBuilder();
+                elementMatcherBuilder(matcherBuilder);
+
+                return matcherBuilder.Build().Matches(property);
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that a given property should not exist.
+    /// </summary>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>The builder, with the requirement.</returns>
+    public JsonObjectMatcherBuilder WithoutProperty
+    (
+        string name
+    )
+    {
+        _matchers.Add
         (
-            string name
-        )
-        {
-            _matchers.Add
-            (
-                obj => obj.TryGetProperty(name, out _)
-                    ? throw new DoesNotContainException(name, obj)
-                    : true
-            );
+            obj => obj.TryGetProperty(name, out _)
+                ? throw new DoesNotContainException(name, obj)
+                : true
+        );
 
-            return this;
-        }
+        return this;
+    }
 
-        /// <summary>
-        /// Builds the object matcher.
-        /// </summary>
-        /// <returns>The built object matcher.</returns>
-        public JsonObjectMatcher Build()
-        {
-            return new(_matchers);
-        }
+    /// <summary>
+    /// Builds the object matcher.
+    /// </summary>
+    /// <returns>The built object matcher.</returns>
+    public JsonObjectMatcher Build()
+    {
+        return new(_matchers);
     }
 }

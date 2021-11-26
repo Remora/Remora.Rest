@@ -27,595 +27,594 @@ using JetBrains.Annotations;
 using Xunit;
 using Xunit.Sdk;
 
-namespace Remora.Rest.Xunit.Json
+namespace Remora.Rest.Xunit.Json;
+
+/// <summary>
+/// Builds instances of the <see cref="JsonElementMatcher"/> class.
+/// </summary>
+[PublicAPI]
+public class JsonElementMatcherBuilder
 {
+    private readonly List<Func<JsonElement, bool>> _matchers = new();
+
     /// <summary>
-    /// Builds instances of the <see cref="JsonElementMatcher"/> class.
+    /// Adds a requirement that the element should be an object, with optional additional requirements.
     /// </summary>
-    [PublicAPI]
-    public class JsonElementMatcherBuilder
+    /// <param name="objectMatcherBuilder">The optional requirement builder.</param>
+    /// <returns>The request matcher builder, with the requirements added.</returns>
+    public JsonElementMatcherBuilder IsObject(Action<JsonObjectMatcherBuilder>? objectMatcherBuilder = null)
     {
-        private readonly List<Func<JsonElement, bool>> _matchers = new();
-
-        /// <summary>
-        /// Adds a requirement that the element should be an object, with optional additional requirements.
-        /// </summary>
-        /// <param name="objectMatcherBuilder">The optional requirement builder.</param>
-        /// <returns>The request matcher builder, with the requirements added.</returns>
-        public JsonElementMatcherBuilder IsObject(Action<JsonObjectMatcherBuilder>? objectMatcherBuilder = null)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Object, j.ValueKind);
-                    if (objectMatcherBuilder is null)
-                    {
-                        return true;
-                    }
-
-                    var objectMatcher = new JsonObjectMatcherBuilder();
-                    objectMatcherBuilder(objectMatcher);
-
-                    objectMatcher.Build().Matches(j);
-
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be an array, with optional additional requirements.
-        /// </summary>
-        /// <param name="arrayMatcherBuilder">The optional requirement builder.</param>
-        /// <returns>The request matcher builder, with the requirements added.</returns>
-        public JsonElementMatcherBuilder IsArray(Action<JsonArrayMatcherBuilder>? arrayMatcherBuilder = null)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Array, j.ValueKind);
-                    if (arrayMatcherBuilder is null)
-                    {
-                        return true;
-                    }
-
-                    var arrayMatcher = new JsonArrayMatcherBuilder();
-                    arrayMatcherBuilder(arrayMatcher);
-
-                    arrayMatcher.Build().Matches(j.EnumerateArray());
-
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a value, with optional additional requirements.
-        /// </summary>
-        /// <param name="valueKind">The type of value the element should be.</param>
-        /// <param name="valueMatcher">The optional requirement.</param>
-        /// <returns>The request matcher builder, with the requirements added.</returns>
-        public JsonElementMatcherBuilder IsValue(JsonValueKind valueKind, Func<JsonElement, bool>? valueMatcher = null)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(valueKind, j.ValueKind);
-                    return valueMatcher is null || valueMatcher(j);
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a null value.
-        /// </summary>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder IsNull()
-        {
-            _matchers.Add(j =>
+        _matchers.Add
+        (
+            j =>
             {
-                Assert.Equal(JsonValueKind.Null, j.ValueKind);
-                return true;
-            });
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a boolean.
-        /// </summary>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder IsBoolean()
-        {
-            _matchers.Add
-            (
-                j =>
+                Assert.Equal(JsonValueKind.Object, j.ValueKind);
+                if (objectMatcherBuilder is null)
                 {
-                    if (j.ValueKind is JsonValueKind.True or JsonValueKind.False)
-                    {
-                        return true;
-                    }
-
-                    throw new EqualException("True or False", j.ValueKind.ToString());
+                    return true;
                 }
-            );
 
-            return this;
-        }
+                var objectMatcher = new JsonObjectMatcherBuilder();
+                objectMatcherBuilder(objectMatcher);
 
-        /// <summary>
-        /// Adds a requirement that the element should be a number.
-        /// </summary>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder IsNumber()
+                objectMatcher.Build().Matches(j);
+
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be an array, with optional additional requirements.
+    /// </summary>
+    /// <param name="arrayMatcherBuilder">The optional requirement builder.</param>
+    /// <returns>The request matcher builder, with the requirements added.</returns>
+    public JsonElementMatcherBuilder IsArray(Action<JsonArrayMatcherBuilder>? arrayMatcherBuilder = null)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Array, j.ValueKind);
+                if (arrayMatcherBuilder is null)
+                {
+                    return true;
+                }
+
+                var arrayMatcher = new JsonArrayMatcherBuilder();
+                arrayMatcherBuilder(arrayMatcher);
+
+                arrayMatcher.Build().Matches(j.EnumerateArray());
+
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a value, with optional additional requirements.
+    /// </summary>
+    /// <param name="valueKind">The type of value the element should be.</param>
+    /// <param name="valueMatcher">The optional requirement.</param>
+    /// <returns>The request matcher builder, with the requirements added.</returns>
+    public JsonElementMatcherBuilder IsValue(JsonValueKind valueKind, Func<JsonElement, bool>? valueMatcher = null)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(valueKind, j.ValueKind);
+                return valueMatcher is null || valueMatcher(j);
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a null value.
+    /// </summary>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder IsNull()
+    {
+        _matchers.Add(j =>
         {
-            _matchers.Add(j =>
+            Assert.Equal(JsonValueKind.Null, j.ValueKind);
+            return true;
+        });
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a boolean.
+    /// </summary>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder IsBoolean()
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                if (j.ValueKind is JsonValueKind.True or JsonValueKind.False)
+                {
+                    return true;
+                }
+
+                throw new EqualException("True or False", j.ValueKind.ToString());
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a number.
+    /// </summary>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder IsNumber()
+    {
+        _matchers.Add(j =>
+        {
+            Assert.Equal(JsonValueKind.Number, j.ValueKind);
+            return true;
+        });
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a boolean.
+    /// </summary>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder IsString()
+    {
+        _matchers.Add(j =>
+        {
+            Assert.Equal(JsonValueKind.String, j.ValueKind);
+            return true;
+        });
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be an 8-bit integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(sbyte value)
+    {
+        _matchers.Add
+        (
+            j =>
             {
                 Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetSByte(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(SByte), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
                 return true;
-            });
+            }
+        );
 
-            return this;
-        }
+        return this;
+    }
 
-        /// <summary>
-        /// Adds a requirement that the element should be a boolean.
-        /// </summary>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder IsString()
-        {
-            _matchers.Add(j =>
+    /// <summary>
+    /// Adds a requirement that the element should be a 16-bit integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(short value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetInt16(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(Int16), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a 32-bit integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(int value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetInt32(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(Int32), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a 64-bit integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(long value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetInt64(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(Int64), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be an 8-bit unsigned integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(byte value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetByte(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(Byte), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a 16-bit unsigned integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(ushort value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetUInt16(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(UInt16), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a 32-bit unsigned integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(uint value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetUInt32(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(UInt32), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a 64-bit unsigned integer with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(ulong value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetUInt64(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(UInt64), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a string with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(string value)
+    {
+        _matchers.Add
+        (
+            j =>
             {
                 Assert.Equal(JsonValueKind.String, j.ValueKind);
+                Assert.Equal(value, j.GetString());
                 return true;
-            });
+            }
+        );
 
-            return this;
-        }
+        return this;
+    }
 
-        /// <summary>
-        /// Adds a requirement that the element should be an 8-bit integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(sbyte value)
+    /// <summary>
+    /// Adds a requirement that the element should be a boolean with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(bool value)
+    {
+        _matchers.Add(j =>
         {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
+            Assert.Equal(value ? JsonValueKind.True : JsonValueKind.False, j.ValueKind);
+            return true;
+        });
 
-                    if (!j.TryGetSByte(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(SByte), "Number");
-                    }
+        return this;
+    }
 
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a 16-bit integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(short value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetInt16(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Int16), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a 32-bit integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(int value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetInt32(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Int32), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a 64-bit integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(long value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetInt64(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Int64), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be an 8-bit unsigned integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(byte value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetByte(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Byte), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a 16-bit unsigned integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(ushort value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetUInt16(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(UInt16), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a 32-bit unsigned integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(uint value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetUInt32(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(UInt32), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a 64-bit unsigned integer with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(ulong value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetUInt64(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(UInt64), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a string with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(string value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.String, j.ValueKind);
-                    Assert.Equal(value, j.GetString());
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the element should be a boolean with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(bool value)
-        {
-            _matchers.Add(j =>
+    /// <summary>
+    /// Adds a requirement that the element should be a decimal with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(decimal value)
+    {
+        _matchers.Add
+        (
+            j =>
             {
-                Assert.Equal(value ? JsonValueKind.True : JsonValueKind.False, j.ValueKind);
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetDecimal(out var actualValue))
+                {
+                    throw new IsTypeException(nameof(Decimal), "Number");
+                }
+
+                Assert.Equal(value, actualValue);
                 return true;
-            });
+            }
+        );
 
-            return this;
-        }
+        return this;
+    }
 
-        /// <summary>
-        /// Adds a requirement that the element should be a decimal with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(decimal value)
-        {
-            _matchers.Add
-            (
-                j =>
+    /// <summary>
+    /// Adds a requirement that the element should be a 32-bit floating point value with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(float value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetSingle(out var actualValue))
                 {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetDecimal(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Decimal), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
+                    throw new IsTypeException(nameof(Single), "Number");
                 }
-            );
 
-            return this;
-        }
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
 
-        /// <summary>
-        /// Adds a requirement that the element should be a 32-bit floating point value with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(float value)
-        {
-            _matchers.Add
-            (
-                j =>
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a 64-bit floating point value with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(double value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.Number, j.ValueKind);
+
+                if (!j.TryGetDouble(out var actualValue))
                 {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetSingle(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Single), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
+                    throw new IsTypeException(nameof(Double), "Number");
                 }
-            );
 
-            return this;
-        }
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
 
-        /// <summary>
-        /// Adds a requirement that the element should be a 64-bit floating point value with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(double value)
-        {
-            _matchers.Add
-            (
-                j =>
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a <see cref="Guid"/>-representable string with the given
+    /// value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(Guid value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                if (!j.TryGetGuid(out var actualValue))
                 {
-                    Assert.Equal(JsonValueKind.Number, j.ValueKind);
-
-                    if (!j.TryGetDouble(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Double), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
+                    throw new IsTypeException(nameof(Guid), "Number");
                 }
-            );
 
-            return this;
-        }
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
 
-        /// <summary>
-        /// Adds a requirement that the element should be a <see cref="Guid"/>-representable string with the given
-        /// value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(Guid value)
-        {
-            _matchers.Add
-            (
-                j =>
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a <see cref="DateTime"/> with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(DateTime value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                if (!j.TryGetDateTime(out var actualValue))
                 {
-                    Assert.Equal(JsonValueKind.String, j.ValueKind);
-
-                    if (!j.TryGetGuid(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(Guid), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
+                    throw new IsTypeException(nameof(DateTime), "Number");
                 }
-            );
 
-            return this;
-        }
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
 
-        /// <summary>
-        /// Adds a requirement that the element should be a <see cref="DateTime"/> with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(DateTime value)
-        {
-            _matchers.Add
-            (
-                j =>
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a <see cref="DateTimeOffset"/> with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(DateTimeOffset value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                if (!j.TryGetDateTimeOffset(out var actualValue))
                 {
-                    Assert.Equal(JsonValueKind.String, j.ValueKind);
-
-                    if (!j.TryGetDateTime(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(DateTime), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
+                    throw new IsTypeException(nameof(DateTimeOffset), "Number");
                 }
-            );
 
-            return this;
-        }
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
 
-        /// <summary>
-        /// Adds a requirement that the element should be a <see cref="DateTimeOffset"/> with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(DateTimeOffset value)
-        {
-            _matchers.Add
-            (
-                j =>
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the element should be a base64-encoded byte array with the given value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The builder, with the requirement added.</returns>
+    public JsonElementMatcherBuilder Is(IEnumerable<byte> value)
+    {
+        _matchers.Add
+        (
+            j =>
+            {
+                Assert.Equal(JsonValueKind.String, j.ValueKind);
+
+                if (!j.TryGetBytesFromBase64(out var actualValue))
                 {
-                    Assert.Equal(JsonValueKind.String, j.ValueKind);
-
-                    if (!j.TryGetDateTimeOffset(out var actualValue))
-                    {
-                        throw new IsTypeException(nameof(DateTimeOffset), "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
+                    throw new IsTypeException("IEnumerable<byte>", "Number");
                 }
-            );
 
-            return this;
-        }
+                Assert.Equal(value, actualValue);
+                return true;
+            }
+        );
 
-        /// <summary>
-        /// Adds a requirement that the element should be a base64-encoded byte array with the given value.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The builder, with the requirement added.</returns>
-        public JsonElementMatcherBuilder Is(IEnumerable<byte> value)
-        {
-            _matchers.Add
-            (
-                j =>
-                {
-                    Assert.Equal(JsonValueKind.String, j.ValueKind);
+        return this;
+    }
 
-                    if (!j.TryGetBytesFromBase64(out var actualValue))
-                    {
-                        throw new IsTypeException("IEnumerable<byte>", "Number");
-                    }
-
-                    Assert.Equal(value, actualValue);
-                    return true;
-                }
-            );
-
-            return this;
-        }
-
-        /// <summary>
-        /// Builds the element matcher.
-        /// </summary>
-        /// <returns>The built element matcher.</returns>
-        public JsonElementMatcher Build()
-        {
-            return new(_matchers);
-        }
+    /// <summary>
+    /// Builds the element matcher.
+    /// </summary>
+    /// <returns>The built element matcher.</returns>
+    public JsonElementMatcher Build()
+    {
+        return new(_matchers);
     }
 }

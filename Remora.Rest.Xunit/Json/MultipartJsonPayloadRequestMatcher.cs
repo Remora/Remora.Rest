@@ -25,49 +25,48 @@ using System.Net.Http;
 using System.Text.Json;
 using RichardSzalay.MockHttp;
 
-namespace Remora.Rest.Xunit.Json
+namespace Remora.Rest.Xunit.Json;
+
+/// <inheritdoc />
+public class MultipartJsonPayloadRequestMatcher : IMockedRequestMatcher
 {
-    /// <inheritdoc />
-    public class MultipartJsonPayloadRequestMatcher : IMockedRequestMatcher
+    private readonly JsonElementMatcher _elementMatcher;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MultipartJsonPayloadRequestMatcher"/> class.
+    /// </summary>
+    /// <param name="elementMatcher">The underlying element matcher.</param>
+    public MultipartJsonPayloadRequestMatcher(JsonElementMatcher elementMatcher)
     {
-        private readonly JsonElementMatcher _elementMatcher;
+        _elementMatcher = elementMatcher;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MultipartJsonPayloadRequestMatcher"/> class.
-        /// </summary>
-        /// <param name="elementMatcher">The underlying element matcher.</param>
-        public MultipartJsonPayloadRequestMatcher(JsonElementMatcher elementMatcher)
+    /// <inheritdoc />
+    public bool Matches(HttpRequestMessage message)
+    {
+        if (message.Content is null)
         {
-            _elementMatcher = elementMatcher;
+            return false;
         }
 
-        /// <inheritdoc />
-        public bool Matches(HttpRequestMessage message)
+        if (message.Content is not MultipartFormDataContent multipart)
         {
-            if (message.Content is null)
-            {
-                return false;
-            }
-
-            if (message.Content is not MultipartFormDataContent multipart)
-            {
-                return false;
-            }
-
-            var payloadContent = multipart.FirstOrDefault
-            (
-                c => c is StringContent s && s.Headers.ContentDisposition?.Name == "payload_json"
-            );
-
-            if (payloadContent is null)
-            {
-                return false;
-            }
-
-            var content = payloadContent.ReadAsStreamAsync().GetAwaiter().GetResult();
-            using var json = JsonDocument.Parse(content);
-
-            return _elementMatcher.Matches(json.RootElement);
+            return false;
         }
+
+        var payloadContent = multipart.FirstOrDefault
+        (
+            c => c is StringContent s && s.Headers.ContentDisposition?.Name == "payload_json"
+        );
+
+        if (payloadContent is null)
+        {
+            return false;
+        }
+
+        var content = payloadContent.ReadAsStreamAsync().GetAwaiter().GetResult();
+        using var json = JsonDocument.Parse(content);
+
+        return _elementMatcher.Matches(json.RootElement);
     }
 }

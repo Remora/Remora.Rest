@@ -29,361 +29,360 @@ using Xunit;
 // ReSharper disable SA1600
 #pragma warning disable 1591, SA1600
 
-namespace Remora.Rest.Tests.Extensions
+namespace Remora.Rest.Tests.Extensions;
+
+/// <summary>
+/// Tests the <see cref="Rest.Extensions.TypeExtensions"/> class.
+/// </summary>
+public class TypeExtensionTests
 {
-    /// <summary>
-    /// Tests the <see cref="Rest.Extensions.TypeExtensions"/> class.
-    /// </summary>
-    public class TypeExtensionTests
+    public class IsOptional
     {
-        public class IsOptional
+        [Fact]
+        public void ReturnsFalseForNonOptionalType()
         {
-            [Fact]
-            public void ReturnsFalseForNonOptionalType()
-            {
-                Assert.False(typeof(int).IsOptional());
-            }
-
-            [Fact]
-            public void ReturnsFalseForNonOptionalGenericType()
-            {
-                Assert.False(typeof(List<int>).IsOptional());
-            }
-
-            [Fact]
-            public void ReturnsTrueForOptionalType()
-            {
-                Assert.True(typeof(Optional<int>).IsOptional());
-            }
+            Assert.False(typeof(int).IsOptional());
         }
 
-        public class IsNullable
+        [Fact]
+        public void ReturnsFalseForNonOptionalGenericType()
         {
-            [Fact]
-            public void ReturnsFalseForNonNullableType()
-            {
-                Assert.False(typeof(int).IsNullable());
-            }
-
-            [Fact]
-            public void ReturnsFalseForNonNullableGenericType()
-            {
-                Assert.False(typeof(List<int>).IsNullable());
-            }
-
-            [Fact]
-            public void ReturnsTrueForNullableType()
-            {
-                Assert.True(typeof(int?).IsNullable());
-            }
+            Assert.False(typeof(List<int>).IsOptional());
         }
 
-        public class Unwrap
+        [Fact]
+        public void ReturnsTrueForOptionalType()
         {
-            [Fact]
-            public void UnwrapsOptional()
-            {
-                Assert.Equal(typeof(int), typeof(Optional<int>).Unwrap());
-            }
+            Assert.True(typeof(Optional<int>).IsOptional());
+        }
+    }
 
-            [Fact]
-            public void UnwrapsOptionalNullable()
-            {
-                Assert.Equal(typeof(int), typeof(Optional<int?>).Unwrap());
-            }
-
-            [Fact]
-            public void UnwrapsNullableOptional()
-            {
-                Assert.Equal(typeof(int), typeof(Optional<int>?).Unwrap());
-            }
-
-            [Fact]
-            public void DoesNotChangeOtherGenericTypes()
-            {
-                Assert.Equal(typeof(List<int>), typeof(Optional<List<int>>).Unwrap());
-            }
-
-            [Fact]
-            public void DoesNotChangeNonOptionalOrNonNullableType()
-            {
-                Assert.Equal(typeof(int), typeof(int).Unwrap());
-            }
+    public class IsNullable
+    {
+        [Fact]
+        public void ReturnsFalseForNonNullableType()
+        {
+            Assert.False(typeof(int).IsNullable());
         }
 
-        public class GetPublicProperties
+        [Fact]
+        public void ReturnsFalseForNonNullableGenericType()
         {
-            // ReSharper disable UnassignedGetOnlyAutoProperty
-            private interface IEmptyInterface
-            {
-            }
+            Assert.False(typeof(List<int>).IsNullable());
+        }
 
-            private interface IInterfaceWithSingleProperty
-            {
-                int SingleProperty { get; }
-            }
+        [Fact]
+        public void ReturnsTrueForNullableType()
+        {
+            Assert.True(typeof(int?).IsNullable());
+        }
+    }
 
-            private interface IInterfaceWithMultipleProperties
-            {
-                int FirstProperty { get; }
+    public class Unwrap
+    {
+        [Fact]
+        public void UnwrapsOptional()
+        {
+            Assert.Equal(typeof(int), typeof(Optional<int>).Unwrap());
+        }
 
-                int SecondProperty { get; }
-            }
+        [Fact]
+        public void UnwrapsOptionalNullable()
+        {
+            Assert.Equal(typeof(int), typeof(Optional<int?>).Unwrap());
+        }
 
-            private interface IInterfaceWithInheritedProperties
-                :
-                    IInterfaceWithSingleProperty,
-                    IInterfaceWithMultipleProperties
-            {
-            }
+        [Fact]
+        public void UnwrapsNullableOptional()
+        {
+            Assert.Equal(typeof(int), typeof(Optional<int>?).Unwrap());
+        }
 
-            private class EmptyClass
-            {
-            }
+        [Fact]
+        public void DoesNotChangeOtherGenericTypes()
+        {
+            Assert.Equal(typeof(List<int>), typeof(Optional<List<int>>).Unwrap());
+        }
 
-            private class ClassWithSingleProperty
-            {
-                public int SingleProperty { get; }
-            }
+        [Fact]
+        public void DoesNotChangeNonOptionalOrNonNullableType()
+        {
+            Assert.Equal(typeof(int), typeof(int).Unwrap());
+        }
+    }
 
-            private class ClassWithMultipleProperties
-            {
-                public int FirstProperty { get; }
+    public class GetPublicProperties
+    {
+        // ReSharper disable UnassignedGetOnlyAutoProperty
+        private interface IEmptyInterface
+        {
+        }
 
-                public int SecondProperty { get; }
-            }
+        private interface IInterfaceWithSingleProperty
+        {
+            int SingleProperty { get; }
+        }
 
-            private class ClassWithInheritedProperties
-                :
-                    IInterfaceWithSingleProperty,
-                    IInterfaceWithMultipleProperties
-            {
-                public int SingleProperty { get; }
+        private interface IInterfaceWithMultipleProperties
+        {
+            int FirstProperty { get; }
 
-                public int FirstProperty { get; }
+            int SecondProperty { get; }
+        }
 
-                public int SecondProperty { get; }
-            }
+        private interface IInterfaceWithInheritedProperties
+            :
+                IInterfaceWithSingleProperty,
+                IInterfaceWithMultipleProperties
+        {
+        }
 
-            private class ClassWithInheritedAndExtraProperties
-                :
-                    IInterfaceWithSingleProperty,
-                    IInterfaceWithMultipleProperties
-            {
-                public int SingleProperty { get; }
+        private class EmptyClass
+        {
+        }
 
-                public int FirstProperty { get; }
+        private class ClassWithSingleProperty
+        {
+            public int SingleProperty { get; }
+        }
 
-                public int SecondProperty { get; }
+        private class ClassWithMultipleProperties
+        {
+            public int FirstProperty { get; }
 
-                public int ThirdProperty { get; }
-            }
+            public int SecondProperty { get; }
+        }
 
-            // ReSharper restore UnassignedGetOnlyAutoProperty
-            [Fact]
-            public void ReturnsEmptyCollectionForEmptyInterface()
-            {
-                var properties = typeof(IEmptyInterface).GetPublicProperties();
+        private class ClassWithInheritedProperties
+            :
+                IInterfaceWithSingleProperty,
+                IInterfaceWithMultipleProperties
+        {
+            public int SingleProperty { get; }
 
-                Assert.Empty(properties.ToArray());
-            }
+            public int FirstProperty { get; }
 
-            [Fact]
-            public void ReturnsSingleElementForInterfaceWithSingleProperty()
-            {
-                var properties = typeof(IInterfaceWithSingleProperty).GetPublicProperties();
+            public int SecondProperty { get; }
+        }
 
-                Assert.Single(properties.ToArray());
-            }
+        private class ClassWithInheritedAndExtraProperties
+            :
+                IInterfaceWithSingleProperty,
+                IInterfaceWithMultipleProperties
+        {
+            public int SingleProperty { get; }
 
-            [Fact]
-            public void ReturnsMultipleElementsForInterfaceWithMultipleProperties()
-            {
-                var properties = typeof(IInterfaceWithMultipleProperties).GetPublicProperties();
+            public int FirstProperty { get; }
 
-                Assert.True(properties.Count() > 1);
-            }
+            public int SecondProperty { get; }
 
-            [Fact]
-            public void ReturnsMultipleElementsForInterfaceWithInheritedProperties()
-            {
-                var properties = typeof(IInterfaceWithInheritedProperties).GetPublicProperties();
+            public int ThirdProperty { get; }
+        }
 
-                Assert.True(properties.Count() > 1);
-            }
+        // ReSharper restore UnassignedGetOnlyAutoProperty
+        [Fact]
+        public void ReturnsEmptyCollectionForEmptyInterface()
+        {
+            var properties = typeof(IEmptyInterface).GetPublicProperties();
 
-            [Fact]
-            public void ReturnsCorrectElementForInterfaceWithSingleProperty()
-            {
-                var properties = typeof(IInterfaceWithSingleProperty).GetPublicProperties();
-                var singleProperty = typeof(IInterfaceWithSingleProperty).GetProperty
-                (
-                    nameof(IInterfaceWithSingleProperty.SingleProperty)
-                );
+            Assert.Empty(properties.ToArray());
+        }
 
-                Assert.Equal(singleProperty, properties.Single());
-            }
+        [Fact]
+        public void ReturnsSingleElementForInterfaceWithSingleProperty()
+        {
+            var properties = typeof(IInterfaceWithSingleProperty).GetPublicProperties();
 
-            [Fact]
-            public void ReturnsCorrectElementsForInterfaceWithMultipleProperties()
-            {
-                var properties = typeof(IInterfaceWithMultipleProperties).GetPublicProperties();
-                var firstProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
-                (
-                    nameof(IInterfaceWithMultipleProperties.FirstProperty)
-                );
+            Assert.Single(properties.ToArray());
+        }
 
-                var secondProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
-                (
-                    nameof(IInterfaceWithMultipleProperties.SecondProperty)
-                );
+        [Fact]
+        public void ReturnsMultipleElementsForInterfaceWithMultipleProperties()
+        {
+            var properties = typeof(IInterfaceWithMultipleProperties).GetPublicProperties();
 
-                Assert.Equal(new[] { firstProperty, secondProperty }, properties.ToArray());
-            }
+            Assert.True(properties.Count() > 1);
+        }
 
-            [Fact]
-            public void ReturnsCorrectElementsForInterfaceWithInheritedProperties()
-            {
-                var properties = typeof(IInterfaceWithInheritedProperties).GetPublicProperties();
-                var singleProperty = typeof(IInterfaceWithSingleProperty).GetProperty
-                (
-                    nameof(IInterfaceWithSingleProperty.SingleProperty)
-                );
+        [Fact]
+        public void ReturnsMultipleElementsForInterfaceWithInheritedProperties()
+        {
+            var properties = typeof(IInterfaceWithInheritedProperties).GetPublicProperties();
 
-                var firstProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
-                (
-                    nameof(IInterfaceWithMultipleProperties.FirstProperty)
-                );
+            Assert.True(properties.Count() > 1);
+        }
 
-                var secondProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
-                (
-                    nameof(IInterfaceWithMultipleProperties.SecondProperty)
-                );
+        [Fact]
+        public void ReturnsCorrectElementForInterfaceWithSingleProperty()
+        {
+            var properties = typeof(IInterfaceWithSingleProperty).GetPublicProperties();
+            var singleProperty = typeof(IInterfaceWithSingleProperty).GetProperty
+            (
+                nameof(IInterfaceWithSingleProperty.SingleProperty)
+            );
 
-                Assert.Equal(new[] { singleProperty, firstProperty, secondProperty }, properties.ToArray());
-            }
+            Assert.Equal(singleProperty, properties.Single());
+        }
 
-            [Fact]
-            public void ReturnsEmptyCollectionForEmptyClass()
-            {
-                var properties = typeof(EmptyClass).GetPublicProperties();
+        [Fact]
+        public void ReturnsCorrectElementsForInterfaceWithMultipleProperties()
+        {
+            var properties = typeof(IInterfaceWithMultipleProperties).GetPublicProperties();
+            var firstProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
+            (
+                nameof(IInterfaceWithMultipleProperties.FirstProperty)
+            );
 
-                Assert.Empty(properties.ToArray());
-            }
+            var secondProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
+            (
+                nameof(IInterfaceWithMultipleProperties.SecondProperty)
+            );
 
-            [Fact]
-            public void ReturnsSingleElementForClassWithSingleProperty()
-            {
-                var properties = typeof(ClassWithSingleProperty).GetPublicProperties();
+            Assert.Equal(new[] { firstProperty, secondProperty }, properties.ToArray());
+        }
 
-                Assert.Single(properties.ToArray());
-            }
+        [Fact]
+        public void ReturnsCorrectElementsForInterfaceWithInheritedProperties()
+        {
+            var properties = typeof(IInterfaceWithInheritedProperties).GetPublicProperties();
+            var singleProperty = typeof(IInterfaceWithSingleProperty).GetProperty
+            (
+                nameof(IInterfaceWithSingleProperty.SingleProperty)
+            );
 
-            [Fact]
-            public void ReturnsMultipleElementsForClassWithMultipleProperties()
-            {
-                var properties = typeof(ClassWithMultipleProperties).GetPublicProperties();
+            var firstProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
+            (
+                nameof(IInterfaceWithMultipleProperties.FirstProperty)
+            );
 
-                Assert.True(properties.Count() > 1);
-            }
+            var secondProperty = typeof(IInterfaceWithMultipleProperties).GetProperty
+            (
+                nameof(IInterfaceWithMultipleProperties.SecondProperty)
+            );
 
-            [Fact]
-            public void ReturnsMultipleElementsForClassWithInheritedProperties()
-            {
-                var properties = typeof(ClassWithInheritedProperties).GetPublicProperties();
+            Assert.Equal(new[] { singleProperty, firstProperty, secondProperty }, properties.ToArray());
+        }
 
-                Assert.True(properties.Count() > 1);
-            }
+        [Fact]
+        public void ReturnsEmptyCollectionForEmptyClass()
+        {
+            var properties = typeof(EmptyClass).GetPublicProperties();
 
-            [Fact]
-            public void ReturnsMultipleElementsForClassWithInheritedAndExtraProperties()
-            {
-                var properties = typeof(ClassWithInheritedAndExtraProperties).GetPublicProperties();
+            Assert.Empty(properties.ToArray());
+        }
 
-                Assert.True(properties.Count() > 1);
-            }
+        [Fact]
+        public void ReturnsSingleElementForClassWithSingleProperty()
+        {
+            var properties = typeof(ClassWithSingleProperty).GetPublicProperties();
 
-            [Fact]
-            public void ReturnsCorrectElementForClassWithSingleProperty()
-            {
-                var properties = typeof(ClassWithSingleProperty).GetPublicProperties();
-                var singleProperty = typeof(ClassWithSingleProperty).GetProperty
-                (
-                    nameof(ClassWithSingleProperty.SingleProperty)
-                );
+            Assert.Single(properties.ToArray());
+        }
 
-                Assert.Equal(singleProperty, properties.Single());
-            }
+        [Fact]
+        public void ReturnsMultipleElementsForClassWithMultipleProperties()
+        {
+            var properties = typeof(ClassWithMultipleProperties).GetPublicProperties();
 
-            [Fact]
-            public void ReturnsCorrectElementsForClassWithMultipleProperties()
-            {
-                var properties = typeof(ClassWithMultipleProperties).GetPublicProperties();
-                var firstProperty = typeof(ClassWithMultipleProperties).GetProperty
-                (
-                    nameof(ClassWithMultipleProperties.FirstProperty)
-                );
+            Assert.True(properties.Count() > 1);
+        }
 
-                var secondProperty = typeof(ClassWithMultipleProperties).GetProperty
-                (
-                    nameof(ClassWithMultipleProperties.SecondProperty)
-                );
+        [Fact]
+        public void ReturnsMultipleElementsForClassWithInheritedProperties()
+        {
+            var properties = typeof(ClassWithInheritedProperties).GetPublicProperties();
 
-                Assert.Equal(new[] { firstProperty, secondProperty }, properties.ToArray());
-            }
+            Assert.True(properties.Count() > 1);
+        }
 
-            [Fact]
-            public void ReturnsCorrectElementsForClassWithInheritedProperties()
-            {
-                var properties = typeof(ClassWithInheritedProperties).GetPublicProperties();
-                var singleProperty = typeof(ClassWithInheritedProperties).GetProperty
-                (
-                    nameof(ClassWithInheritedProperties.SingleProperty)
-                );
+        [Fact]
+        public void ReturnsMultipleElementsForClassWithInheritedAndExtraProperties()
+        {
+            var properties = typeof(ClassWithInheritedAndExtraProperties).GetPublicProperties();
 
-                var firstProperty = typeof(ClassWithInheritedProperties).GetProperty
-                (
-                    nameof(ClassWithInheritedProperties.FirstProperty)
-                );
+            Assert.True(properties.Count() > 1);
+        }
 
-                var secondProperty = typeof(ClassWithInheritedProperties).GetProperty
-                (
-                    nameof(ClassWithInheritedProperties.SecondProperty)
-                );
+        [Fact]
+        public void ReturnsCorrectElementForClassWithSingleProperty()
+        {
+            var properties = typeof(ClassWithSingleProperty).GetPublicProperties();
+            var singleProperty = typeof(ClassWithSingleProperty).GetProperty
+            (
+                nameof(ClassWithSingleProperty.SingleProperty)
+            );
 
-                Assert.Equal(new[] { singleProperty, firstProperty, secondProperty }, properties.ToArray());
-            }
+            Assert.Equal(singleProperty, properties.Single());
+        }
 
-            [Fact]
-            public void ReturnsCorrectElementsForClassWithInheritedAndExtraProperties()
-            {
-                var properties = typeof(ClassWithInheritedAndExtraProperties).GetPublicProperties();
-                var singleProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
-                (
-                    nameof(ClassWithInheritedAndExtraProperties.SingleProperty)
-                );
+        [Fact]
+        public void ReturnsCorrectElementsForClassWithMultipleProperties()
+        {
+            var properties = typeof(ClassWithMultipleProperties).GetPublicProperties();
+            var firstProperty = typeof(ClassWithMultipleProperties).GetProperty
+            (
+                nameof(ClassWithMultipleProperties.FirstProperty)
+            );
 
-                var firstProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
-                (
-                    nameof(ClassWithInheritedAndExtraProperties.FirstProperty)
-                );
+            var secondProperty = typeof(ClassWithMultipleProperties).GetProperty
+            (
+                nameof(ClassWithMultipleProperties.SecondProperty)
+            );
 
-                var secondProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
-                (
-                    nameof(ClassWithInheritedAndExtraProperties.SecondProperty)
-                );
+            Assert.Equal(new[] { firstProperty, secondProperty }, properties.ToArray());
+        }
 
-                var thirdProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
-                (
-                    nameof(ClassWithInheritedAndExtraProperties.ThirdProperty)
-                );
+        [Fact]
+        public void ReturnsCorrectElementsForClassWithInheritedProperties()
+        {
+            var properties = typeof(ClassWithInheritedProperties).GetPublicProperties();
+            var singleProperty = typeof(ClassWithInheritedProperties).GetProperty
+            (
+                nameof(ClassWithInheritedProperties.SingleProperty)
+            );
 
-                Assert.Equal
-                (
-                    new[] { singleProperty, firstProperty, secondProperty, thirdProperty },
-                    properties.ToArray()
-                );
-            }
+            var firstProperty = typeof(ClassWithInheritedProperties).GetProperty
+            (
+                nameof(ClassWithInheritedProperties.FirstProperty)
+            );
+
+            var secondProperty = typeof(ClassWithInheritedProperties).GetProperty
+            (
+                nameof(ClassWithInheritedProperties.SecondProperty)
+            );
+
+            Assert.Equal(new[] { singleProperty, firstProperty, secondProperty }, properties.ToArray());
+        }
+
+        [Fact]
+        public void ReturnsCorrectElementsForClassWithInheritedAndExtraProperties()
+        {
+            var properties = typeof(ClassWithInheritedAndExtraProperties).GetPublicProperties();
+            var singleProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
+            (
+                nameof(ClassWithInheritedAndExtraProperties.SingleProperty)
+            );
+
+            var firstProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
+            (
+                nameof(ClassWithInheritedAndExtraProperties.FirstProperty)
+            );
+
+            var secondProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
+            (
+                nameof(ClassWithInheritedAndExtraProperties.SecondProperty)
+            );
+
+            var thirdProperty = typeof(ClassWithInheritedAndExtraProperties).GetProperty
+            (
+                nameof(ClassWithInheritedAndExtraProperties.ThirdProperty)
+            );
+
+            Assert.Equal
+            (
+                new[] { singleProperty, firstProperty, secondProperty, thirdProperty },
+                properties.ToArray()
+            );
         }
     }
 }

@@ -27,38 +27,37 @@ using RichardSzalay.MockHttp;
 using Xunit;
 using Xunit.Sdk;
 
-namespace Remora.Rest.Xunit.Json
+namespace Remora.Rest.Xunit.Json;
+
+/// <inheritdoc />
+[PublicAPI]
+public class JsonRequestMatcher : IMockedRequestMatcher
 {
-    /// <inheritdoc />
-    [PublicAPI]
-    public class JsonRequestMatcher : IMockedRequestMatcher
+    private readonly JsonElementMatcher _elementMatcher;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="JsonRequestMatcher"/> class.
+    /// </summary>
+    /// <param name="elementMatcher">The underlying element matcher.</param>
+    public JsonRequestMatcher(JsonElementMatcher elementMatcher)
     {
-        private readonly JsonElementMatcher _elementMatcher;
+        _elementMatcher = elementMatcher;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonRequestMatcher"/> class.
-        /// </summary>
-        /// <param name="elementMatcher">The underlying element matcher.</param>
-        public JsonRequestMatcher(JsonElementMatcher elementMatcher)
+    /// <inheritdoc />
+    public bool Matches(HttpRequestMessage message)
+    {
+        Assert.NotNull(message.Content);
+
+        var content = message.Content!.ReadAsStreamAsync().GetAwaiter().GetResult();
+        try
         {
-            _elementMatcher = elementMatcher;
+            using var json = JsonDocument.Parse(content);
+            return _elementMatcher.Matches(json.RootElement);
         }
-
-        /// <inheritdoc />
-        public bool Matches(HttpRequestMessage message)
+        catch (JsonException)
         {
-            Assert.NotNull(message.Content);
-
-            var content = message.Content!.ReadAsStreamAsync().GetAwaiter().GetResult();
-            try
-            {
-                using var json = JsonDocument.Parse(content);
-                return _elementMatcher.Matches(json.RootElement);
-            }
-            catch (JsonException)
-            {
-                throw new IsTypeException("JSON", "Unknown");
-            }
+            throw new IsTypeException("JSON", "Unknown");
         }
     }
 }

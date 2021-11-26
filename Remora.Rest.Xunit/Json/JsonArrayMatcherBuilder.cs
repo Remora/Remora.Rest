@@ -28,175 +28,174 @@ using JetBrains.Annotations;
 using Xunit;
 using Xunit.Sdk;
 
-namespace Remora.Rest.Xunit.Json
+namespace Remora.Rest.Xunit.Json;
+
+/// <summary>
+/// Builds instances of the <see cref="JsonArrayMatcher"/> class.
+/// </summary>
+[PublicAPI]
+public class JsonArrayMatcherBuilder
 {
+    private readonly List<Func<JsonElement.ArrayEnumerator, bool>> _matchers = new();
+
     /// <summary>
-    /// Builds instances of the <see cref="JsonArrayMatcher"/> class.
+    /// Adds a requirement that the array is of an exact length.
     /// </summary>
-    [PublicAPI]
-    public class JsonArrayMatcherBuilder
+    /// <param name="countPredicate">The function of the required length.</param>
+    /// <returns>The builder, with the added requirement.</returns>
+    public JsonArrayMatcherBuilder WithCount(Func<long, bool> countPredicate)
     {
-        private readonly List<Func<JsonElement.ArrayEnumerator, bool>> _matchers = new();
-
-        /// <summary>
-        /// Adds a requirement that the array is of an exact length.
-        /// </summary>
-        /// <param name="countPredicate">The function of the required length.</param>
-        /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithCount(Func<long, bool> countPredicate)
+        _matchers.Add(j =>
         {
-            _matchers.Add(j =>
+            var match = countPredicate(j.LongCount());
+            if (!match)
             {
-                var match = countPredicate(j.LongCount());
-                if (!match)
+                throw new XunitException("Count predicate did not match.");
+            }
+
+            return true;
+        });
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that the array is of an exact length.
+    /// </summary>
+    /// <param name="count">The required length.</param>
+    /// <returns>The builder, with the added requirement.</returns>
+    public JsonArrayMatcherBuilder WithCount(long count) => WithCount(c =>
+    {
+        Assert.Equal(count, c);
+        return true;
+    });
+
+    /// <summary>
+    /// Adds a requirement that the array is of an exact length.
+    /// </summary>
+    /// <param name="count">The required length.</param>
+    /// <returns>The builder, with the added requirement.</returns>
+    public JsonArrayMatcherBuilder WithAtLeastCount(long count) => WithCount(c =>
+    {
+        Assert.NotInRange(c, 0, count - 1);
+        return true;
+    });
+
+    /// <summary>
+    /// Adds a requirement that the array is of an exact length.
+    /// </summary>
+    /// <param name="count">The required length.</param>
+    /// <returns>The builder, with the added requirement.</returns>
+    public JsonArrayMatcherBuilder WithNoMoreThanCount(long count) => WithCount(c =>
+    {
+        Assert.InRange(c, 0, count);
+        return true;
+    });
+
+    /// <summary>
+    /// Adds a requirement that any element matches the given element builder.
+    /// </summary>
+    /// <param name="elementMatcherBuilder">The element matcher.</param>
+    /// <returns>The builder, with the added requirement.</returns>
+    public JsonArrayMatcherBuilder WithAnyElement(Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null)
+    {
+        var elementMatcher = new JsonElementMatcherBuilder();
+        elementMatcherBuilder?.Invoke(elementMatcher);
+
+        var matcher = elementMatcher.Build();
+        _matchers.Add(j =>
+        {
+            var anyMatch = j.Any(e =>
+            {
+                try
                 {
-                    throw new XunitException("Count predicate did not match.");
+                    return matcher.Matches(e);
                 }
-
-                return true;
-            });
-
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that the array is of an exact length.
-        /// </summary>
-        /// <param name="count">The required length.</param>
-        /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithCount(long count) => WithCount(c =>
-        {
-            Assert.Equal(count, c);
-            return true;
-        });
-
-        /// <summary>
-        /// Adds a requirement that the array is of an exact length.
-        /// </summary>
-        /// <param name="count">The required length.</param>
-        /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithAtLeastCount(long count) => WithCount(c =>
-        {
-            Assert.NotInRange(c, 0, count - 1);
-            return true;
-        });
-
-        /// <summary>
-        /// Adds a requirement that the array is of an exact length.
-        /// </summary>
-        /// <param name="count">The required length.</param>
-        /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithNoMoreThanCount(long count) => WithCount(c =>
-        {
-            Assert.InRange(c, 0, count);
-            return true;
-        });
-
-        /// <summary>
-        /// Adds a requirement that any element matches the given element builder.
-        /// </summary>
-        /// <param name="elementMatcherBuilder">The element matcher.</param>
-        /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithAnyElement(Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null)
-        {
-            var elementMatcher = new JsonElementMatcherBuilder();
-            elementMatcherBuilder?.Invoke(elementMatcher);
-
-            var matcher = elementMatcher.Build();
-            _matchers.Add(j =>
-            {
-                var anyMatch = j.Any(e =>
+                catch (XunitException)
                 {
-                    try
-                    {
-                        return matcher.Matches(e);
-                    }
-                    catch (XunitException)
-                    {
-                        return false;
-                    }
-                });
-
-                if (!anyMatch)
-                {
-                    throw new XunitException("No elements in the JSON array matched.");
+                    return false;
                 }
-
-                return true;
             });
 
-            return this;
-        }
-
-        /// <summary>
-        /// Adds a requirement that a single element matches the given element builder.
-        /// </summary>
-        /// <param name="elementMatcherBuilder">The element matcher.</param>
-        /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithSingleElement(Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null)
-        {
-            var elementMatcher = new JsonElementMatcherBuilder();
-            elementMatcherBuilder?.Invoke(elementMatcher);
-
-            var matcher = elementMatcher.Build();
-            _matchers.Add(j =>
+            if (!anyMatch)
             {
-                var matchingCount = j.Count(e =>
-                {
-                    try
-                    {
-                        return matcher.Matches(e);
-                    }
-                    catch (XunitException)
-                    {
-                        return false;
-                    }
-                });
+                throw new XunitException("No elements in the JSON array matched.");
+            }
 
-                return matchingCount switch
-                {
-                    > 1 => throw SingleException.MoreThanOne(),
-                    < 1 => throw SingleException.Empty(),
-                    _ => true
-                };
-            });
+            return true;
+        });
 
-            return this;
-        }
+        return this;
+    }
 
-        /// <summary>
-        /// Adds a requirement that an element at the given index matches the given element builder.
-        /// </summary>
-        /// <param name="index">The index of the element.</param>
-        /// <param name="elementMatcherBuilder">The element matcher.</param>
-        /// <returns>The builder, with the added requirement.</returns>
-        public JsonArrayMatcherBuilder WithElement
-        (
-            int index,
-            Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null
-        )
+    /// <summary>
+    /// Adds a requirement that a single element matches the given element builder.
+    /// </summary>
+    /// <param name="elementMatcherBuilder">The element matcher.</param>
+    /// <returns>The builder, with the added requirement.</returns>
+    public JsonArrayMatcherBuilder WithSingleElement(Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null)
+    {
+        var elementMatcher = new JsonElementMatcherBuilder();
+        elementMatcherBuilder?.Invoke(elementMatcher);
+
+        var matcher = elementMatcher.Build();
+        _matchers.Add(j =>
         {
-            var elementMatcher = new JsonElementMatcherBuilder();
-            elementMatcherBuilder?.Invoke(elementMatcher);
-
-            var matcher = elementMatcher.Build();
-
-            _matchers.Add(j =>
+            var matchingCount = j.Count(e =>
             {
-                Assert.InRange(index, 0, j.Count() - 1);
-                return matcher.Matches(j.ElementAt(index));
+                try
+                {
+                    return matcher.Matches(e);
+                }
+                catch (XunitException)
+                {
+                    return false;
+                }
             });
 
-            return this;
-        }
+            return matchingCount switch
+            {
+                > 1 => throw SingleException.MoreThanOne(),
+                < 1 => throw SingleException.Empty(),
+                _ => true
+            };
+        });
 
-        /// <summary>
-        /// Builds the array matcher.
-        /// </summary>
-        /// <returns>The built array matcher.</returns>
-        public JsonArrayMatcher Build()
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a requirement that an element at the given index matches the given element builder.
+    /// </summary>
+    /// <param name="index">The index of the element.</param>
+    /// <param name="elementMatcherBuilder">The element matcher.</param>
+    /// <returns>The builder, with the added requirement.</returns>
+    public JsonArrayMatcherBuilder WithElement
+    (
+        int index,
+        Action<JsonElementMatcherBuilder>? elementMatcherBuilder = null
+    )
+    {
+        var elementMatcher = new JsonElementMatcherBuilder();
+        elementMatcherBuilder?.Invoke(elementMatcher);
+
+        var matcher = elementMatcher.Build();
+
+        _matchers.Add(j =>
         {
-            return new(_matchers);
-        }
+            Assert.InRange(index, 0, j.Count() - 1);
+            return matcher.Matches(j.ElementAt(index));
+        });
+
+        return this;
+    }
+
+    /// <summary>
+    /// Builds the array matcher.
+    /// </summary>
+    /// <returns>The built array matcher.</returns>
+    public JsonArrayMatcher Build()
+    {
+        return new(_matchers);
     }
 }

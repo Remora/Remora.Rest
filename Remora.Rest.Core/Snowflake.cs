@@ -24,194 +24,193 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
-namespace Remora.Rest.Core
+namespace Remora.Rest.Core;
+
+/// <summary>
+/// Represents a snowflake, used as a unique ID.
+/// </summary>
+/// <remarks>
+/// See <a href="https://en.wikipedia.org/wiki/Snowflake_ID"/> for more information.
+/// </remarks>
+[PublicAPI]
+public readonly struct Snowflake : IEquatable<Snowflake>, IComparable<Snowflake>
 {
     /// <summary>
-    /// Represents a snowflake, used as a unique ID.
+    /// Gets the internal value representation of the snowflake.
     /// </summary>
-    /// <remarks>
-    /// See <a href="https://en.wikipedia.org/wiki/Snowflake_ID"/> for more information.
-    /// </remarks>
-    [PublicAPI]
-    public readonly struct Snowflake : IEquatable<Snowflake>, IComparable<Snowflake>
+    public ulong Value { get; }
+
+    /// <summary>
+    /// Gets the timestamp embedded in the snowflake.
+    /// </summary>
+    public DateTimeOffset Timestamp { get; }
+
+    /// <summary>
+    /// Gets the internal worker ID used by the generating service.
+    /// </summary>
+    public byte InternalWorkerID { get; }
+
+    /// <summary>
+    /// Gets the internal process ID used by generating service.
+    /// </summary>
+    public byte InternalProcessID { get; }
+
+    /// <summary>
+    /// Gets a per-process increment. This number is incremented every time a new ID is generated on the process
+    /// referred to by <see cref="InternalProcessID"/>.
+    /// </summary>
+    public ushort Increment { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Snowflake"/> struct.
+    /// </summary>
+    /// <param name="value">The binary representation of the snowflake.</param>
+    /// <param name="epoch">The time epoch used for the embedded timestamp.</param>
+    public Snowflake(ulong value, ulong epoch = 0)
     {
-        /// <summary>
-        /// Gets the internal value representation of the snowflake.
-        /// </summary>
-        public ulong Value { get; }
+        this.Value = value;
+        this.Timestamp = DateTimeOffset.FromUnixTimeMilliseconds((long)((value >> 22) + epoch)).UtcDateTime;
+        this.InternalWorkerID = (byte)((value & 0x3E0000) >> 17);
+        this.InternalProcessID = (byte)((value & 0x1F000) >> 12);
+        this.Increment = (ushort)(value & 0xFFF);
+    }
 
-        /// <summary>
-        /// Gets the timestamp embedded in the snowflake.
-        /// </summary>
-        public DateTimeOffset Timestamp { get; }
+    /// <summary>
+    /// Creates a new snowflake from a timestamp. This is generally used for pagination in API endpoints.
+    /// </summary>
+    /// <param name="timestamp">The timestamp.</param>
+    /// <param name="epoch">The epoch used for the embedded timestamp.</param>
+    /// <returns>The snowflake.</returns>
+    public static Snowflake CreateTimestampSnowflake(DateTimeOffset? timestamp = null, ulong epoch = 0)
+    {
+        timestamp ??= DateTimeOffset.UtcNow;
 
-        /// <summary>
-        /// Gets the internal worker ID used by the generating service.
-        /// </summary>
-        public byte InternalWorkerID { get; }
+        var value = (ulong)((timestamp.Value.ToUnixTimeMilliseconds() - (long)epoch) << 22);
+        return new Snowflake(value);
+    }
 
-        /// <summary>
-        /// Gets the internal process ID used by generating service.
-        /// </summary>
-        public byte InternalProcessID { get; }
+    /// <summary>
+    /// Attempts to parse a snowflake value from the given string.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <param name="result">The result.</param>
+    /// <param name="epoch">The time epoch used for the embedded timestamp.</param>
+    /// <returns>true if a snowflake was successfully parsed; otherwise, false.</returns>
+    public static bool TryParse(string value, [NotNullWhen(true)] out Snowflake? result, ulong epoch = 0)
+    {
+        result = null;
 
-        /// <summary>
-        /// Gets a per-process increment. This number is incremented every time a new ID is generated on the process
-        /// referred to by <see cref="InternalProcessID"/>.
-        /// </summary>
-        public ushort Increment { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Snowflake"/> struct.
-        /// </summary>
-        /// <param name="value">The binary representation of the snowflake.</param>
-        /// <param name="epoch">The time epoch used for the embedded timestamp.</param>
-        public Snowflake(ulong value, ulong epoch = 0)
+        if (!ulong.TryParse(value, out var binary))
         {
-            this.Value = value;
-            this.Timestamp = DateTimeOffset.FromUnixTimeMilliseconds((long)((value >> 22) + epoch)).UtcDateTime;
-            this.InternalWorkerID = (byte)((value & 0x3E0000) >> 17);
-            this.InternalProcessID = (byte)((value & 0x1F000) >> 12);
-            this.Increment = (ushort)(value & 0xFFF);
+            return false;
         }
 
-        /// <summary>
-        /// Creates a new snowflake from a timestamp. This is generally used for pagination in API endpoints.
-        /// </summary>
-        /// <param name="timestamp">The timestamp.</param>
-        /// <param name="epoch">The epoch used for the embedded timestamp.</param>
-        /// <returns>The snowflake.</returns>
-        public static Snowflake CreateTimestampSnowflake(DateTimeOffset? timestamp = null, ulong epoch = 0)
-        {
-            timestamp ??= DateTimeOffset.UtcNow;
+        result = new Snowflake(binary, epoch);
 
-            var value = (ulong)((timestamp.Value.ToUnixTimeMilliseconds() - (long)epoch) << 22);
-            return new Snowflake(value);
-        }
+        return true;
+    }
 
-        /// <summary>
-        /// Attempts to parse a snowflake value from the given string.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="result">The result.</param>
-        /// <param name="epoch">The time epoch used for the embedded timestamp.</param>
-        /// <returns>true if a snowflake was successfully parsed; otherwise, false.</returns>
-        public static bool TryParse(string value, [NotNullWhen(true)] out Snowflake? result, ulong epoch = 0)
-        {
-            result = null;
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        return this.Value.ToString();
+    }
 
-            if (!ulong.TryParse(value, out var binary))
-            {
-                return false;
-            }
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+    {
+        return obj is Snowflake other && Equals(other);
+    }
 
-            result = new Snowflake(binary, epoch);
+    /// <inheritdoc/>
+    public bool Equals(Snowflake other)
+    {
+        return this.Value == other.Value;
+    }
 
-            return true;
-        }
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+        return this.Value.GetHashCode();
+    }
 
-        /// <inheritdoc/>
-        public override string ToString()
-        {
-            return this.Value.ToString();
-        }
+    /// <inheritdoc/>
+    public int CompareTo(Snowflake other)
+    {
+        return this.Value.CompareTo(other.Value);
+    }
 
-        /// <inheritdoc/>
-        public override bool Equals(object? obj)
-        {
-            return obj is Snowflake other && Equals(other);
-        }
+    /// <summary>
+    /// Compares two snowflakes, for equality.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>true if the operands are equal, false otherwise.</returns>
+    public static bool operator ==(Snowflake left, Snowflake right)
+        => left.Equals(right);
 
-        /// <inheritdoc/>
-        public bool Equals(Snowflake other)
-        {
-            return this.Value == other.Value;
-        }
+    /// <summary>
+    /// Compares two snowflakes, for inequality.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>false if the operands are equal, true otherwise.</returns>
+    public static bool operator !=(Snowflake left, Snowflake right)
+        => !left.Equals(right);
 
-        /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            return this.Value.GetHashCode();
-        }
+    /// <summary>
+    /// Compares two snowflakes, determining whether the left operand is considered less than the right operand.
+    /// This is generally based on time. An earlier snowflake will compare as less than another, and a snowflake
+    /// with a higher increment will compare as more than another (provided they are from the same worker and same
+    /// time).
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>true if the relationship holds; otherwise, false.</returns>
+    public static bool operator <(Snowflake left, Snowflake right)
+    {
+        return left.CompareTo(right) < 0;
+    }
 
-        /// <inheritdoc/>
-        public int CompareTo(Snowflake other)
-        {
-            return this.Value.CompareTo(other.Value);
-        }
+    /// <summary>
+    /// Compares two snowflakes, determining whether the left operand is considered greater than the right operand.
+    /// This is generally based on time. An earlier snowflake will compare as less than another, and a snowflake
+    /// with a higher increment will compare as more than another (provided they are from the same worker and same
+    /// time).
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>true if the relationship holds; otherwise, false.</returns>
+    public static bool operator >(Snowflake left, Snowflake right)
+    {
+        return left.CompareTo(right) > 0;
+    }
 
-        /// <summary>
-        /// Compares two snowflakes, for equality.
-        /// </summary>
-        /// <param name="left">The left operand.</param>
-        /// <param name="right">The right operand.</param>
-        /// <returns>true if the operands are equal, false otherwise.</returns>
-        public static bool operator ==(Snowflake left, Snowflake right)
-            => left.Equals(right);
+    /// <summary>
+    /// Compares two snowflakes, determining whether the left operand is considered less than or equal to the right
+    /// operand. This is generally based on time. An earlier snowflake will compare as less than another, and a
+    /// snowflake with a higher increment will compare as more than another (provided they are from the same worker
+    /// and same time).
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>true if the relationship holds; otherwise, false.</returns>
+    public static bool operator <=(Snowflake left, Snowflake right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
 
-        /// <summary>
-        /// Compares two snowflakes, for inequality.
-        /// </summary>
-        /// <param name="left">The left operand.</param>
-        /// <param name="right">The right operand.</param>
-        /// <returns>false if the operands are equal, true otherwise.</returns>
-        public static bool operator !=(Snowflake left, Snowflake right)
-            => !left.Equals(right);
-
-        /// <summary>
-        /// Compares two snowflakes, determining whether the left operand is considered less than the right operand.
-        /// This is generally based on time. An earlier snowflake will compare as less than another, and a snowflake
-        /// with a higher increment will compare as more than another (provided they are from the same worker and same
-        /// time).
-        /// </summary>
-        /// <param name="left">The left operand.</param>
-        /// <param name="right">The right operand.</param>
-        /// <returns>true if the relationship holds; otherwise, false.</returns>
-        public static bool operator <(Snowflake left, Snowflake right)
-        {
-            return left.CompareTo(right) < 0;
-        }
-
-        /// <summary>
-        /// Compares two snowflakes, determining whether the left operand is considered greater than the right operand.
-        /// This is generally based on time. An earlier snowflake will compare as less than another, and a snowflake
-        /// with a higher increment will compare as more than another (provided they are from the same worker and same
-        /// time).
-        /// </summary>
-        /// <param name="left">The left operand.</param>
-        /// <param name="right">The right operand.</param>
-        /// <returns>true if the relationship holds; otherwise, false.</returns>
-        public static bool operator >(Snowflake left, Snowflake right)
-        {
-            return left.CompareTo(right) > 0;
-        }
-
-        /// <summary>
-        /// Compares two snowflakes, determining whether the left operand is considered less than or equal to the right
-        /// operand. This is generally based on time. An earlier snowflake will compare as less than another, and a
-        /// snowflake with a higher increment will compare as more than another (provided they are from the same worker
-        /// and same time).
-        /// </summary>
-        /// <param name="left">The left operand.</param>
-        /// <param name="right">The right operand.</param>
-        /// <returns>true if the relationship holds; otherwise, false.</returns>
-        public static bool operator <=(Snowflake left, Snowflake right)
-        {
-            return left.CompareTo(right) <= 0;
-        }
-
-        /// <summary>
-        /// Compares two snowflakes, determining whether the left operand is considered greater than or equal to the
-        /// right operand. This is generally based on time. An earlier snowflake will compare as less than another, and
-        /// a snowflake with a higher increment will compare as more than another (provided they are from the same
-        /// worker and same time).
-        /// </summary>
-        /// <param name="left">The left operand.</param>
-        /// <param name="right">The right operand.</param>
-        /// <returns>true if the relationship holds; otherwise, false.</returns>
-        public static bool operator >=(Snowflake left, Snowflake right)
-        {
-            return left.CompareTo(right) >= 0;
-        }
+    /// <summary>
+    /// Compares two snowflakes, determining whether the left operand is considered greater than or equal to the
+    /// right operand. This is generally based on time. An earlier snowflake will compare as less than another, and
+    /// a snowflake with a higher increment will compare as more than another (provided they are from the same
+    /// worker and same time).
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>true if the relationship holds; otherwise, false.</returns>
+    public static bool operator >=(Snowflake left, Snowflake right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }

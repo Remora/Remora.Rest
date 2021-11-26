@@ -22,10 +22,9 @@
 
 using Remora.Results;
 
-namespace Remora.Rest.Tests.Data
-{
-    /// <summary>
-    /// Represents a fake API error, returned from unit tests.
-    /// </summary>
-    public record TestError() : ResultError("An error occurred.");
-}
+namespace Remora.Rest.Tests.Data;
+
+/// <summary>
+/// Represents a fake API error, returned from unit tests.
+/// </summary>
+public record TestError() : ResultError("An error occurred.");

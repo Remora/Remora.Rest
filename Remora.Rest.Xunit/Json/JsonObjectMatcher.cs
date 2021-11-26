@@ -26,33 +26,32 @@ using System.Linq;
 using System.Text.Json;
 using JetBrains.Annotations;
 
-namespace Remora.Rest.Xunit.Json
+namespace Remora.Rest.Xunit.Json;
+
+/// <summary>
+/// Matches against Json objects.
+/// </summary>
+[PublicAPI]
+public class JsonObjectMatcher
 {
+    private readonly IReadOnlyList<Func<JsonElement, bool>> _matchers;
+
     /// <summary>
-    /// Matches against Json objects.
+    /// Initializes a new instance of the <see cref="JsonObjectMatcher"/> class.
     /// </summary>
-    [PublicAPI]
-    public class JsonObjectMatcher
+    /// <param name="matchers">The matchers.</param>
+    public JsonObjectMatcher(IReadOnlyList<Func<JsonElement, bool>> matchers)
     {
-        private readonly IReadOnlyList<Func<JsonElement, bool>> _matchers;
+        _matchers = matchers;
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="JsonObjectMatcher"/> class.
-        /// </summary>
-        /// <param name="matchers">The matchers.</param>
-        public JsonObjectMatcher(IReadOnlyList<Func<JsonElement, bool>> matchers)
-        {
-            _matchers = matchers;
-        }
-
-        /// <summary>
-        /// Determines whether the matcher fully matches the given object.
-        /// </summary>
-        /// <param name="jsonObject">The json object.</param>
-        /// <returns>Whether the matcher matches the object.</returns>
-        public bool Matches(JsonElement jsonObject)
-        {
-            return _matchers.All(m => m(jsonObject));
-        }
+    /// <summary>
+    /// Determines whether the matcher fully matches the given object.
+    /// </summary>
+    /// <param name="jsonObject">The json object.</param>
+    /// <returns>Whether the matcher matches the object.</returns>
+    public bool Matches(JsonElement jsonObject)
+    {
+        return _matchers.All(m => m(jsonObject));
     }
 }
