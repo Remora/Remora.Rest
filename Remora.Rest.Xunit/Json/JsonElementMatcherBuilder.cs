@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using JetBrains.Annotations;
 using Xunit;
@@ -119,6 +120,7 @@ public class JsonElementMatcherBuilder
     /// Adds a requirement that the element should be a null value.
     /// </summary>
     /// <returns>The builder, with the requirement added.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public JsonElementMatcherBuilder IsNull()
     {
         _matchers.Add(j =>
@@ -156,6 +158,7 @@ public class JsonElementMatcherBuilder
     /// Adds a requirement that the element should be a number.
     /// </summary>
     /// <returns>The builder, with the requirement added.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public JsonElementMatcherBuilder IsNumber()
     {
         _matchers.Add(j =>
@@ -171,6 +174,7 @@ public class JsonElementMatcherBuilder
     /// Adds a requirement that the element should be a boolean.
     /// </summary>
     /// <returns>The builder, with the requirement added.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public JsonElementMatcherBuilder IsString()
     {
         _matchers.Add(j =>
@@ -415,6 +419,7 @@ public class JsonElementMatcherBuilder
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The builder, with the requirement added.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public JsonElementMatcherBuilder Is(bool value)
     {
         _matchers.Add(j =>

@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -44,6 +45,7 @@ public static class MockedRequestExtensions
     /// </summary>
     /// <param name="request">The mocked request.</param>
     /// <returns>The request; with the new requirement.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public static MockedRequest WithNoContent(this MockedRequest request)
     {
         return request.With(m =>

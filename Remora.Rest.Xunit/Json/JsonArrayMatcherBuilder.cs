@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using JetBrains.Annotations;
@@ -64,6 +65,7 @@ public class JsonArrayMatcherBuilder
     /// </summary>
     /// <param name="count">The required length.</param>
     /// <returns>The builder, with the added requirement.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public JsonArrayMatcherBuilder WithCount(long count) => WithCount(c =>
     {
         Assert.Equal(count, c);
@@ -75,6 +77,7 @@ public class JsonArrayMatcherBuilder
     /// </summary>
     /// <param name="count">The required length.</param>
     /// <returns>The builder, with the added requirement.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public JsonArrayMatcherBuilder WithAtLeastCount(long count) => WithCount(c =>
     {
         Assert.NotInRange(c, 0, count - 1);
@@ -86,6 +89,7 @@ public class JsonArrayMatcherBuilder
     /// </summary>
     /// <param name="count">The required length.</param>
     /// <returns>The builder, with the added requirement.</returns>
+    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public JsonArrayMatcherBuilder WithNoMoreThanCount(long count) => WithCount(c =>
     {
         Assert.InRange(c, 0, count);
