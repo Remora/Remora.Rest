@@ -5,13 +5,17 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.1.0</Version>
+        <Version>1.1.1</Version>
         <Description>
             $(BaseDescription)
 
             This package contains the core functionality of basic REST-focused API tooling, allowing you to easily
             build new wrappers around your favourite services.
         </Description>
+        <PackageReleaseNotes>
+            Upgrade nuget packages.
+            Use epoch when parsing in snowflake converters.
+        </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
