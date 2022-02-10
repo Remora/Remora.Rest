@@ -29,7 +29,6 @@ namespace Remora.Rest.Extensions;
 /// </summary>
 public static class TypeDetectionExtensions
 {
-    private const ulong PNGSignature = 9894494448401390090;
 
     /// <summary>
     /// Determines whether the array contains PNG data.
@@ -42,9 +41,8 @@ public static class TypeDetectionExtensions
         {
             return false;
         }
-
-        var signature = BitConverter.ToUInt64(array.AsSpan()[..8]);
-        return signature == PNGSignature;
+            
+        return array[0] == 0x89 && array[1] == 0x50 && array[2] == 0x4e && array[3] == 0x47 && array[4] == 0x0d && array[5] == 0x0a  && array[6] == 0x1a && array[7] == 0x0a;
     }
 
     /// <summary>
