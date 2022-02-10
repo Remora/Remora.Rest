@@ -29,7 +29,6 @@ namespace Remora.Rest.Extensions;
 /// </summary>
 public static class TypeDetectionExtensions
 {
-
     /// <summary>
     /// Determines whether the array contains PNG data.
     /// </summary>
@@ -41,8 +40,8 @@ public static class TypeDetectionExtensions
         {
             return false;
         }
-            
-        return array[0] == 0x89 && array[1] == 0x50 && array[2] == 0x4e && array[3] == 0x47 && array[4] == 0x0d && array[5] == 0x0a  && array[6] == 0x1a && array[7] == 0x0a;
+
+        return array[0] == 0x89 && array[1] == 0x50 && array[2] == 0x4E && array[3] == 0x47 && array[4] == 0x0D && array[5] == 0x0A && array[6] == 0x1A && array[7] == 0x0A;
     }
 
     /// <summary>
