@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.1.2</Version>
+        <Version>1.1.3</Version>
         <Description>
             $(BaseDescription)
 
@@ -14,15 +14,16 @@
         </Description>
         <PackageReleaseNotes>
             Upgrade nuget packages.
+            Fix endian-dependency for PNG signature checking.
         </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="JsonDocumentPath" Version="1.0.2" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-        <PackageReference Include="OneOf" Version="3.0.203" />
-        <PackageReference Include="Remora.Results" Version="7.1.0" />
-        <PackageReference Include="System.Text.Json" Version="6.0.0" />
+        <PackageReference Include="OneOf" Version="3.0.211" />
+        <PackageReference Include="Remora.Results" Version="7.1.1" />
+        <PackageReference Include="System.Text.Json" Version="6.0.2" />
     </ItemGroup>
 
     <ItemGroup>

@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <Description>
             $(BaseDescription)
 
@@ -20,7 +20,7 @@
     <ItemGroup>
         <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
         <PackageReference Include="xunit.assert" Version="2.4.1" />
-        <PackageReference Include="System.Text.Json" Version="6.0.0" />
+        <PackageReference Include="System.Text.Json" Version="6.0.2" />
     </ItemGroup>
 
     <ItemGroup>

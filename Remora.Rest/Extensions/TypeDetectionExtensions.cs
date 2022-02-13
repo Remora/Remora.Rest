@@ -20,8 +20,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-using System;
-
 namespace Remora.Rest.Extensions;
 
 /// <summary>
@@ -41,7 +39,14 @@ public static class TypeDetectionExtensions
             return false;
         }
 
-        return array[0] == 0x89 && array[1] == 0x50 && array[2] == 0x4E && array[3] == 0x47 && array[4] == 0x0D && array[5] == 0x0A && array[6] == 0x1A && array[7] == 0x0A;
+        return array[0] == 0x89 &&
+               array[1] == 0x50 &&
+               array[2] == 0x4E &&
+               array[3] == 0x47 &&
+               array[4] == 0x0D &&
+               array[5] == 0x0A &&
+               array[6] == 0x1A &&
+               array[7] == 0x0A;
     }
 
     /// <summary>
