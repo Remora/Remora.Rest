@@ -13,4 +13,22 @@
         <PackageReference Include="xunit.analyzers" Version="0.10.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Data\DataObjects\ISimpleData.cs">
+        <DependentUpon>SimpleData.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Data\DataObjects\IOptionalData.cs">
+        <DependentUpon>OptionalData.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Data\DataObjects\StringifiedEnum.cs">
+        <DependentUpon>ConvertibleData.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Data\DataObjects\IConvertibleData.cs">
+        <DependentUpon>ConvertibleData.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Data\DataObjects\IReadOnlyData.cs">
+        <DependentUpon>ReadOnlyData.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

@@ -48,6 +48,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
 
     private readonly Dictionary<PropertyInfo, string[]> _readNameOverrides;
     private readonly Dictionary<PropertyInfo, string> _writeNameOverrides;
+    private readonly HashSet<PropertyInfo> _includeReadOnlyOverrides;
 
     private readonly Dictionary<PropertyInfo, JsonConverter> _converterOverrides;
     private readonly Dictionary<PropertyInfo, JsonConverterFactory> _converterFactoryOverrides;
@@ -70,6 +71,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
     {
         _readNameOverrides = new Dictionary<PropertyInfo, string[]>();
         _writeNameOverrides = new Dictionary<PropertyInfo, string>();
+        _includeReadOnlyOverrides = new HashSet<PropertyInfo>();
 
         _converterOverrides = new Dictionary<PropertyInfo, JsonConverter>();
         _converterFactoryOverrides = new Dictionary<PropertyInfo, JsonConverterFactory>();
@@ -117,6 +119,9 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
 
             reorderedProperties.Add(matchingProperty);
         }
+
+        // Add leftover properties at the end
+        reorderedProperties.AddRange(visibleProperties.Except(reorderedProperties));
 
         return reorderedProperties;
     }
@@ -180,6 +185,43 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
     }
 
     /// <summary>
+    /// Explicitly marks a property as included in the set of serialized properties. This is useful when readonly
+    /// properties need to be serialized for some reason.
+    /// </summary>
+    /// <param name="propertyExpression">The property expression.</param>
+    /// <typeparam name="TProperty">The property type.</typeparam>
+    /// <returns>The converter, with the inclusion.</returns>
+    public DataObjectConverter<TInterface, TImplementation> IncludeWhenSerializing<TProperty>
+    (
+        Expression<Func<TImplementation, TProperty>> propertyExpression
+    )
+    {
+        if (propertyExpression.Body is not MemberExpression memberExpression)
+        {
+            throw new InvalidOperationException();
+        }
+
+        var member = memberExpression.Member;
+        if (member is not PropertyInfo property)
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (!_dtoProperties.Contains(property))
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (_includeReadOnlyOverrides.Contains(property))
+        {
+            return this;
+        }
+
+        _includeReadOnlyOverrides.Add(property);
+        return this;
+    }
+
+    /// <summary>
     /// Overrides the name of the given property when serializing and deserializing JSON.
     /// </summary>
     /// <param name="propertyExpression">The property expression.</param>
@@ -199,6 +241,11 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
 
         var member = memberExpression.Member;
         if (member is not PropertyInfo property)
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (!_dtoProperties.Contains(property))
         {
             throw new InvalidOperationException();
         }
@@ -235,6 +282,11 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             throw new InvalidOperationException();
         }
 
+        if (!_dtoProperties.Contains(property))
+        {
+            throw new InvalidOperationException();
+        }
+
         // Resolve the matching interface property
         property = _dtoProperties.First(p => p.Name == property.Name);
 
@@ -264,6 +316,11 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
 
         var member = memberExpression.Member;
         if (member is not PropertyInfo property)
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (!_dtoProperties.Contains(property))
         {
             throw new InvalidOperationException();
         }
@@ -499,8 +556,9 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         }
 
         // Reorder and polyfill the read properties
-        var constructorArguments = new object?[_dtoProperties.Count];
-        for (var i = 0; i < _dtoProperties.Count; i++)
+        var writablePropertyCount = _dtoProperties.Count(p => p.CanWrite);
+        var constructorArguments = new object?[writablePropertyCount];
+        for (var i = 0; i < writablePropertyCount; i++)
         {
             var dtoProperty = _dtoProperties[i];
             if (!readProperties.TryGetValue(dtoProperty, out var propertyValue))
@@ -545,6 +603,12 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             var propertyGetter = dtoProperty.GetGetMethod();
             if (propertyGetter is null)
             {
+                continue;
+            }
+
+            if (!dtoProperty.CanWrite && !_includeReadOnlyOverrides.Contains(dtoProperty))
+            {
+                // Skip read-only properties, unless told otherwise.
                 continue;
             }
 
