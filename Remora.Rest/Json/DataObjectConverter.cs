@@ -79,20 +79,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
 
         _dtoConstructor = FindBestMatchingConstructor(visibleProperties);
 
-/* Unmerged change from project 'Remora.Rest'
-Before:
         _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
-After:
-        _dtoProperties = DataObjectConverter<TInterface, TImplementation>.ReorderProperties(visibleProperties, _dtoConstructor);
-*/
-
-/* Unmerged change from project 'Remora.Rest'
-Before:
-        _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
-After:
-        _dtoProperties = DataObjectConverter<TInterface, TImplementation>.ReorderProperties(visibleProperties, _dtoConstructor);
-*/
-        _dtoProperties = DataObjectConverter<TInterface, TImplementation>.ReorderProperties(visibleProperties, _dtoConstructor);
         _interfaceMap = implementationType.GetInterfaceMap(typeof(TInterface));
     }
 
