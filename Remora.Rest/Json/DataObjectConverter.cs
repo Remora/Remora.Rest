@@ -131,7 +131,9 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
     /// <exception cref="MissingMethodException">Thrown if no appropriate constructor can be found.</exception>
     private ConstructorInfo FindBestMatchingConstructor(PropertyInfo[] visibleProperties)
     {
-        var visiblePropertyTypes = visibleProperties.Select(p => p.PropertyType).ToArray();
+        var visiblePropertyTypes = visibleProperties
+            .Where(p => p.CanWrite)
+            .Select(p => p.PropertyType).ToArray();
 
         var implementationType = typeof(TImplementation);
 
