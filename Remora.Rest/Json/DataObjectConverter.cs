@@ -417,7 +417,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             // Search for a property that has this JSON property's name as its primary option
             var dtoProperty = _dtoProperties.FirstOrDefault
             (
-                p => GetReadJsonPropertyName(p, options)[0] == propertyName
+                p => p.CanWrite && GetReadJsonPropertyName(p, options)[0] == propertyName
             );
 
             if (dtoProperty is null)
@@ -425,7 +425,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
                 // Allow the fallbacks to be searched as well, but mark it as just an alternative
                 dtoProperty = _dtoProperties.FirstOrDefault
                 (
-                    p => GetReadJsonPropertyName(p, options).Contains(propertyName)
+                    p => p.CanWrite && GetReadJsonPropertyName(p, options).Contains(propertyName)
                 );
 
                 if (dtoProperty is not null)
