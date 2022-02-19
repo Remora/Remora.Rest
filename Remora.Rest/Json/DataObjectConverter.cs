@@ -141,7 +141,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         if (implementationConstructors.Length == 1)
         {
             var singleCandidate = implementationConstructors[0];
-            return DataObjectConverter<TInterface, TImplementation>.IsMatchingConstructor(singleCandidate, visiblePropertyTypes)
+            return IsMatchingConstructor(singleCandidate, visiblePropertyTypes)
                 ? singleCandidate
                 : throw new MissingMethodException
                 (
@@ -151,7 +151,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         }
 
         var matchingConstructors = implementationType.GetConstructors()
-            .Where(c => DataObjectConverter<TInterface, TImplementation>.IsMatchingConstructor(c, visiblePropertyTypes)).ToList();
+            .Where(c => IsMatchingConstructor(c, visiblePropertyTypes)).ToList();
 
         if (matchingConstructors.Count == 1)
         {
