@@ -36,6 +36,11 @@ namespace Remora.Rest.Core;
 public readonly struct Snowflake : IEquatable<Snowflake>, IComparable<Snowflake>
 {
     /// <summary>
+    /// Holds the epoch of the snowflake.
+    /// </summary>
+    private readonly ulong _epoch;
+
+    /// <summary>
     /// Gets the internal value representation of the snowflake.
     /// </summary>
     public ulong Value { get; }
@@ -43,23 +48,24 @@ public readonly struct Snowflake : IEquatable<Snowflake>, IComparable<Snowflake>
     /// <summary>
     /// Gets the timestamp embedded in the snowflake.
     /// </summary>
-    public DateTimeOffset Timestamp { get; }
+    public DateTimeOffset Timestamp
+        => DateTimeOffset.FromUnixTimeMilliseconds((long)((this.Value >> 22) + _epoch)).UtcDateTime;
 
     /// <summary>
     /// Gets the internal worker ID used by the generating service.
     /// </summary>
-    public byte InternalWorkerID { get; }
+    public byte InternalWorkerID => (byte)((this.Value & 0x3E0000) >> 17);
 
     /// <summary>
     /// Gets the internal process ID used by generating service.
     /// </summary>
-    public byte InternalProcessID { get; }
+    public byte InternalProcessID => (byte)((this.Value & 0x1F000) >> 12);
 
     /// <summary>
     /// Gets a per-process increment. This number is incremented every time a new ID is generated on the process
     /// referred to by <see cref="InternalProcessID"/>.
     /// </summary>
-    public ushort Increment { get; }
+    public ushort Increment => (ushort)(this.Value & 0xFFF);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Snowflake"/> struct.
@@ -68,11 +74,8 @@ public readonly struct Snowflake : IEquatable<Snowflake>, IComparable<Snowflake>
     /// <param name="epoch">The time epoch used for the embedded timestamp.</param>
     public Snowflake(ulong value, ulong epoch = 0)
     {
+        _epoch = epoch;
         this.Value = value;
-        this.Timestamp = DateTimeOffset.FromUnixTimeMilliseconds((long)((value >> 22) + epoch)).UtcDateTime;
-        this.InternalWorkerID = (byte)((value & 0x3E0000) >> 17);
-        this.InternalProcessID = (byte)((value & 0x1F000) >> 12);
-        this.Increment = (ushort)(value & 0xFFF);
     }
 
     /// <summary>
