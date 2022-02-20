@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.2.0</Version>
+        <Version>1.2.1</Version>
         <Description>
             $(BaseDescription)
 
@@ -13,6 +13,7 @@
             build new wrappers around your favourite services.
         </Description>
         <PackageReleaseNotes>
+            Update dependencies.
             Add support for serializing read-only data members.
             Upgrade nuget packages.
         </PackageReleaseNotes>
