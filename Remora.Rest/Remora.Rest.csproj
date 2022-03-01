@@ -24,7 +24,7 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
         <PackageReference Include="OneOf" Version="3.0.211" />
         <PackageReference Include="Remora.Results" Version="7.1.1" />
-        <PackageReference Include="System.Text.Json" Version="6.0.2" />
+        <PackageReference Include="System.Text.Json" Version="6.0.2" Condition="'$(TargetFramework)' != 'net6.0'" />
     </ItemGroup>
 
     <ItemGroup>
