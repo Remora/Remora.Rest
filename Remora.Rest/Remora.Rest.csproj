@@ -20,7 +20,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JsonDocumentPath" Version="1.0.2" />
+        <PackageReference Include="JsonDocumentPath" Version="1.0.3" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
         <PackageReference Include="OneOf" Version="3.0.211" />
         <PackageReference Include="Remora.Results" Version="7.1.1" />
