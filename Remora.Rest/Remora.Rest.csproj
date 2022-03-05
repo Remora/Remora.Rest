@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.2.1</Version>
+        <Version>1.2.2</Version>
         <Description>
             $(BaseDescription)
 
@@ -13,16 +13,14 @@
             build new wrappers around your favourite services.
         </Description>
         <PackageReleaseNotes>
-            Update dependencies.
-            Add support for serializing read-only data members.
             Upgrade nuget packages.
         </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JsonDocumentPath" Version="1.0.2" />
+        <PackageReference Include="JsonDocumentPath" Version="1.0.3" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-        <PackageReference Include="OneOf" Version="3.0.211" />
+        <PackageReference Include="OneOf" Version="3.0.216" />
         <PackageReference Include="Remora.Results" Version="7.1.1" />
         <PackageReference Include="System.Text.Json" Version="6.0.2" />
     </ItemGroup>
