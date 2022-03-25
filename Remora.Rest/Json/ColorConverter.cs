@@ -41,7 +41,7 @@ public class ColorConverter : JsonConverter<Color>
         }
 
         var value = reader.GetUInt32();
-        var clrValue = value ^ 0xFF000000;
+        var clrValue = value | 0xFF000000;
 
         return Color.FromArgb((int)clrValue);
     }
