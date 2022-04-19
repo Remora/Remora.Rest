@@ -5,13 +5,8 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>2.0.1</Version>
-        <Description>
-            $(BaseDescription)
-
-            This package contains core types for working with REST-oriented data models, such as logically optional
-            fields and snowflake identifiers.
-        </Description>
+        <Version>2.0.2</Version>
+        <Description>Core types for working with REST-oriented data models, such as logically optional fields and snowflake identifiers.</Description>
         <PackageReleaseNotes>
             Switch a couple of fields over to being computed instead of stored.
             Add epoch overload to Snowflake#TryParse.
