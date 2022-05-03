@@ -5,10 +5,10 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.2.3</Version>
+        <Version>1.2.4</Version>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
-            Upgrade nuget packages.
+            Check for 204 No Content status.
         </PackageReleaseNotes>
     </PropertyGroup>
 
