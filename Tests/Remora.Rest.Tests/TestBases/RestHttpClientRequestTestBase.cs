@@ -21,7 +21,9 @@
 //
 
 using System;
+using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Remora.Rest.Extensions;
@@ -86,13 +88,73 @@ public abstract class RestHttpClientRequestTestBase
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
     [Fact]
-    public async Task CanPerformNullableRequestAsync()
+    public async Task CanPerformNullableRequestWithNullLiteralBodyAsync()
     {
         var client = CreateClient
         (
             b => b
                 .Expect(this.RequestMethod, "https://unit-test")
                 .Respond("application/json", "null")
+        );
+
+        var result = await this.NullableRequestFunction(client, "https://unit-test");
+        Assert.True(result.IsSuccess);
+    }
+
+    /// <summary>
+    /// Tests whether the Http client can perform nullable requests.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Fact]
+    public async Task CanPerformNullableRequestWithEmptyBodyAsync()
+    {
+        var client = CreateClient
+        (
+            b => b
+                .Expect(this.RequestMethod, "https://unit-test")
+                .Respond("application/json", string.Empty)
+        );
+
+        var result = await this.NullableRequestFunction(client, "https://unit-test");
+        Assert.True(result.IsSuccess);
+    }
+
+    /// <summary>
+    /// Tests whether the Http client can perform nullable requests.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Fact]
+    public async Task CanPerformNullableRequestWith204NoContentAsync()
+    {
+        var client = CreateClient
+        (
+            b => b
+                .Expect(this.RequestMethod, "https://unit-test")
+                .Respond(HttpStatusCode.NoContent)
+        );
+
+        var result = await this.NullableRequestFunction(client, "https://unit-test");
+        Assert.True(result.IsSuccess);
+    }
+
+    /// <summary>
+    /// Tests whether the Http client can perform nullable requests.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+    [Fact]
+    public async Task CanPerformNullableRequestWith204NoContentWithoutContentLengthAsync()
+    {
+        var client = CreateClient
+        (
+            b => b
+                .Expect(this.RequestMethod, "https://unit-test")
+                .Respond
+                (
+                    _ => new HttpResponseMessage(HttpStatusCode.NoContent)
+                    {
+                        Content = null
+                    }
+                )
         );
 
         var result = await this.NullableRequestFunction(client, "https://unit-test");
