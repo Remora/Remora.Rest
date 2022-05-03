@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
@@ -601,7 +602,7 @@ public class RestHttpClient<TError> : IRestHttpClient
     {
         if (response.IsSuccessStatusCode)
         {
-            if (response.Content.Headers.ContentLength == 0)
+            if (response.Content.Headers.ContentLength == 0 || response.StatusCode == HttpStatusCode.NoContent)
             {
                 if (!allowNullReturn)
                 {
