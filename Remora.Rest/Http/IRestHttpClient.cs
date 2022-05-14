@@ -31,22 +31,8 @@ namespace Remora.Rest;
 /// <summary>
 /// Represents the public API of a REST HTTP client.
 /// </summary>
-public interface IRestHttpClient
+public interface IRestHttpClient : IRestCustomizable
 {
-    /// <summary>
-    /// Creates a customization that will be applied to all requests made by the
-    /// <see cref="RestHttpClient{TError}"/>. The customization is removed when it is disposed.
-    /// </summary>
-    /// <param name="requestCustomizer">The action that customizes the request.</param>
-    /// <returns>The created customization.</returns>
-    RestRequestCustomization WithCustomization(Action<RestRequestBuilder> requestCustomizer);
-
-    /// <summary>
-    /// Removes a customization from the client.
-    /// </summary>
-    /// <param name="customization">The customization to remove.</param>
-    internal void RemoveCustomization(RestRequestCustomization customization);
-
     /// <summary>
     /// Performs a GET request to the REST API at the given endpoint.
     /// </summary>

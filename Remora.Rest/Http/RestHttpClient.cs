@@ -73,7 +73,7 @@ public class RestHttpClient<TError> : IRestHttpClient
     }
 
     /// <inheritdoc />
-    void IRestHttpClient.RemoveCustomization(RestRequestCustomization customization)
+    void IRestCustomizable.RemoveCustomization(RestRequestCustomization customization)
     {
         _customizations.Remove(customization);
     }

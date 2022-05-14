@@ -31,7 +31,7 @@ namespace Remora.Rest;
 [PublicAPI]
 public class RestRequestCustomization : IDisposable
 {
-    private readonly IRestHttpClient _parentClient;
+    private readonly IRestCustomizable _customizable;
 
     /// <summary>
     /// Gets the request customizer.
@@ -41,15 +41,15 @@ public class RestRequestCustomization : IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="RestRequestCustomization"/> class.
     /// </summary>
-    /// <param name="parentClient">The client that created the customization.</param>
+    /// <param name="customizable">The instance that the customization originated from.</param>
     /// <param name="requestCustomizer">The request customizer.</param>
     internal RestRequestCustomization
     (
-        IRestHttpClient parentClient,
+        IRestCustomizable customizable,
         Action<RestRequestBuilder> requestCustomizer
     )
     {
-        _parentClient = parentClient;
+        _customizable = customizable;
         this.RequestCustomizer = requestCustomizer;
     }
 
@@ -57,6 +57,6 @@ public class RestRequestCustomization : IDisposable
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        _parentClient.RemoveCustomization(this);
+        _customizable.RemoveCustomization(this);
     }
 }
