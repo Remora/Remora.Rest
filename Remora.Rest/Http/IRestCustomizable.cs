@@ -41,5 +41,5 @@ public interface IRestCustomizable
     /// Removes a customization from the client.
     /// </summary>
     /// <param name="customization">The customization to remove.</param>
-    internal void RemoveCustomization(RestRequestCustomization customization);
+    void RemoveCustomization(RestRequestCustomization customization);
 }
