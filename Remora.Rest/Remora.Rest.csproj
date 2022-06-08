@@ -5,10 +5,11 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>2.0.1</Version>
+        <Version>2.0.2</Version>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
-            Rework customization design.
+            Improve Result usage.
+            Upgrade Remora.Results.
         </PackageReleaseNotes>
     </PropertyGroup>
 
