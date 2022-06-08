@@ -170,7 +170,7 @@ public class RestHttpClient<TError> : IRestHttpClient
             var responseContent = await response.Content.ReadAsStreamAsync(ct);
             #endif
 
-            return Result<Stream>.FromSuccess(responseContent);
+            return responseContent;
         }
         catch (Exception e)
         {
@@ -609,8 +609,7 @@ public class RestHttpClient<TError> : IRestHttpClient
                     throw new InvalidOperationException("Response content null, but null returns not allowed.");
                 }
 
-                // Null is okay as a default here, since TEntity might be TEntity?
-                return Result<TEntity>.FromSuccess(default!);
+                return default;
             }
 
             #if NETSTANDARD
@@ -644,7 +643,7 @@ public class RestHttpClient<TError> : IRestHttpClient
                 if (!element.HasValue)
                 {
                     return allowNullReturn
-                        ? Result<TEntity>.FromSuccess(default!)
+                        ? default
                         : throw new InvalidOperationException("The requested path does not exist or the found content is empty.");
                 }
 
@@ -653,7 +652,7 @@ public class RestHttpClient<TError> : IRestHttpClient
 
             if (entity is not null)
             {
-                return Result<TEntity>.FromSuccess(entity);
+                return entity;
             }
 
             if (!allowNullReturn)
@@ -661,8 +660,7 @@ public class RestHttpClient<TError> : IRestHttpClient
                 throw new InvalidOperationException("Response content null, but null returns not allowed.");
             }
 
-            // Null is okay as a default here, since TEntity might be TEntity?
-            return Result<TEntity>.FromSuccess(default!);
+            return default;
         }
 
         // See if we have a JSON error to get some more details from
