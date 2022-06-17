@@ -30,6 +30,7 @@ using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Remora.Rest.Core;
 using Remora.Rest.Extensions;
+using Remora.Rest.Reflection;
 
 namespace Remora.Rest.Json;
 
@@ -43,8 +44,15 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
     where TImplementation : TInterface
 {
     private readonly ConstructorInfo _dtoConstructor;
+    private readonly ObjectFactory<TInterface> _dtoFactory;
+
     private readonly IReadOnlyList<PropertyInfo> _dtoProperties;
-    private readonly InterfaceMapping _interfaceMap;
+
+    // Getters for all properties in the DTO
+    private readonly IReadOnlyDictionary<PropertyInfo, InstancePropertyGetter> _dtoPropertyAccessors;
+
+    // Empty optionals for all properties of type Optional<T> (for polyfilling default values)
+    private readonly IReadOnlyDictionary<Type, object?> _dtoEmptyOptionalFactories;
 
     private readonly Dictionary<PropertyInfo, string[]> _readNameOverrides;
     private readonly Dictionary<PropertyInfo, string> _writeNameOverrides;
@@ -80,9 +88,22 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
 
         _dtoConstructor = FindBestMatchingConstructor(visibleProperties);
+        _dtoFactory = FactoryFactory.CreateFactory<TInterface>(_dtoConstructor);
 
         _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
-        _interfaceMap = implementationType.GetInterfaceMap(typeof(TInterface));
+
+        _dtoPropertyAccessors = _dtoProperties
+            .ToDictionary
+            (
+                p => p,
+                p => FactoryFactory.CreatePropertyGetter(p.DeclaringType ?? throw new InvalidOperationException(), p)
+            );
+
+        _dtoEmptyOptionalFactories = _dtoProperties
+            .Select(p => p.PropertyType)
+            .Where(t => t.IsOptional())
+            .Distinct()
+            .ToDictionary(t => t, Activator.CreateInstance);
     }
 
     /// <summary>
@@ -565,7 +586,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             {
                 if (dtoProperty.PropertyType.IsOptional())
                 {
-                    propertyValue = Activator.CreateInstance(dtoProperty.PropertyType);
+                    propertyValue = _dtoEmptyOptionalFactories[dtoProperty.PropertyType];
                 }
                 else
                 {
@@ -579,7 +600,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             constructorArguments[i] = propertyValue;
         }
 
-        return (TInterface)_dtoConstructor.Invoke(constructorArguments);
+        return _dtoFactory(constructorArguments);
     }
 
     /// <inheritdoc />
@@ -600,30 +621,13 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
 
         foreach (var dtoProperty in _dtoProperties)
         {
-            var propertyGetter = dtoProperty.GetGetMethod();
-            if (propertyGetter is null)
-            {
-                continue;
-            }
-
             if (!dtoProperty.CanWrite && !_includeReadOnlyOverrides.Contains(dtoProperty))
             {
                 // Skip read-only properties, unless told otherwise.
                 continue;
             }
 
-            // The value might be some sort of overriding type with explicit implementations; we'll map over to the
-            // interface if necessary
-            if (value.GetType() != typeof(TImplementation))
-            {
-                var interfaceGetterIndex = Array.IndexOf(_interfaceMap.TargetMethods, propertyGetter);
-                if (interfaceGetterIndex != -1)
-                {
-                    propertyGetter = _interfaceMap.InterfaceMethods[interfaceGetterIndex];
-                }
-            }
-
-            var propertyValue = propertyGetter.Invoke(value, null);
+            var propertyValue = _dtoPropertyAccessors[dtoProperty](value);
 
             if (propertyValue is IOptional { HasValue: false })
             {
