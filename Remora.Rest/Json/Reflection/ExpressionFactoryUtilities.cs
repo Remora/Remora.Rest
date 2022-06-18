@@ -52,8 +52,8 @@ internal delegate T ObjectFactory<out T>(params object?[] args);
 internal delegate object InstancePropertyGetter(object instance);
 
 /// <summary>
-/// Handles creation of delegates for performing reflective operations using Linq Expressions as a substitute for
-/// traditional reflection APIs using runtime-compiled .NET IL.
+/// Handles application-specific creation of delegates for performing reflective operations using Linq Expressions as a
+/// substitute for traditional reflection APIs using runtime-compiled .NET IL.
 /// </summary>
 internal static class ExpressionFactoryUtilities
 {
@@ -105,7 +105,8 @@ internal static class ExpressionFactoryUtilities
          *     ...
          * );
          */
-        return Expression.Lambda<ObjectFactory<T>>(
+        return Expression.Lambda<ObjectFactory<T>>
+        (
             Expression.New(constructor, parameters),
             arguments
         ).Compile();
@@ -154,7 +155,8 @@ internal static class ExpressionFactoryUtilities
         /*
          * (instance) => (object) ((InstanceType)instance).property
          */
-        return Expression.Lambda<InstancePropertyGetter>(
+        return Expression.Lambda<InstancePropertyGetter>
+        (
             Expression.Convert(Expression.Property(Expression.Convert(instance, type), property), typeof(object)),
             instance
         ).Compile();
