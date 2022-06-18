@@ -30,7 +30,7 @@ using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Remora.Rest.Core;
 using Remora.Rest.Extensions;
-using Remora.Rest.Reflection;
+using Remora.Rest.Json.Reflection;
 
 namespace Remora.Rest.Json;
 

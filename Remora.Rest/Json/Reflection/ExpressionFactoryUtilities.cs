@@ -25,7 +25,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Remora.Rest.Reflection;
+namespace Remora.Rest.Json.Reflection;
 
 /// <summary>
 /// Represents a typeless factory that invokes the parameterless constructor of an unspecified type and returns the new
