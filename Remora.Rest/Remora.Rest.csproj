@@ -5,11 +5,12 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>2.0.2</Version>
+        <Version>2.0.3</Version>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
-            Improve Result usage.
-            Upgrade Remora.Results.
+            Upgrade nuget packages.
+            Merge pull request #7 from uwx/patch-2
+            Use LINQ Expressions in DataObjectConverter to theoretically improve performance
         </PackageReleaseNotes>
     </PropertyGroup>
 
