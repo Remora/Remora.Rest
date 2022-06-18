@@ -29,6 +29,9 @@
       <Compile Update="Data\DataObjects\IReadOnlyData.cs">
         <DependentUpon>ReadOnlyData.cs</DependentUpon>
       </Compile>
+      <Compile Update="Data\DataObjects\INonConventionalData.cs">
+        <DependentUpon>NonConventionalData.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
