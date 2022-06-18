@@ -65,6 +65,12 @@ internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
     // ReSharper disable once StaticMemberInGenericType
     private static readonly IReadOnlyDictionary<Type, MethodInfo> FromValueMethods;
 
+    /// <summary>
+    /// Holds a mapping between the union members types and their property names.
+    /// </summary>
+    // ReSharper disable once StaticMemberInGenericType
+    private static IReadOnlyDictionary<Type, IReadOnlyList<JsonEncodedText>>? _unionTypePropertyNames;
+
     static OneOfConverter()
     {
         var unionType = typeof(TOneOf);
@@ -94,12 +100,60 @@ internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
     /// <inheritdoc />
     public override TOneOf Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (TryCreateOneOf(ref reader, OrderedUnionMemberTypes, options, out var result))
+        InitialiseUnionTypePropertyNames(options.PropertyNamingPolicy);
+
+        if (reader.TokenType is JsonTokenType.StartObject)
         {
-            return result;
+            if (TryCreateOneOfFromObject(ref reader, options, _unionTypePropertyNames, out var result))
+            {
+                return result;
+            }
+        }
+
+        if (TryCreateOneOf(ref reader, OrderedUnionMemberTypes, options, out var primitiveResult))
+        {
+            return primitiveResult;
         }
 
         throw new JsonException("Could not parse value as a member of the union.");
+    }
+
+    private static bool TryCreateOneOfFromObject
+    (
+        ref Utf8JsonReader reader,
+        JsonSerializerOptions options,
+        IReadOnlyDictionary<Type, IReadOnlyList<JsonEncodedText>> unionTypePropertyNames,
+        [NotNullWhen(true)] out TOneOf? oneOf
+    )
+    {
+        oneOf = default;
+        using var document = JsonDocument.ParseValue(ref reader);
+
+        foreach (KeyValuePair<Type, IReadOnlyList<JsonEncodedText>> pair in unionTypePropertyNames)
+        {
+            bool match = true;
+            foreach (JsonEncodedText propName in pair.Value)
+            {
+                if (!document.RootElement.TryGetProperty(propName.EncodedUtf8Bytes, out _))
+                {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (!match)
+            {
+                continue;
+            }
+
+            object? value = document.Deserialize(pair.Key, options);
+            var method = FromValueMethods[pair.Key];
+            oneOf = (TOneOf)method.Invoke(null, new[] { value })!;
+            return true;
+        }
+
+        // Nothing matched. Perhaps it's a simple type?
+        return false;
     }
 
     private static bool TryCreateOneOf
@@ -162,5 +216,47 @@ internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
     {
         var declaredType = typeof(TOneOf).GetGenericArguments()[value.Index];
         JsonSerializer.Serialize(writer, value.Value, declaredType, options);
+    }
+
+    /// <summary>
+    /// Initializes the <see cref="_unionTypePropertyNames"/> field with the property
+    /// names of each member type of the OneOf union. <see cref="Optional{TValue}"/>
+    /// properties are ignored.
+    /// </summary>
+    /// <param name="namePolicy">The naming policy used to convert property names.</param>
+    [MemberNotNull(nameof(_unionTypePropertyNames))]
+    private static void InitialiseUnionTypePropertyNames(JsonNamingPolicy? namePolicy = null)
+    {
+        if (_unionTypePropertyNames is not null)
+        {
+            return;
+        }
+
+        var unionTypePropertyNames = new Dictionary<Type, IReadOnlyList<JsonEncodedText>>();
+        foreach (Type unionType in typeof(TOneOf).GetGenericArguments())
+        {
+            var propNames = new List<JsonEncodedText>();
+            unionTypePropertyNames.Add(unionType, propNames);
+
+            foreach (var prop in unionType.GetProperties())
+            {
+                // No need to consider optional properties. If they're not present in the payload,
+                // we can't match on them and it's an expected worst-case scenario
+                if (prop.PropertyType == typeof(Optional<>))
+                {
+                    continue;
+                }
+
+                var encoded = JsonEncodedText.Encode
+                (
+                    namePolicy is null
+                        ? prop.Name
+                        : namePolicy.ConvertName(prop.Name)
+                );
+                propNames.Add(encoded);
+            }
+        }
+
+        _unionTypePropertyNames = unionTypePropertyNames;
     }
 }

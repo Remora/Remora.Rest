@@ -29,6 +29,12 @@
       <Compile Update="Data\DataObjects\IReadOnlyData.cs">
         <DependentUpon>ReadOnlyData.cs</DependentUpon>
       </Compile>
+      <Compile Update="Data\DataObjects\IComplexOneOfData.cs">
+        <DependentUpon>ComplexOneOfData.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Data\DataObjects\ISimpleOneOfData.cs">
+        <DependentUpon>SimpleOneOfData.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
