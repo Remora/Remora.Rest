@@ -52,7 +52,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
     private readonly IReadOnlyDictionary<PropertyInfo, InstancePropertyGetter> _dtoPropertyAccessors;
 
     // Empty optionals for all properties of type Optional<T> (for polyfilling default values)
-    private readonly IReadOnlyDictionary<Type, object?> _dtoEmptyOptionalFactories;
+    private readonly IReadOnlyDictionary<Type, object?> _dtoEmptyOptionals;
 
     private readonly Dictionary<PropertyInfo, string[]> _readNameOverrides;
     private readonly Dictionary<PropertyInfo, string> _writeNameOverrides;
@@ -99,7 +99,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
                 p => ExpressionFactoryUtilities.CreatePropertyGetter(p.DeclaringType ?? throw new InvalidOperationException(), p)
             );
 
-        _dtoEmptyOptionalFactories = _dtoProperties
+        _dtoEmptyOptionals = _dtoProperties
             .Select(p => p.PropertyType)
             .Where(t => t.IsOptional())
             .Distinct()
@@ -586,7 +586,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             {
                 if (dtoProperty.PropertyType.IsOptional())
                 {
-                    propertyValue = _dtoEmptyOptionalFactories[dtoProperty.PropertyType];
+                    propertyValue = _dtoEmptyOptionals[dtoProperty.PropertyType];
                 }
                 else
                 {
