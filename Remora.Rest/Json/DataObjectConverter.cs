@@ -43,7 +43,6 @@ namespace Remora.Rest.Json;
 public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TInterface>
     where TImplementation : TInterface
 {
-    private readonly ConstructorInfo _dtoConstructor;
     private readonly ObjectFactory<TInterface> _dtoFactory;
 
     private readonly IReadOnlyList<PropertyInfo> _dtoProperties;
@@ -87,10 +86,10 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         var implementationType = typeof(TImplementation);
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
 
-        _dtoConstructor = FindBestMatchingConstructor(visibleProperties);
-        _dtoFactory = ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor);
+        var dtoConstructor = FindBestMatchingConstructor(visibleProperties);
+        _dtoFactory = ExpressionFactoryUtilities.CreateFactory<TInterface>(dtoConstructor);
 
-        _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
+        _dtoProperties = ReorderProperties(visibleProperties, dtoConstructor);
 
         _dtoPropertyAccessors = _dtoProperties
             .ToDictionary
