@@ -1,5 +1,5 @@
 ﻿//
-//  FactoryFactory.cs
+//  ExpressionFactoryUtilities.cs
 //
 //  Author:
 //       Jarl Gullberg <jarl.gullberg@gmail.com>
