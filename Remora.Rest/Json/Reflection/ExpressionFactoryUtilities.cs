@@ -55,7 +55,7 @@ internal delegate object InstancePropertyGetter(object instance);
 /// Handles creation of delegates for performing reflective operations using Linq Expressions as a substitute for
 /// traditional reflection APIs using runtime-compiled .NET IL.
 /// </summary>
-internal static class FactoryFactory
+internal static class ExpressionFactoryUtilities
 {
     /// <summary>
     /// Creates an <see cref="ObjectFactory{T}"/> for the given type <typeparamref name="T"/> using the constructor

@@ -88,7 +88,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
 
         _dtoConstructor = FindBestMatchingConstructor(visibleProperties);
-        _dtoFactory = FactoryFactory.CreateFactory<TInterface>(_dtoConstructor);
+        _dtoFactory = ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor);
 
         _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
 
@@ -96,7 +96,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             .ToDictionary
             (
                 p => p,
-                p => FactoryFactory.CreatePropertyGetter(p.DeclaringType ?? throw new InvalidOperationException(), p)
+                p => ExpressionFactoryUtilities.CreatePropertyGetter(p.DeclaringType ?? throw new InvalidOperationException(), p)
             );
 
         _dtoEmptyOptionalFactories = _dtoProperties
