@@ -30,6 +30,7 @@ using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 using Remora.Rest.Core;
 using Remora.Rest.Extensions;
+using Remora.Rest.Reflection;
 
 namespace Remora.Rest.Json;
 
@@ -42,9 +43,15 @@ namespace Remora.Rest.Json;
 public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TInterface>
     where TImplementation : TInterface
 {
-    private readonly ConstructorInfo _dtoConstructor;
+    private readonly ObjectFactory<TInterface> _dtoFactory;
+
     private readonly IReadOnlyList<PropertyInfo> _dtoProperties;
-    private readonly InterfaceMapping _interfaceMap;
+
+    // Getters for all properties in the DTO
+    private readonly IReadOnlyDictionary<PropertyInfo, InstancePropertyGetter> _dtoPropertyAccessors;
+
+    // Empty optionals for all properties of type Optional<T> (for polyfilling default values)
+    private readonly IReadOnlyDictionary<Type, object?> _dtoEmptyOptionals;
 
     private readonly Dictionary<PropertyInfo, string[]> _readNameOverrides;
     private readonly Dictionary<PropertyInfo, string> _writeNameOverrides;
@@ -77,12 +84,51 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
         _converterFactoryOverrides = new Dictionary<PropertyInfo, JsonConverterFactory>();
 
         var implementationType = typeof(TImplementation);
+        var interfaceType = typeof(TInterface);
+
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
+        var interfaceProperties = interfaceType.GetProperties();
 
-        _dtoConstructor = FindBestMatchingConstructor(visibleProperties);
+        var dtoConstructor = FindBestMatchingConstructor(visibleProperties);
+        _dtoFactory = ExpressionFactoryUtilities.CreateFactory<TInterface>(dtoConstructor);
 
-        _dtoProperties = ReorderProperties(visibleProperties, _dtoConstructor);
-        _interfaceMap = implementationType.GetInterfaceMap(typeof(TInterface));
+        _dtoProperties = ReorderProperties(visibleProperties, dtoConstructor);
+
+        var interfaceMap = implementationType.GetInterfaceMap(interfaceType);
+        _dtoPropertyAccessors = _dtoProperties
+            .ToDictionary
+            (
+                p => p,
+                p => CreatePropertyGetter(p, interfaceMap, interfaceProperties)
+            );
+
+        _dtoEmptyOptionals = _dtoProperties
+            .Select(p => p.PropertyType)
+            .Where(t => t.IsOptional())
+            .Distinct()
+            .ToDictionary(t => t, Activator.CreateInstance);
+    }
+
+    private InstancePropertyGetter CreatePropertyGetter
+    (
+        PropertyInfo property,
+        InterfaceMapping interfaceMap,
+        PropertyInfo[] interfaceProperties
+    )
+    {
+        var interfaceGetterIndex = Array.IndexOf(interfaceMap.TargetMethods, property.GetGetMethod());
+        if (interfaceGetterIndex != -1)
+        {
+            var interfaceGetMethod = interfaceMap.InterfaceMethods[interfaceGetterIndex];
+            property = Array.Find(interfaceProperties, p => p.GetGetMethod() == interfaceGetMethod)
+                       ?? throw new InvalidOperationException();
+        }
+
+        return ExpressionFactoryUtilities.CreatePropertyGetter
+        (
+            property.DeclaringType ?? throw new InvalidOperationException(),
+            property
+        );
     }
 
     /// <summary>
@@ -565,7 +611,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             {
                 if (dtoProperty.PropertyType.IsOptional())
                 {
-                    propertyValue = Activator.CreateInstance(dtoProperty.PropertyType);
+                    propertyValue = _dtoEmptyOptionals[dtoProperty.PropertyType];
                 }
                 else
                 {
@@ -579,7 +625,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             constructorArguments[i] = propertyValue;
         }
 
-        return (TInterface)_dtoConstructor.Invoke(constructorArguments);
+        return _dtoFactory(constructorArguments);
     }
 
     /// <inheritdoc />
@@ -600,30 +646,13 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
 
         foreach (var dtoProperty in _dtoProperties)
         {
-            var propertyGetter = dtoProperty.GetGetMethod();
-            if (propertyGetter is null)
-            {
-                continue;
-            }
-
             if (!dtoProperty.CanWrite && !_includeReadOnlyOverrides.Contains(dtoProperty))
             {
                 // Skip read-only properties, unless told otherwise.
                 continue;
             }
 
-            // The value might be some sort of overriding type with explicit implementations; we'll map over to the
-            // interface if necessary
-            if (value.GetType() != typeof(TImplementation))
-            {
-                var interfaceGetterIndex = Array.IndexOf(_interfaceMap.TargetMethods, propertyGetter);
-                if (interfaceGetterIndex != -1)
-                {
-                    propertyGetter = _interfaceMap.InterfaceMethods[interfaceGetterIndex];
-                }
-            }
-
-            var propertyValue = propertyGetter.Invoke(value, null);
+            var propertyValue = _dtoPropertyAccessors[dtoProperty](value);
 
             if (propertyValue is IOptional { HasValue: false })
             {

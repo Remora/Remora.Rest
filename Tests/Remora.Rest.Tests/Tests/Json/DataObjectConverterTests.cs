@@ -396,4 +396,30 @@ public class DataObjectConverterTests
         var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
         JsonAssert.Equivalent(expectedPayload, serialized);
     }
+
+    /// <summary>
+    /// Tests whether the converter can serialize a data object containing unconventional explicit interface
+    /// implementations.
+    /// </summary>
+    [Fact]
+    public void CanSerializeExplicitInterfaceImplementations()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<INonConventionalData, NonConventionalData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+
+        INonConventionalData value = new NonConventionalData2("this should not be serialized");
+        var expectedPayload = JsonDocument.Parse("{ \"value\": \"this should be serialized\" }");
+
+        var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
+        JsonAssert.Equivalent(expectedPayload, serialized);
+    }
 }
