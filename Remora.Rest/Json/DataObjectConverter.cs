@@ -615,7 +615,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
                 }
                 else
                 {
-                    throw new InvalidOperationException
+                    throw new JsonException
                     (
                         $"The data property \"{dtoProperty.Name}\" did not have a corresponding value in the JSON."
                     );
@@ -720,7 +720,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
             {
                 if (!innerType.IsGenericType)
                 {
-                    throw new InvalidOperationException("The innermost type of the property isn't an enum.");
+                    throw new JsonException("The innermost type of the property isn't an enum.");
                 }
 
                 innerType = innerType.GetGenericArguments()[0];
