@@ -5,12 +5,10 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>2.0.3</Version>
+        <Version>2.0.4</Version>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
-            Upgrade nuget packages.
-            Merge pull request #7 from uwx/patch-2
-            Use LINQ Expressions in DataObjectConverter to theoretically improve performance
+            Do not throw InvalidOperationException during deserialization
         </PackageReleaseNotes>
     </PropertyGroup>
 
