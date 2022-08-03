@@ -117,6 +117,8 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverter<TI
     )
     {
         var interfaceGetterIndex = Array.IndexOf(interfaceMap.TargetMethods, property.GetGetMethod());
+
+        // ReSharper disable once InvertIf
         if (interfaceGetterIndex != -1)
         {
             var interfaceGetMethod = interfaceMap.InterfaceMethods[interfaceGetterIndex];

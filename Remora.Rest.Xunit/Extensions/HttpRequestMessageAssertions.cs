@@ -322,6 +322,7 @@ public static class HttpRequestMessageAssertions
     {
         message.HasMultipartFormData<StreamContent>(name, c =>
         {
+            // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
             Assert.Contains(c.Headers, h => h.Value.Any(v => v.Contains($"filename={expectedFilename}")));
 
             // Reflection hackery
