@@ -23,12 +23,14 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using JetBrains.Annotations;
 
 namespace Remora.Rest.Xunit.Extensions;
 
 /// <summary>
 /// Defines extension methods for the <see cref="MultipartFormDataContent"/> class.
 /// </summary>
+[PublicAPI]
 public static class MultipartFormDataContentExtensions
 {
     /// <summary>
