@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -766,6 +767,287 @@ public static class MockedRequestExtensionsTests
 
             var response = await client.SendAsync(request);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+    }
+
+    /// <summary>
+    /// Tests the
+    /// <see cref="Extensions.MockedRequestExtensions.WithUrlEncodedFormData(MockedRequest)"/> method
+    /// and its overloads.
+    /// </summary>
+    public static class WithUrlEncodedFormData
+    {
+        /// <summary>
+        /// Tests the overload with no arguments.
+        /// </summary>
+        public static class NoArguments
+        {
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has no content.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task AssertsIfRequestHasNoContent()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData()
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request content is not URL-encoded form data content.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task AssertsIfRequestContainsNotUrlEncodedFormDataContent()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData()
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new StringContent("fail");
+
+                await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method passes if the request content is URL-encoded form data content.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task PassesIfRequestContainsUrlEncodedFormDataContent()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData()
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(Array.Empty<KeyValuePair<string, string>>());
+
+                var response = await client.SendAsync(request);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+        }
+
+        /// <summary>
+        /// Tests the overload with a set of expected values.
+        /// </summary>
+        public static class Expectations
+        {
+            /// <summary>
+            /// Tests that the method raises an assertion if an expected key is missing.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task AssertsIfKeyIsMissing()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData(new Dictionary<string, string>
+                    {
+                        { "other", "value" }
+                    })
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if an expected value differs.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task AssertsIfValueDiffers()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData(new Dictionary<string, string>
+                    {
+                        { "some", "type" }
+                    })
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the content contains more than the expected data and strict
+            /// checking is enabled.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task AssertsIfContentContainsMoreAndExpectationsAreStrict()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData
+                    (
+                        new Dictionary<string, string>
+                        {
+                            { "some", "value" }
+                        },
+                        true
+                    )
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value"),
+                    new("other", "thing")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+            }
+
+            /// <summary>
+            /// Tests that the method passes if all expected keys are present and all expected values are equal.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task PassesIfContentContainsAllExpectedKeysAndAllValuesAreEqual()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData(new Dictionary<string, string>
+                    {
+                        { "some", "value" }
+                    })
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                var response = await client.SendAsync(request);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+
+            /// <summary>
+            /// Tests that the method passes if all expected keys are present and all expected values are equal.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task PassesIfContentContainsAllExpectedKeysAndAllValuesAreEqualAndExpectationsAreStrict()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData
+                    (
+                        new Dictionary<string, string>
+                        {
+                            { "some", "value" }
+                        },
+                        true
+                    )
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                var response = await client.SendAsync(request);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+
+            /// <summary>
+            /// Tests that the method passes if the content contains more than the expected data and strict checking is
+            /// disabled.
+            /// </summary>
+            /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+            [Fact]
+            public static async Task PassesIfContentContainsMoreAndExpectationsAreNotStrict()
+            {
+                await using var stream = new MemoryStream();
+
+                var mockHandler = new MockHttpMessageHandler();
+                mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                    .WithUrlEncodedFormData(new Dictionary<string, string>
+                    {
+                        { "some", "value" }
+                    })
+                    .Respond(HttpStatusCode.OK);
+
+                var client = mockHandler.ToHttpClient();
+
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value"),
+                    new("other", "thing")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                var response = await client.SendAsync(request);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
         }
     }
 }

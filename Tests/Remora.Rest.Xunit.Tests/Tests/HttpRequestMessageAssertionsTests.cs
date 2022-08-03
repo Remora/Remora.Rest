@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -554,6 +555,193 @@ public static class HttpRequestMessageAssertionsTests
                 request.Content = multipart;
 
                 request.HasMultipartFormData("file", "filename.txt", stream);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Tests the
+    /// <see cref="Extensions.HttpRequestMessageAssertions.HasUrlEncodedFormData(HttpRequestMessage)"/> method
+    /// and its overloads.
+    /// </summary>
+    public static class HasUrlEncodedFormData
+    {
+        /// <summary>
+        /// Tests the overload with no arguments.
+        /// </summary>
+        public static class NoArguments
+        {
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has no content.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfRequestHasNoContent()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                Assert.Throws<NotNullException>(() => request.HasUrlEncodedFormData());
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the request content is not URL-encoded form data content.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfRequestContainsNotUrlEncodedFormDataContent()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new StringContent("fail");
+
+                Assert.Throws<IsTypeException>(() => request.HasUrlEncodedFormData());
+            }
+
+            /// <summary>
+            /// Tests that the method passes if the request content is URL-encoded form data content.
+            /// </summary>
+            [Fact]
+            public static void PassesIfRequestContainsUrlEncodedFormDataContent()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(Array.Empty<KeyValuePair<string, string>>());
+
+                request.HasUrlEncodedFormData();
+            }
+        }
+
+        /// <summary>
+        /// Tests the overload with a set of expected values.
+        /// </summary>
+        public static class Expectations
+        {
+            /// <summary>
+            /// Tests that the method raises an assertion if an expected key is missing.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfKeyIsMissing()
+            {
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                Assert.Throws<ContainsException>(() => request.HasUrlEncodedFormData(new Dictionary<string, string>
+                {
+                    { "other", "value" }
+                }));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if an expected value differs.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfValueDiffers()
+            {
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                Assert.Throws<EqualException>(() => request.HasUrlEncodedFormData(new Dictionary<string, string>
+                {
+                    { "some", "type" }
+                }));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the content contains more than the expected data and strict
+            /// checking is enabled.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfContentContainsMoreAndExpectationsAreStrict()
+            {
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value"),
+                    new("other", "thing")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                Assert.Throws<EqualException>(() => request.HasUrlEncodedFormData
+                (
+                    new Dictionary<string, string>
+                    {
+                        { "some", "value" }
+                    },
+                    true
+                ));
+            }
+
+            /// <summary>
+            /// Tests that the method passes if all expected keys are present and all expected values are equal.
+            /// </summary>
+            [Fact]
+            public static void PassesIfContentContainsAllExpectedKeysAndAllValuesAreEqual()
+            {
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                request.HasUrlEncodedFormData(new Dictionary<string, string>
+                {
+                    { "some", "value" }
+                });
+            }
+
+            /// <summary>
+            /// Tests that the method passes if all expected keys are present and all expected values are equal.
+            /// </summary>
+            [Fact]
+            public static void PassesIfContentContainsAllExpectedKeysAndAllValuesAreEqualAndExpectationsAreStrict()
+            {
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                request.HasUrlEncodedFormData
+                (
+                    new Dictionary<string, string>
+                    {
+                        { "some", "value" }
+                    },
+                    true
+                );
+            }
+
+            /// <summary>
+            /// Tests that the method passes if the content contains more than the expected data and strict checking is
+            /// disabled.
+            /// </summary>
+            [Fact]
+            public static void PassesIfContentContainsMoreAndExpectationsAreNotStrict()
+            {
+                var actual = new KeyValuePair<string, string>[]
+                {
+                    new("some", "value"),
+                    new("other", "thing")
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+                request.Content = new FormUrlEncodedContent(actual);
+
+                request.HasUrlEncodedFormData(new Dictionary<string, string>
+                {
+                    { "some", "value" }
+                });
             }
         }
     }

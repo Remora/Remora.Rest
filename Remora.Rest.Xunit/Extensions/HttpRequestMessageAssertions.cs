@@ -21,12 +21,14 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
+using System.Web;
 using JetBrains.Annotations;
 using Remora.Rest.Xunit.Json;
 using Xunit;
@@ -332,5 +334,69 @@ public static class HttpRequestMessageAssertions
 
             Assert.Equal(expectedContent, innerStream);
         });
+    }
+
+    /// <summary>
+    /// Asserts that the message has URL-encoded form data as its content.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    public static void HasUrlEncodedFormData(this HttpRequestMessage message)
+    {
+        message.HasUrlEncodedFormData(out _);
+    }
+
+    /// <summary>
+    /// Asserts that the message has URL-encoded form data as its content.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="data">The decoded form data.</param>
+    public static void HasUrlEncodedFormData
+    (
+        this HttpRequestMessage message,
+        out IReadOnlyDictionary<string, string> data
+    )
+    {
+        Assert.NotNull(message.Content);
+        Assert.IsType<FormUrlEncodedContent>(message.Content);
+
+        var formContent = (FormUrlEncodedContent)message.Content!;
+
+        var content = formContent.ReadAsStringAsync().GetAwaiter().GetResult();
+        var collection = HttpUtility.ParseQueryString(content);
+
+        data = collection.AllKeys.ToDictionary
+        (
+            key => key ?? throw new InvalidOperationException(),
+            key => collection[key] ?? throw new InvalidOperationException()
+        );
+    }
+
+    /// <summary>
+    /// Asserts that the message has URL-encoded form data as its content.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="expectations">The expected values.</param>
+    /// <param name="strict">
+    /// true if the expected and actual sets must match in count as well; otherwise, false.
+    /// </param>
+    public static void HasUrlEncodedFormData
+    (
+        this HttpRequestMessage message,
+        IReadOnlyDictionary<string, string> expectations,
+        bool strict = false
+    )
+    {
+        message.HasUrlEncodedFormData(out var data);
+
+        if (strict)
+        {
+            Assert.Equal(expectations.Count, data.Count);
+        }
+
+        foreach (var (key, value) in expectations)
+        {
+            Assert.Contains(key, data);
+            Assert.Equal(value, data[key]);
+        }
     }
 }

@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
 using JetBrains.Annotations;
@@ -154,6 +155,43 @@ public static class MockedRequestExtensions
         return request.With(m =>
         {
             m.HasMultipartFormData(name, fileName, value);
+            return true;
+        });
+    }
+
+    /// <summary>
+    /// Adds a requirement that the request has URL-encoded form data.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <returns>The request, with the new requirements.</returns>
+    public static MockedRequest WithUrlEncodedFormData(this MockedRequest request)
+    {
+        return request.With(m =>
+        {
+            m.HasUrlEncodedFormData();
+            return true;
+        });
+    }
+
+    /// <summary>
+    /// Adds a requirement that the request has URL-encoded form data that contains the given data.
+    /// </summary>
+    /// <param name="request">The request.</param>
+    /// <param name="expectations">The expected values.</param>
+    /// <param name="strict">
+    /// true if the expected and actual sets must match in count as well; otherwise, false.
+    /// </param>
+    /// <returns>The request, with the new requirements.</returns>
+    public static MockedRequest WithUrlEncodedFormData
+    (
+        this MockedRequest request,
+        IReadOnlyDictionary<string, string> expectations,
+        bool strict = false
+    )
+    {
+        return request.With(m =>
+        {
+            m.HasUrlEncodedFormData(expectations, strict);
             return true;
         });
     }
