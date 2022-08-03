@@ -20,17 +20,16 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+using System;
 using System.Net.Http;
-using System.Text.Json;
 using JetBrains.Annotations;
+using Remora.Rest.Xunit.Extensions;
 using RichardSzalay.MockHttp;
-using Xunit;
-using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json;
 
 /// <inheritdoc />
-[PublicAPI]
+[PublicAPI, Obsolete("Use a lambda and HasJson instead.")]
 public class JsonRequestMatcher : IMockedRequestMatcher
 {
     private readonly JsonElementMatcher _elementMatcher;
@@ -47,17 +46,7 @@ public class JsonRequestMatcher : IMockedRequestMatcher
     /// <inheritdoc />
     public bool Matches(HttpRequestMessage message)
     {
-        Assert.NotNull(message.Content);
-
-        var content = message.Content!.ReadAsStreamAsync().GetAwaiter().GetResult();
-        try
-        {
-            using var json = JsonDocument.Parse(content);
-            return _elementMatcher.Matches(json.RootElement);
-        }
-        catch (JsonException)
-        {
-            throw new IsTypeException("JSON", "Unknown");
-        }
+        message.HasJson(_elementMatcher);
+        return true;
     }
 }

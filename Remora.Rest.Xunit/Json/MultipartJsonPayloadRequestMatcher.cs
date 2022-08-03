@@ -20,14 +20,16 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-using System.Linq;
+using System;
 using System.Net.Http;
-using System.Text.Json;
+using JetBrains.Annotations;
+using Remora.Rest.Xunit.Extensions;
 using RichardSzalay.MockHttp;
 
 namespace Remora.Rest.Xunit.Json;
 
 /// <inheritdoc />
+[PublicAPI, Obsolete("Use a lambda and HasMultipartJsonPayload instead.")]
 public class MultipartJsonPayloadRequestMatcher : IMockedRequestMatcher
 {
     private readonly JsonElementMatcher _elementMatcher;
@@ -44,24 +46,7 @@ public class MultipartJsonPayloadRequestMatcher : IMockedRequestMatcher
     /// <inheritdoc />
     public bool Matches(HttpRequestMessage message)
     {
-        if (message.Content is not MultipartFormDataContent multipart)
-        {
-            return false;
-        }
-
-        var payloadContent = multipart.FirstOrDefault
-        (
-            c => c is StringContent s && s.Headers.ContentDisposition?.Name == "payload_json"
-        );
-
-        if (payloadContent is null)
-        {
-            return false;
-        }
-
-        var content = payloadContent.ReadAsStreamAsync().GetAwaiter().GetResult();
-        using var json = JsonDocument.Parse(content);
-
-        return _elementMatcher.Matches(json.RootElement);
+        message.HasMultipartJsonPayload(_elementMatcher);
+        return true;
     }
 }
