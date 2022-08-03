@@ -23,12 +23,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using JetBrains.Annotations;
 
 namespace Remora.Rest.Xunit;
 
 /// <summary>
 /// Contains various options for the json assertions.
 /// </summary>
+[PublicAPI]
 public record JsonAssertOptions
 (
     IReadOnlyCollection<string>? AllowMissing = null,
