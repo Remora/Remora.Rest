@@ -286,6 +286,174 @@ public class MockedRequestExtensionsTests
 
     /// <summary>
     /// Tests the
+    /// <see cref="Extensions.MockedRequestExtensions.WithMultipartJsonPayload"/> method.
+    /// </summary>
+    public static class WithMultipartJsonPayload
+    {
+        /// <summary>
+        /// Tests that the method raises an assertion if the request lacks any content.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public static async Task AssertsIfRequestHasNoContent()
+        {
+            var mockHandler = new MockHttpMessageHandler();
+            mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                .WithMultipartJsonPayload()
+                .Respond(HttpStatusCode.OK);
+
+            var client = mockHandler.ToHttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+        }
+
+        /// <summary>
+        /// Tests that the method raises an assertion if the request lacks multipart content.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public static async Task AssertsIfRequestHasNonMultipartContent()
+        {
+            var mockHandler = new MockHttpMessageHandler();
+            mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                .WithMultipartJsonPayload()
+                .Respond(HttpStatusCode.OK);
+
+            var client = mockHandler.ToHttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+            request.Content = new StringContent("ooga");
+
+            await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+        }
+
+        /// <summary>
+        /// Tests that the method raises an assertion if the request lacks multipart content with a string content part
+        /// of the expected name.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public static async Task AssertsIfRequestHasMultipartContentWithoutJsonPayload()
+        {
+            var mockHandler = new MockHttpMessageHandler();
+            mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                .WithMultipartJsonPayload()
+                .Respond(HttpStatusCode.OK);
+
+            var client = mockHandler.ToHttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+            var multipart = new MultipartFormDataContent();
+            multipart.Add(new StringContent("ooga"), "something else");
+
+            request.Content = multipart;
+
+            await Assert.ThrowsAsync<SingleException>(async () => await client.SendAsync(request));
+        }
+
+        /// <summary>
+        /// Tests that the method raises an assertion if the request has multipart content with a string part of the
+        /// expected name, but that does not contain valid JSON.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public static async Task AssertsIfRequestHasMultipartContentWithInvalidJsonPayload()
+        {
+            var mockHandler = new MockHttpMessageHandler();
+            mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                .WithMultipartJsonPayload()
+                .Respond(HttpStatusCode.OK);
+
+            var client = mockHandler.ToHttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+            var multipart = new MultipartFormDataContent();
+            multipart.Add(new StringContent("ooga"), "payload_json");
+
+            request.Content = multipart;
+
+            await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+        }
+
+        /// <summary>
+        /// Tests that the method raises an assertion if the request has a JSON body that does not match the
+        /// JSON matcher.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public static async Task AssertsIfRequestHasMultipartJsonPayloadThatDoesNotMatch()
+        {
+            var mockHandler = new MockHttpMessageHandler();
+            mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                .WithMultipartJsonPayload(j => j.IsArray())
+                .Respond(HttpStatusCode.OK);
+
+            var client = mockHandler.ToHttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+            var multipart = new MultipartFormDataContent();
+            multipart.Add(new StringContent("{ \"value\": 1 }", Encoding.UTF8, "application/json"), "payload_json");
+
+            request.Content = multipart;
+
+            await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+        }
+
+        /// <summary>
+        /// Tests that the method passes if the request has a valid JSON multipart payload.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public static async Task PassesIfRequestHasMultipartJsonPayload()
+        {
+            var mockHandler = new MockHttpMessageHandler();
+            mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                .WithMultipartJsonPayload()
+                .Respond(HttpStatusCode.OK);
+
+            var client = mockHandler.ToHttpClient();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+            var multipart = new MultipartFormDataContent();
+            multipart.Add(new StringContent("{ \"value\": 1 }", Encoding.UTF8, "application/json"), "payload_json");
+
+            request.Content = multipart;
+
+            var response = await client.SendAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        /// <summary>
+        /// Tests that the method passes if the request has a valid JSON multipart payload that matches the predicate.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Fact]
+        public static async Task PassesIfRequestHasMatchingJsonContent()
+        {
+            var mockHandler = new MockHttpMessageHandler();
+            mockHandler.Expect(HttpMethod.Get, "https://unit-test")
+                .WithMultipartJsonPayload(j => j.IsObject(o => o.WithProperty("value", p => p.Is(1))))
+                .Respond(HttpStatusCode.OK);
+
+            var client = mockHandler.ToHttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+            var multipart = new MultipartFormDataContent();
+            multipart.Add(new StringContent("{ \"value\": 1 }", Encoding.UTF8, "application/json"), "payload_json");
+
+            request.Content = multipart;
+
+            var response = await client.SendAsync(request);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+    }
+
+    /// <summary>
+    /// Tests the
     /// <see cref="Extensions.MockedRequestExtensions.WithMultipartFormData(MockedRequest,string,string)"/> method
     /// and its overloads.
     /// </summary>
