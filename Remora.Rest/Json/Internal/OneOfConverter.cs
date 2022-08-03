@@ -57,20 +57,20 @@ internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
     /// Hopefully, this works for most cases.
     /// </remarks>
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly IReadOnlyList<Type> OrderedUnionMemberTypes;
+    private static readonly IReadOnlyList<Type> _orderedUnionMemberTypes;
 
     /// <summary>
     /// Holds a mapping between the member types and the FromT methods of the union.
     /// </summary>
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly IReadOnlyDictionary<Type, MethodInfo> FromValueMethods;
+    private static readonly IReadOnlyDictionary<Type, MethodInfo> _fromValueMethods;
 
     static OneOfConverter()
     {
         var unionType = typeof(TOneOf);
         var unionMemberTypes = unionType.GetGenericArguments();
 
-        OrderedUnionMemberTypes = unionMemberTypes
+        _orderedUnionMemberTypes = unionMemberTypes
             .OrderByDescending(t => t.IsNumeric())
             .ThenByDescending(t => t.IsCollection())
             .ThenBy(t => t.IsBuiltin())
@@ -88,13 +88,13 @@ internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
             fromValueMethods.Add(unionMemberTypes[i], methodInfo);
         }
 
-        FromValueMethods = fromValueMethods;
+        _fromValueMethods = fromValueMethods;
     }
 
     /// <inheritdoc />
     public override TOneOf Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (TryCreateOneOf(ref reader, OrderedUnionMemberTypes, options, out var result))
+        if (TryCreateOneOf(ref reader, _orderedUnionMemberTypes, options, out var result))
         {
             return result;
         }
@@ -148,7 +148,7 @@ internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
             }
 
             // It worked!
-            var method = FromValueMethods[type];
+            var method = _fromValueMethods[type];
 
             oneOf = (TOneOf)method.Invoke(null, new[] { value })!;
             return true;
