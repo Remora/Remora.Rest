@@ -37,19 +37,19 @@ namespace Remora.Rest.Xunit.Tests;
 /// <summary>
 /// Tests the <see cref="Extensions.MockedRequestExtensions"/> class.
 /// </summary>
-public class MockedRequestExtensionsTests
+public static class MockedRequestExtensionsTests
 {
     /// <summary>
     /// Tests the <see cref="Extensions.MockedRequestExtensions.WithNoContent"/> method.
     /// </summary>
-    public class WithNoContent
+    public static class WithNoContent
     {
         /// <summary>
         /// Tests that the method raises an assertion if the request contains any content.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfRequestContainsContent()
+        public static async Task AssertsIfRequestContainsContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -69,7 +69,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task PassesIfRequestDoesNotContainContent()
+        public static async Task PassesIfRequestDoesNotContainContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -88,14 +88,14 @@ public class MockedRequestExtensionsTests
     /// <summary>
     /// Tests the <see cref="Extensions.MockedRequestExtensions.WithAuthentication"/> method.
     /// </summary>
-    public class WithAuthentication
+    public static class WithAuthentication
     {
         /// <summary>
         /// Tests that the method raises an assertion if the request lacks an authorization header.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfRequestHasNoAuthorizationHeader()
+        public static async Task AssertsIfRequestHasNoAuthorizationHeader()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -115,7 +115,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfRequestHasAuthorizationHeaderThatDoesNotMatch()
+        public static async Task AssertsIfRequestHasAuthorizationHeaderThatDoesNotMatch()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -135,7 +135,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task PassesIfRequestHasAuthorizationHeader()
+        public static async Task PassesIfRequestHasAuthorizationHeader()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -156,7 +156,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task PassesIfRequestHasMatchingAuthorizationHeader()
+        public static async Task PassesIfRequestHasMatchingAuthorizationHeader()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -176,14 +176,14 @@ public class MockedRequestExtensionsTests
     /// <summary>
     /// Tests the <see cref="Extensions.MockedRequestExtensions.WithJson"/> method.
     /// </summary>
-    public class WithJson
+    public static class WithJson
     {
         /// <summary>
         /// Tests that the method raises an assertion if the request lacks a JSON body.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfRequestHasNoContent()
+        public static async Task AssertsIfRequestHasNoContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -202,7 +202,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfRequestHasNonJsonContent()
+        public static async Task AssertsIfRequestHasNonJsonContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -223,7 +223,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfRequestHasJsonContentThatDoesNotMatch()
+        public static async Task AssertsIfRequestHasJsonContentThatDoesNotMatch()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -244,7 +244,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task PassesIfRequestHasJsonContent()
+        public static async Task PassesIfRequestHasJsonContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -266,7 +266,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task PassesIfRequestHasMatchingJsonContent()
+        public static async Task PassesIfRequestHasMatchingJsonContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -457,14 +457,14 @@ public class MockedRequestExtensionsTests
     /// <see cref="Extensions.MockedRequestExtensions.WithMultipartFormData(MockedRequest,string,string)"/> method
     /// and its overloads.
     /// </summary>
-    public class WithMultipartFormData
+    public static class WithMultipartFormData
     {
         /// <summary>
         /// Tests that the method raises an assertion if the request has no content.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFieldRequestHasNoContent()
+        public static async Task AssertsIfFieldRequestHasNoContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -483,7 +483,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFieldRequestIsNotMultipartContent()
+        public static async Task AssertsIfFieldRequestIsNotMultipartContent()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -503,7 +503,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFieldRequestHasNoFormDataWithName()
+        public static async Task AssertsIfFieldRequestHasNoFormDataWithName()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -518,7 +518,7 @@ public class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -527,7 +527,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFieldRequestHasFormDataWithCorrectNameButWrongType()
+        public static async Task AssertsIfFieldRequestHasFormDataWithCorrectNameButWrongType()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -551,7 +551,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFieldRequestHasFormDataWithCorrectNameButWrongValue()
+        public static async Task AssertsIfFieldRequestHasFormDataWithCorrectNameButWrongValue()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -574,7 +574,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFieldRequestHasFormDataWithCorrectNameAndCorrectValue()
+        public static async Task AssertsIfFieldRequestHasFormDataWithCorrectNameAndCorrectValue()
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
@@ -598,7 +598,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFileRequestHasNoContent()
+        public static async Task AssertsIfFileRequestHasNoContent()
         {
             await using var stream = new MemoryStream();
 
@@ -619,7 +619,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFileRequestIsNotMultipartContent()
+        public static async Task AssertsIfFileRequestIsNotMultipartContent()
         {
             await using var stream = new MemoryStream();
 
@@ -641,7 +641,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFileRequestHasNoFormDataWithName()
+        public static async Task AssertsIfFileRequestHasNoFormDataWithName()
         {
             await using var stream = new MemoryStream();
 
@@ -658,7 +658,7 @@ public class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -667,7 +667,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndFilenameButWrongType()
+        public static async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndFilenameButWrongType()
         {
             await using var stream = new MemoryStream();
 
@@ -693,7 +693,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndValueButWrongFilename()
+        public static async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndValueButWrongFilename()
         {
             await using var stream = new MemoryStream();
 
@@ -711,7 +711,7 @@ public class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -720,7 +720,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndFilenameButWrongValue()
+        public static async Task AssertsIfFileRequestHasFormDataWithCorrectNameAndFilenameButWrongValue()
         {
             await using var stream = new MemoryStream();
 
@@ -746,7 +746,7 @@ public class MockedRequestExtensionsTests
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task PassesIfFileRequestHasFormDataWithCorrectNameAndFilenameAndValue()
+        public static async Task PassesIfFileRequestHasFormDataWithCorrectNameAndFilenameAndValue()
         {
             await using var stream = new MemoryStream();
 
