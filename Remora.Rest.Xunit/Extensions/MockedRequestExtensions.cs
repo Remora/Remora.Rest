@@ -21,16 +21,11 @@
 //
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using JetBrains.Annotations;
 using Remora.Rest.Xunit.Json;
 using RichardSzalay.MockHttp;
-using Xunit;
 
 namespace Remora.Rest.Xunit.Extensions;
 
@@ -45,12 +40,11 @@ public static class MockedRequestExtensions
     /// </summary>
     /// <param name="request">The mocked request.</param>
     /// <returns>The request; with the new requirement.</returns>
-    [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Intentional.")]
     public static MockedRequest WithNoContent(this MockedRequest request)
     {
         return request.With(m =>
         {
-            Assert.Null(m.Content);
+            m.HasNoContent();
             return true;
         });
     }
@@ -67,17 +61,11 @@ public static class MockedRequestExtensions
         Func<AuthenticationHeaderValue, bool>? headerPredicate = null
     )
     {
+        headerPredicate ??= _ => true;
+
         return request.With(m =>
         {
-            Assert.NotNull(m.Headers.Authorization);
-            if (headerPredicate is null)
-            {
-                return true;
-            }
-
-            var predicateMatches = headerPredicate(m.Headers.Authorization!);
-            Assert.True(predicateMatches, "The authentication predicate did not match.");
-
+            m.HasAuthentication(headerPredicate);
             return true;
         });
     }
@@ -97,7 +85,11 @@ public static class MockedRequestExtensions
         var elementMatcher = new JsonElementMatcherBuilder();
         elementMatcherBuilder?.Invoke(elementMatcher);
 
-        return request.With(new JsonRequestMatcher(elementMatcher.Build()));
+        return request.With(m =>
+        {
+            m.HasJson(elementMatcher.Build());
+            return true;
+        });
     }
 
     /// <summary>
@@ -115,7 +107,11 @@ public static class MockedRequestExtensions
         var elementMatcher = new JsonElementMatcherBuilder();
         elementMatcherBuilder?.Invoke(elementMatcher);
 
-        return request.With(new MultipartJsonPayloadRequestMatcher(elementMatcher.Build()));
+        return request.With(m =>
+        {
+            m.HasMultipartJsonPayload(elementMatcher.Build());
+            return true;
+        });
     }
 
     /// <summary>
@@ -132,29 +128,11 @@ public static class MockedRequestExtensions
         string value
     )
     {
-        return request.With
-        (
-            m =>
-            {
-                Assert.NotNull(m.Content);
-                Assert.IsType<MultipartFormDataContent>(m.Content);
-
-                var formContent = (MultipartFormDataContent)m.Content!;
-                var contentWithName = formContent.FirstOrDefault
-                (
-                    c => c.Headers.Any(h => h.Value.Any(v => v.Contains($"name={name}")))
-                );
-
-                Assert.NotNull(contentWithName);
-                Assert.IsType<StringContent>(contentWithName);
-                var stringContent = (StringContent)contentWithName!;
-
-                var actualValue = stringContent.ReadAsStringAsync().GetAwaiter().GetResult();
-
-                Assert.Equal(value, actualValue);
-                return true;
-            }
-        );
+        return request.With(m =>
+        {
+            m.HasMultipartFormData(name, value);
+            return true;
+        });
     }
 
     /// <summary>
@@ -173,34 +151,10 @@ public static class MockedRequestExtensions
         Stream value
     )
     {
-        return request.With
-        (
-            m =>
-            {
-                Assert.NotNull(m.Content);
-                Assert.IsType<MultipartFormDataContent>(m.Content);
-
-                var formContent = (MultipartFormDataContent)m.Content!;
-
-                var contentWithName = formContent.FirstOrDefault
-                (
-                    c =>
-                        c.Headers.Any(h => h.Value.Any(v => v.Contains($"name={name}"))) &&
-                        c.Headers.Any(h => h.Value.Any(v => v.Contains($"filename={fileName}")))
-                );
-
-                Assert.NotNull(contentWithName);
-                Assert.IsType<StreamContent>(contentWithName);
-                var streamContent = (StreamContent)contentWithName!;
-
-                // Reflection hackery
-                var innerStream = (Stream)typeof(StreamContent)
-                    .GetField("_content", BindingFlags.Instance | BindingFlags.NonPublic)!
-                    .GetValue(streamContent)!;
-
-                Assert.Equal(value, innerStream);
-                return true;
-            }
-        );
+        return request.With(m =>
+        {
+            m.HasMultipartFormData(name, fileName, value);
+            return true;
+        });
     }
 }
