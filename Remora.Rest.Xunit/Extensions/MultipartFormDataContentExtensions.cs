@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http;
 using JetBrains.Annotations;
@@ -31,6 +32,7 @@ namespace Remora.Rest.Xunit.Extensions;
 /// Defines extension methods for the <see cref="MultipartFormDataContent"/> class.
 /// </summary>
 [PublicAPI, Obsolete("Use one of the message- or request- targeted Has/WithMultipartFormData functions instead.")]
+[ExcludeFromCodeCoverage]
 public static class MultipartFormDataContentExtensions
 {
     /// <summary>

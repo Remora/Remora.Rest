@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using JetBrains.Annotations;
 using Remora.Rest.Xunit.Extensions;
@@ -30,6 +31,7 @@ namespace Remora.Rest.Xunit.Json;
 
 /// <inheritdoc />
 [PublicAPI, Obsolete("Use a lambda and HasMultipartJsonPayload instead.")]
+[ExcludeFromCodeCoverage]
 public class MultipartJsonPayloadRequestMatcher : IMockedRequestMatcher
 {
     private readonly JsonElementMatcher _elementMatcher;
