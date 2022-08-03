@@ -23,6 +23,7 @@
 using System;
 using System.Linq;
 using System.Text.Json;
+using JetBrains.Annotations;
 using Xunit;
 
 namespace Remora.Rest.Xunit;
@@ -30,6 +31,7 @@ namespace Remora.Rest.Xunit;
 /// <summary>
 /// Defines various additional assertions for xUnit.
 /// </summary>
+[PublicAPI]
 public static class JsonAssert
 {
     /// <summary>
