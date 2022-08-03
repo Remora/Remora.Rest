@@ -30,7 +30,7 @@ namespace Remora.Rest.Xunit.Extensions;
 /// <summary>
 /// Defines extension methods for the <see cref="MultipartFormDataContent"/> class.
 /// </summary>
-[PublicAPI]
+[PublicAPI, Obsolete("Use one of the message- or request- targeted Has/WithMultipartFormData functions instead.")]
 public static class MultipartFormDataContentExtensions
 {
     /// <summary>
