@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <Version>1.0.4</Version>
+        <Version>1.1.0</Version>
         <Description>Supporting types for writing expressive unit tests of REST-focused API wrappers, allowing simple and direct testing of expected clientside behaviour.
         </Description>
         <PackageReleaseNotes>
-            Upgrade nuget packages.
+            Drop .NET 5.0 as a target.
+            Add assertions for HttpRequestMessage to match the full request pipeline.
+            Add assertions for UrlEncodedFormData.
         </PackageReleaseNotes>
     </PropertyGroup>
 
