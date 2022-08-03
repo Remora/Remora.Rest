@@ -103,6 +103,8 @@ public static class JsonAssert
                     .Where(e => !assertOptions.AllowSkip(e))
                     .ToList();
 
+                Assert.Equal(expectedElements.Count, actualElements.Count);
+
                 for (var i = 0; i < expectedElements.Count; ++i)
                 {
                     Equivalent(expectedElements[i], actualElements[i], assertOptions);
