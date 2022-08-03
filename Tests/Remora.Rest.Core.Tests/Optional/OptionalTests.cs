@@ -388,4 +388,200 @@ public class OptionalTests
             Assert.Null(nullOptional.Value);
         }
     }
+
+    /// <summary>
+    /// Tests the equality operator.
+    /// </summary>
+    public class EqualityOperator
+    {
+        [Fact]
+        public void ReturnsTrueForDefaultValues()
+        {
+            var a = default(Optional<int>);
+            var b = default(Optional<int>);
+
+            Assert.True(a == b);
+            Assert.True(b == a);
+        }
+
+        [Fact]
+        public void ReturnsTrueForSameContainedValues()
+        {
+            Optional<int> a = 1;
+            Optional<int> b = 1;
+
+            Assert.True(a == b);
+            Assert.True(b == a);
+        }
+
+        [Fact]
+        public void ReturnsFalseForDefaultValueComparedToContainedValue()
+        {
+            var a = default(Optional<int>);
+            Optional<int> b = 1;
+
+            Assert.False(a == b);
+            Assert.False(b == a);
+        }
+
+        [Fact]
+        public void ReturnsFalseForDifferentContainedValues()
+        {
+            Optional<int> a = 1;
+            Optional<int> b = 2;
+
+            Assert.False(a == b);
+            Assert.False(b == a);
+        }
+    }
+
+    /// <summary>
+    /// Tests the inequality operator.
+    /// </summary>
+    public class InequalityOperator
+    {
+        [Fact]
+        public void ReturnsFalseForDefaultValues()
+        {
+            var a = default(Optional<int>);
+            var b = default(Optional<int>);
+
+            Assert.False(a != b);
+            Assert.False(b != a);
+        }
+
+        [Fact]
+        public void ReturnsFalseForSameContainedValues()
+        {
+            Optional<int> a = 1;
+            Optional<int> b = 1;
+
+            Assert.False(a != b);
+            Assert.False(b != a);
+        }
+
+        [Fact]
+        public void ReturnsTrueForDefaultValueComparedToContainedValue()
+        {
+            var a = default(Optional<int>);
+            Optional<int> b = 1;
+
+            Assert.True(a != b);
+            Assert.True(b != a);
+        }
+
+        [Fact]
+        public void ReturnsTrueForDifferentContainedValues()
+        {
+            Optional<int> a = 1;
+            Optional<int> b = 2;
+
+            Assert.True(a != b);
+            Assert.True(b != a);
+        }
+    }
+
+    /// <summary>
+    /// Tests the <see cref="Optional{TValue}.Equals(Optional{TValue})"/> method and its overloads.
+    /// </summary>
+    public new class Equals
+    {
+        public class Typed
+        {
+            [Fact]
+            public void ReturnsTrueForDefaultValues()
+            {
+                var a = default(Optional<int>);
+                var b = default(Optional<int>);
+
+                Assert.True(a.Equals(b));
+            }
+
+            [Fact]
+            public void ReturnsTrueForSameContainedValues()
+            {
+                Optional<int> a = 1;
+                Optional<int> b = 1;
+
+                Assert.True(a.Equals(b));
+            }
+
+            [Fact]
+            public void ReturnsFalseForDefaultValueComparedToContainedValue()
+            {
+                var a = default(Optional<int>);
+                Optional<int> b = 1;
+
+                Assert.False(a.Equals(b));
+            }
+
+            [Fact]
+            public void ReturnsFalseForDifferentContainedValues()
+            {
+                Optional<int> a = 1;
+                Optional<int> b = 2;
+
+                Assert.False(a.Equals(b));
+            }
+        }
+
+        public class Object
+        {
+            [Fact]
+            public void ReturnsTrueForDefaultValues()
+            {
+                var a = default(Optional<int>);
+                object b = default(Optional<int>);
+
+                Assert.True(a.Equals(b));
+            }
+
+            [Fact]
+            public void ReturnsTrueForSameContainedValues()
+            {
+                Optional<int> a = 1;
+                object b = new Optional<int>(1);
+
+                Assert.True(a.Equals(b));
+            }
+
+            [Fact]
+            public void ReturnsFalseForDefaultValueComparedToContainedValue()
+            {
+                var a = default(Optional<int>);
+                object b = new Optional<int>(1);
+
+                Assert.False(a.Equals(b));
+            }
+
+            [Fact]
+            public void ReturnsFalseForDifferentContainedValues()
+            {
+                Optional<int> a = 1;
+                object b = new Optional<int>(2);
+
+                Assert.False(a.Equals(b));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Tests the <see cref="Optional{TValue}.GetHashCode"/> method.
+    /// </summary>
+    public new class GetHashCode
+    {
+        [Fact]
+        public static void ReturnsDefaultContainedCombinedWithFalseForDefault()
+        {
+            var a = default(Optional<int>);
+            Assert.Equal(HashCode.Combine(default(int), false), a.GetHashCode());
+        }
+
+        [Fact]
+        public static void ReturnsContainedCombinedWithTrueForContainedValue()
+        {
+            Optional<int> a = 1;
+            Assert.Equal(HashCode.Combine(1, true), a.GetHashCode());
+        }
+    }
 }
