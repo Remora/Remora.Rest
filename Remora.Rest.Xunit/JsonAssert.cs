@@ -77,28 +77,20 @@ public static class JsonAssert
 
                 foreach (var expectedElement in expectedElements)
                 {
-                    var isElementPresent = actualElements.Any(ae => ae.NameEquals(expectedElement.Name));
-                    if (!isElementPresent)
-                    {
-                        if (assertOptions.AllowMissing.Contains(expectedElement.Name))
-                        {
-                            continue;
-                        }
+                    var allowedToSkip = assertOptions.AllowMissing.Contains(expectedElement.Name) ||
+                                        assertOptions.AllowMissingBy(expectedElement);
 
-                        if (assertOptions.AllowMissingBy(expectedElement))
+                    if (allowedToSkip)
+                    {
+                        if (!actualElements.Any(ae => ae.NameEquals(expectedElement.Name)))
                         {
                             continue;
                         }
                     }
 
-                    Assert.True
-                    (
-                        isElementPresent,
-                        $"JSON property \"{expectedElement.Name}\" is missing."
-                    );
+                    Assert.Single(actualElements, ae => ae.NameEquals(expectedElement.Name));
 
-                    var matchingElement = actualElements.First(ae => ae.NameEquals(expectedElement.Name));
-
+                    var matchingElement = actualElements.Single(ae => ae.NameEquals(expectedElement.Name));
                     Equivalent(expectedElement.Value, matchingElement.Value, assertOptions);
                 }
 
