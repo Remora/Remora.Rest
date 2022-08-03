@@ -31,15 +31,15 @@ namespace Remora.Rest.Core.Tests;
 /// <summary>
 /// Tests the <see cref="Optional{TValue}"/> struct.
 /// </summary>
-public class OptionalTests
+public static class OptionalTests
 {
     /// <summary>
     /// Tests the <see cref="Optional{TValue}.HasValue"/> property.
     /// </summary>
-    public class HasValue
+    public static class HasValue
     {
         [Fact]
-        public void ReturnsTrueWhenOptionalValueTypeContainsValue()
+        public static void ReturnsTrueWhenOptionalValueTypeContainsValue()
         {
             var optional = new Optional<int>(0);
 
@@ -47,7 +47,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseWhenOptionalValueTypeDoesNotContainValue()
+        public static void ReturnsFalseWhenOptionalValueTypeDoesNotContainValue()
         {
             Optional<int> optional = default;
 
@@ -55,7 +55,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueWhenOptionalNullableValueTypeContainsValue()
+        public static void ReturnsTrueWhenOptionalNullableValueTypeContainsValue()
         {
             var optional = new Optional<int?>(0);
 
@@ -63,7 +63,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueWhenOptionalNullableValueTypeContainsNull()
+        public static void ReturnsTrueWhenOptionalNullableValueTypeContainsNull()
         {
             var optional = new Optional<int?>(null);
 
@@ -71,7 +71,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseWhenOptionalNullableValueTypeDoesNotContainValue()
+        public static void ReturnsFalseWhenOptionalNullableValueTypeDoesNotContainValue()
         {
             Optional<int?> optional = default;
 
@@ -79,7 +79,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueWhenOptionalReferenceTypeContainsValue()
+        public static void ReturnsTrueWhenOptionalReferenceTypeContainsValue()
         {
             var optional = new Optional<string>("Hello world!");
 
@@ -87,7 +87,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseWhenOptionalReferenceTypeDoesNotContainValue()
+        public static void ReturnsFalseWhenOptionalReferenceTypeDoesNotContainValue()
         {
             Optional<string> optional = default;
 
@@ -95,7 +95,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueWhenOptionalNullableReferenceTypeContainsValue()
+        public static void ReturnsTrueWhenOptionalNullableReferenceTypeContainsValue()
         {
             var optional = new Optional<string?>(null);
 
@@ -103,7 +103,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseWhenOptionalNullableReferenceTypeDoesNotContainValue()
+        public static void ReturnsFalseWhenOptionalNullableReferenceTypeDoesNotContainValue()
         {
             Optional<string?> optional = default;
 
@@ -114,10 +114,10 @@ public class OptionalTests
     /// <summary>
     /// Tests the <see cref="Optional{TValue}.Value"/> property.
     /// </summary>
-    public class Value
+    public static class Value
     {
         [Fact]
-        public void ReturnsCorrectValueIfValueTypeOptionalContainsValue()
+        public static void ReturnsCorrectValueIfValueTypeOptionalContainsValue()
         {
             var optional = new Optional<int>(64);
 
@@ -125,7 +125,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ThrowsIfValueTypeOptionalDoesNotContainValue()
+        public static void ThrowsIfValueTypeOptionalDoesNotContainValue()
         {
             Optional<int> optional = default;
 
@@ -133,7 +133,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsCorrectValueIfNullableValueTypeOptionalContainsValue()
+        public static void ReturnsCorrectValueIfNullableValueTypeOptionalContainsValue()
         {
             var optional = new Optional<int?>(64);
 
@@ -141,7 +141,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsCorrectValueIfNullableValueTypeOptionalContainsNullValue()
+        public static void ReturnsCorrectValueIfNullableValueTypeOptionalContainsNullValue()
         {
             var optional = new Optional<int?>(null);
 
@@ -149,7 +149,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ThrowsIfNullableValueTypeOptionalDoesNotContainValue()
+        public static void ThrowsIfNullableValueTypeOptionalDoesNotContainValue()
         {
             Optional<int?> optional = default;
 
@@ -157,7 +157,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsCorrectValueIfReferenceTypeOptionalContainsValue()
+        public static void ReturnsCorrectValueIfReferenceTypeOptionalContainsValue()
         {
             var optional = new Optional<string>("Hello world!");
 
@@ -165,7 +165,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ThrowsIfReferenceTypeOptionalDoesNotContainValue()
+        public static void ThrowsIfReferenceTypeOptionalDoesNotContainValue()
         {
             Optional<string> optional = default;
 
@@ -173,7 +173,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsValue()
+        public static void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsValue()
         {
             var optional = new Optional<string?>("Hello world!");
 
@@ -181,7 +181,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsNullValue()
+        public static void ReturnsCorrectValueIfNullableReferenceTypeOptionalContainsNullValue()
         {
             var optional = new Optional<string?>(null);
 
@@ -189,7 +189,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ThrowsIfNullableReferenceTypeOptionalDoesNotContainValue()
+        public static void ThrowsIfNullableReferenceTypeOptionalDoesNotContainValue()
         {
             Optional<string?> optional = default;
 
@@ -200,10 +200,10 @@ public class OptionalTests
     /// <summary>
     /// Tests the <see cref="Optional{TValue}.IsDefined()"/> method and its overloads.
     /// </summary>
-    public class IsDefined
+    public static class IsDefined
     {
         [Fact]
-        public void ReturnsFalseIfNullableOptionalHasNoValue()
+        public static void ReturnsFalseIfNullableOptionalHasNoValue()
         {
             Optional<int?> noValue = default;
             Assert.False(noValue.IsDefined());
@@ -213,7 +213,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseIfNullableOptionalHasNullValue()
+        public static void ReturnsFalseIfNullableOptionalHasNullValue()
         {
             Optional<int?> noValue = null;
             Assert.False(noValue.IsDefined());
@@ -223,7 +223,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueIfNullableOptionalHasNonNullValue()
+        public static void ReturnsTrueIfNullableOptionalHasNonNullValue()
         {
             Optional<int?> noValue = 1;
             Assert.True(noValue.IsDefined());
@@ -233,7 +233,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseIfOptionalHasNoValue()
+        public static void ReturnsFalseIfOptionalHasNoValue()
         {
             Optional<int> noValue = default;
             Assert.False(noValue.IsDefined());
@@ -241,7 +241,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueIfOptionalHasNonNullValue()
+        public static void ReturnsTrueIfOptionalHasNonNullValue()
         {
             Optional<int> noValue = 1;
             Assert.True(noValue.IsDefined());
@@ -257,7 +257,7 @@ public class OptionalTests
     public new class ToString
     {
         [Fact]
-        public void ResultContainsValueIfValueTypeOptionalContainsValue()
+        public static void ResultContainsValueIfValueTypeOptionalContainsValue()
         {
             var optional = new Optional<int>(64);
 
@@ -265,7 +265,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultIsEmptyIfValueTypeOptionalDoesNotContainValue()
+        public static void ResultIsEmptyIfValueTypeOptionalDoesNotContainValue()
         {
             var optional = default(Optional<int>);
 
@@ -273,7 +273,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultContainsValueIfNullableValueTypeOptionalContainsValue()
+        public static void ResultContainsValueIfNullableValueTypeOptionalContainsValue()
         {
             var optional = new Optional<int?>(64);
 
@@ -281,7 +281,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultContainsNullIfNullableValueTypeOptionalContainsNullValue()
+        public static void ResultContainsNullIfNullableValueTypeOptionalContainsNullValue()
         {
             var optional = new Optional<int?>(null);
 
@@ -289,7 +289,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultIsEmptyIfNullableValueTypeOptionalDoesNotContainValue()
+        public static void ResultIsEmptyIfNullableValueTypeOptionalDoesNotContainValue()
         {
             var optional = default(Optional<int?>);
 
@@ -297,7 +297,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultContainsValueIfReferenceTypeOptionalContainsValue()
+        public static void ResultContainsValueIfReferenceTypeOptionalContainsValue()
         {
             var optional = new Optional<string>("Hello world!");
 
@@ -305,7 +305,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultIsEmptyIfReferenceTypeOptionalDoesNotContainValue()
+        public static void ResultIsEmptyIfReferenceTypeOptionalDoesNotContainValue()
         {
             var optional = default(Optional<string>);
 
@@ -313,7 +313,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultContainsValueIfNullableReferenceTypeOptionalContainsValue()
+        public static void ResultContainsValueIfNullableReferenceTypeOptionalContainsValue()
         {
             var optional = new Optional<string?>("Hello world!");
 
@@ -321,7 +321,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultContainsNullIfNullableReferenceTypeOptionalContainsNullValue()
+        public static void ResultContainsNullIfNullableReferenceTypeOptionalContainsNullValue()
         {
             var optional = new Optional<string?>(null);
 
@@ -329,7 +329,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ResultIsEmptyIfNullableReferenceTypeOptionalDoesNotContainValue()
+        public static void ResultIsEmptyIfNullableReferenceTypeOptionalDoesNotContainValue()
         {
             var optional = default(Optional<string?>);
 
@@ -340,10 +340,10 @@ public class OptionalTests
     /// <summary>
     /// Tests the implicit operator.
     /// </summary>
-    public class ImplicitOperator
+    public static class ImplicitOperator
     {
         [Fact]
-        public void CanCreateValueTypeOptionalImplicitly()
+        public static void CanCreateValueTypeOptionalImplicitly()
         {
             Optional<int> optional = 64;
 
@@ -352,7 +352,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void CanCreateNullableValueTypeOptionalImplicitly()
+        public static void CanCreateNullableValueTypeOptionalImplicitly()
         {
             Optional<int?> optional = 64;
 
@@ -366,7 +366,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void CanCreateReferenceTypeOptionalImplicitly()
+        public static void CanCreateReferenceTypeOptionalImplicitly()
         {
             Optional<string> optional = "Hello world!";
 
@@ -375,7 +375,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void CanCreateNullableReferenceTypeOptionalImplicitly()
+        public static void CanCreateNullableReferenceTypeOptionalImplicitly()
         {
             Optional<string?> optional = "Hello world!";
 
@@ -392,10 +392,10 @@ public class OptionalTests
     /// <summary>
     /// Tests the equality operator.
     /// </summary>
-    public class EqualityOperator
+    public static class EqualityOperator
     {
         [Fact]
-        public void ReturnsTrueForDefaultValues()
+        public static void ReturnsTrueForDefaultValues()
         {
             var a = default(Optional<int>);
             var b = default(Optional<int>);
@@ -405,7 +405,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueForSameContainedValues()
+        public static void ReturnsTrueForSameContainedValues()
         {
             Optional<int> a = 1;
             Optional<int> b = 1;
@@ -415,7 +415,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseForDefaultValueComparedToContainedValue()
+        public static void ReturnsFalseForDefaultValueComparedToContainedValue()
         {
             var a = default(Optional<int>);
             Optional<int> b = 1;
@@ -425,7 +425,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseForDifferentContainedValues()
+        public static void ReturnsFalseForDifferentContainedValues()
         {
             Optional<int> a = 1;
             Optional<int> b = 2;
@@ -438,10 +438,10 @@ public class OptionalTests
     /// <summary>
     /// Tests the inequality operator.
     /// </summary>
-    public class InequalityOperator
+    public static class InequalityOperator
     {
         [Fact]
-        public void ReturnsFalseForDefaultValues()
+        public static void ReturnsFalseForDefaultValues()
         {
             var a = default(Optional<int>);
             var b = default(Optional<int>);
@@ -451,7 +451,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsFalseForSameContainedValues()
+        public static void ReturnsFalseForSameContainedValues()
         {
             Optional<int> a = 1;
             Optional<int> b = 1;
@@ -461,7 +461,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueForDefaultValueComparedToContainedValue()
+        public static void ReturnsTrueForDefaultValueComparedToContainedValue()
         {
             var a = default(Optional<int>);
             Optional<int> b = 1;
@@ -471,7 +471,7 @@ public class OptionalTests
         }
 
         [Fact]
-        public void ReturnsTrueForDifferentContainedValues()
+        public static void ReturnsTrueForDifferentContainedValues()
         {
             Optional<int> a = 1;
             Optional<int> b = 2;
@@ -486,10 +486,10 @@ public class OptionalTests
     /// </summary>
     public new class Equals
     {
-        public class Typed
+        public static class Typed
         {
             [Fact]
-            public void ReturnsTrueForDefaultValues()
+            public static void ReturnsTrueForDefaultValues()
             {
                 var a = default(Optional<int>);
                 var b = default(Optional<int>);
@@ -498,7 +498,7 @@ public class OptionalTests
             }
 
             [Fact]
-            public void ReturnsTrueForSameContainedValues()
+            public static void ReturnsTrueForSameContainedValues()
             {
                 Optional<int> a = 1;
                 Optional<int> b = 1;
@@ -507,7 +507,7 @@ public class OptionalTests
             }
 
             [Fact]
-            public void ReturnsFalseForDefaultValueComparedToContainedValue()
+            public static void ReturnsFalseForDefaultValueComparedToContainedValue()
             {
                 var a = default(Optional<int>);
                 Optional<int> b = 1;
@@ -516,7 +516,7 @@ public class OptionalTests
             }
 
             [Fact]
-            public void ReturnsFalseForDifferentContainedValues()
+            public static void ReturnsFalseForDifferentContainedValues()
             {
                 Optional<int> a = 1;
                 Optional<int> b = 2;
@@ -525,10 +525,10 @@ public class OptionalTests
             }
         }
 
-        public class Object
+        public static class Object
         {
             [Fact]
-            public void ReturnsTrueForDefaultValues()
+            public static void ReturnsTrueForDefaultValues()
             {
                 var a = default(Optional<int>);
                 object b = default(Optional<int>);
@@ -537,7 +537,7 @@ public class OptionalTests
             }
 
             [Fact]
-            public void ReturnsTrueForSameContainedValues()
+            public static void ReturnsTrueForSameContainedValues()
             {
                 Optional<int> a = 1;
                 object b = new Optional<int>(1);
@@ -546,7 +546,7 @@ public class OptionalTests
             }
 
             [Fact]
-            public void ReturnsFalseForDefaultValueComparedToContainedValue()
+            public static void ReturnsFalseForDefaultValueComparedToContainedValue()
             {
                 var a = default(Optional<int>);
                 object b = new Optional<int>(1);
@@ -555,7 +555,7 @@ public class OptionalTests
             }
 
             [Fact]
-            public void ReturnsFalseForDifferentContainedValues()
+            public static void ReturnsFalseForDifferentContainedValues()
             {
                 Optional<int> a = 1;
                 object b = new Optional<int>(2);
