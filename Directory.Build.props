@@ -149,4 +149,9 @@
             <Link>README.md</Link>
         </None>
     </ItemGroup>
+
+    <!-- Improve artificially deflated code coverage -->
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789.`))' == 'netstandard'">
+        <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage" />
+    </ItemGroup>
 </Project>
