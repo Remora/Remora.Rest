@@ -745,4 +745,140 @@ public static class HttpRequestMessageAssertionsTests
             }
         }
     }
+
+    /// <summary>
+    /// Tests the
+    /// <see cref="Extensions.HttpRequestMessageAssertions.HasQueryParameters(HttpRequestMessage)"/> method
+    /// and its overloads.
+    /// </summary>
+    public static class HasQueryParameters
+    {
+        /// <summary>
+        /// Tests the overload with no arguments.
+        /// </summary>
+        public static class NoArguments
+        {
+            /// <summary>
+            /// Tests that the method raises an assertion if the request has no query parameters.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfRequestHasNoQueryParameters()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
+
+                Assert.Throws<FalseException>(() => request.HasQueryParameters());
+            }
+
+            /// <summary>
+            /// Tests that the method passes if the request content is URL-encoded form data content.
+            /// </summary>
+            [Fact]
+            public static void PassesIfRequestContainsUrlEncodedFormDataContent()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test?query=parameter");
+
+                request.HasQueryParameters();
+            }
+        }
+
+        /// <summary>
+        /// Tests the overload with a set of expected values.
+        /// </summary>
+        public static class Expectations
+        {
+            /// <summary>
+            /// Tests that the method raises an assertion if an expected key is missing.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfKeyIsMissing()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test?query=parameter");
+
+                Assert.Throws<ContainsException>(() => request.HasQueryParameters(new Dictionary<string, string>
+                {
+                    { "other", "value" }
+                }));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if an expected value differs.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfValueDiffers()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test?some=value");
+
+                Assert.Throws<EqualException>(() => request.HasQueryParameters(new Dictionary<string, string>
+                {
+                    { "some", "type" }
+                }));
+            }
+
+            /// <summary>
+            /// Tests that the method raises an assertion if the query string contains more than the expected data and
+            /// strict checking is enabled.
+            /// </summary>
+            [Fact]
+            public static void AssertsIfContentContainsMoreAndExpectationsAreStrict()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test?some=value&other=thing");
+
+                Assert.Throws<EqualException>(() => request.HasQueryParameters
+                (
+                    new Dictionary<string, string>
+                    {
+                        { "some", "value" }
+                    },
+                    true
+                ));
+            }
+
+            /// <summary>
+            /// Tests that the method passes if all expected keys are present and all expected values are equal.
+            /// </summary>
+            [Fact]
+            public static void PassesIfContentContainsAllExpectedKeysAndAllValuesAreEqual()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test?some=value");
+
+                request.HasQueryParameters(new Dictionary<string, string>
+                {
+                    { "some", "value" }
+                });
+            }
+
+            /// <summary>
+            /// Tests that the method passes if all expected keys are present and all expected values are equal.
+            /// </summary>
+            [Fact]
+            public static void PassesIfContentContainsAllExpectedKeysAndAllValuesAreEqualAndExpectationsAreStrict()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test?some=value");
+
+                request.HasQueryParameters
+                (
+                    new Dictionary<string, string>
+                    {
+                        { "some", "value" }
+                    },
+                    true
+                );
+            }
+
+            /// <summary>
+            /// Tests that the method passes if the query string contains more than the expected data and strict
+            /// checking is disabled.
+            /// </summary>
+            [Fact]
+            public static void PassesIfContentContainsMoreAndExpectationsAreNotStrict()
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test?some=value&other=thing");
+
+                request.HasQueryParameters(new Dictionary<string, string>
+                {
+                    { "some", "value" }
+                });
+            }
+        }
+    }
 }

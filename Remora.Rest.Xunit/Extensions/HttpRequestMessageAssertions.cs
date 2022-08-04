@@ -399,4 +399,64 @@ public static class HttpRequestMessageAssertions
             Assert.Equal(value, data[key]);
         }
     }
+
+    /// <summary>
+    /// Asserts that the message has URL-encoded query parameters.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    public static void HasQueryParameters(this HttpRequestMessage message)
+    {
+        message.HasQueryParameters(out _);
+    }
+
+    /// <summary>
+    /// Asserts that the message has URL-encoded query parameters.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="data">The decoded form data.</param>
+    public static void HasQueryParameters
+    (
+        this HttpRequestMessage message,
+        out IReadOnlyDictionary<string, string> data
+    )
+    {
+        Assert.NotNull(message.RequestUri?.Query);
+        Assert.False(message.RequestUri?.Query == string.Empty);
+
+        var collection = HttpUtility.ParseQueryString(message.RequestUri!.Query);
+        data = collection.AllKeys.ToDictionary
+        (
+            key => key ?? throw new InvalidOperationException(),
+            key => collection[key] ?? throw new InvalidOperationException()
+        );
+    }
+
+    /// <summary>
+    /// Asserts that the message has URL-encoded form data as its content.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="expectations">The expected values.</param>
+    /// <param name="strict">
+    /// true if the expected and actual sets must match in count as well; otherwise, false.
+    /// </param>
+    public static void HasQueryParameters
+    (
+        this HttpRequestMessage message,
+        IReadOnlyDictionary<string, string> expectations,
+        bool strict = false
+    )
+    {
+        message.HasQueryParameters(out var data);
+
+        if (strict)
+        {
+            Assert.Equal(expectations.Count, data.Count);
+        }
+
+        foreach (var (key, value) in expectations)
+        {
+            Assert.Contains(key, data);
+            Assert.Equal(value, data[key]);
+        }
+    }
 }
