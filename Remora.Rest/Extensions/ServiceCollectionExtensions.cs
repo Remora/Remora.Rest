@@ -49,15 +49,19 @@ public static class ServiceCollectionExtensions
         string? optionsName = null
     )
     {
-        return services.Configure<JsonSerializerOptions>(optionsName, options =>
-        {
-            options
-                .AddConverter<ColorConverter>()
-                .AddConverter<OptionalConverterFactory>()
-                .AddConverter<NullableConverterFactory>()
-                .AddConverter<OneOfConverterFactory>()
-                .AddConverter<ISO8601DateTimeOffsetConverter>();
-        });
+        return services.Configure<JsonSerializerOptions>
+        (
+            optionsName,
+            options =>
+            {
+                options
+                    .AddConverter<ColorConverter>()
+                    .AddConverter<OptionalConverterFactory>()
+                    .AddConverter<NullableConverterFactory>()
+                    .AddConverter<OneOfConverterFactory>()
+                    .AddConverter<ISO8601DateTimeOffsetConverter>();
+            }
+        );
     }
 
     /// <summary>
