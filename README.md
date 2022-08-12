@@ -53,4 +53,4 @@ developed - it pushes all available functionality to its limits, and serves as a
 relatively comprehensive demonstration of what you can do with the library.
 
 
-[1]: https://github.com/Nihlus/Remora.Discord
+[1]: https://github.com/Remora/Remora.Discord

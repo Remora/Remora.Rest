@@ -9,7 +9,7 @@ labels: feature request
 -->
 
 <!--
-  Before opening a new issue, please search existing issues:  https://github.com/Nihlus/Remora.Discord/issues
+  Before opening a new issue, please search existing issues:  https://github.com/Remora/Remora.Discord/issues
 -->
 
 **Description**
