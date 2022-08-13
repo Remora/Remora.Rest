@@ -20,7 +20,30 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-using System.Collections.Generic;
+// This code uses modified portion of MIT licensed Newtonsoft.Json source code
+//
+// Copyright (c) 2007 James Newton-King
+//
+// Permission is hereby granted, free of charge, to any person
+// obtaining a copy of this software and associated documentation
+// files (the "Software"), to deal in the Software without
+// restriction, including without limitation the rights to use,
+// copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following
+// conditions:
+//
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
 using System.Text;
 using System.Text.Json;
 using JetBrains.Annotations;
@@ -52,41 +75,71 @@ public class SnakeCaseNamingPolicy : JsonNamingPolicy
             return name;
         }
 
-        var builder = new StringBuilder();
+        var sb = new StringBuilder(name.Length + (name.Length / 2));
+        var state = SeparatedCaseState.Start;
 
-        var wordBoundaries = new List<int>();
-
-        char? previous = null;
-        for (var index = 0; index < name.Length; index++)
+        for (var i = 0; i < name.Length; i++)
         {
-            var c = name[index];
-
-            if (previous.HasValue && char.IsUpper(previous.Value) && char.IsLower(c))
+            if (name[i] == ' ')
             {
-                wordBoundaries.Add(index - 1);
+                if (state != SeparatedCaseState.Start)
+                {
+                    state = SeparatedCaseState.NewWord;
+                }
             }
-
-            if (previous.HasValue && char.IsLower(previous.Value) && char.IsUpper(c))
+            else if (char.IsUpper(name[i]))
             {
-                wordBoundaries.Add(index);
-            }
+                switch (state)
+                {
+                    case SeparatedCaseState.Upper:
+                        var hasNext = i + 1 < name.Length;
+                        if (i > 0 && hasNext)
+                        {
+                            var nextChar = name[i + 1];
+                            if (!char.IsUpper(nextChar) && nextChar != '_')
+                            {
+                                sb.Append('_');
+                            }
+                        }
 
-            previous = c;
+                        break;
+                    case SeparatedCaseState.Lower:
+                    case SeparatedCaseState.NewWord:
+                        sb.Append('_');
+                        break;
+                }
+
+                var c = !_upperCase ? char.ToLowerInvariant(name[i]) : char.ToUpperInvariant(name[i]);
+
+                sb.Append(c);
+
+                state = SeparatedCaseState.Upper;
+            }
+            else if (name[i] == '_')
+            {
+                sb.Append('_');
+                state = SeparatedCaseState.Start;
+            }
+            else
+            {
+                if (state == SeparatedCaseState.NewWord)
+                {
+                    sb.Append('_');
+                }
+
+                sb.Append(!_upperCase ? name[i] : char.ToUpperInvariant(name[i]));
+                state = SeparatedCaseState.Lower;
+            }
         }
 
-        for (var index = 0; index < name.Length; index++)
-        {
-            var c = name[index];
-            if (wordBoundaries.Contains(index) && index != 0)
-            {
-                builder.Append('_');
-            }
+        return sb.ToString();
+    }
 
-            builder.Append(char.ToLowerInvariant(c));
-        }
-
-        return _upperCase
-            ? builder.ToString().ToUpperInvariant()
-            : builder.ToString();
+    private enum SeparatedCaseState
+    {
+        Start,
+        Lower,
+        Upper,
+        NewWord
     }
 }
