@@ -3,17 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest", "Remora.Rest\Remora.Rest.csproj", "{73CC33AB-6A72-47B4-80D7-4880340EF3DF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{54F6B070-C37B-4D9B-98C9-1D69D17791CC}"
-ProjectSection(SolutionItems) = preProject
-	Tests\Directory.Build.props = Tests\Directory.Build.props
-EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Tests", "Tests\Remora.Rest.Tests\Remora.Rest.Tests.csproj", "{063999E1-511A-4EB8-9C23-9A2A19A97E56}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "metadata", "metadata", "{0C122B49-2255-4E2E-A883-98270FC82290}"
 ProjectSection(SolutionItems) = preProject
 	Directory.Build.props = Directory.Build.props
-	stylecop.json = stylecop.json
-	stylecop.ruleset = stylecop.ruleset
 	.gitignore = .gitignore
 	README.md = README.md
 EndProjectSection

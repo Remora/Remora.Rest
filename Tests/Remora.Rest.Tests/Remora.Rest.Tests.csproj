@@ -1,14 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Remora.Tests.Sdk/1.0.0-preview3">
 
     <ItemGroup>
       <ProjectReference Include="..\..\Remora.Rest.Xunit\Remora.Rest.Xunit.csproj" />
       <ProjectReference Include="..\..\Remora.Rest\Remora.Rest.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="xunit.analyzers" Version="0.10.0" />
-    </ItemGroup>
-
     <ItemGroup>
       <Compile Update="Data\DataObjects\ISimpleData.cs">
         <DependentUpon>SimpleData.cs</DependentUpon>

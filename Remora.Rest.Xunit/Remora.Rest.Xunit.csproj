@@ -1,5 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Remora.Sdk/1.0.0-preview3">
     <PropertyGroup>
         <Version>1.2.0</Version>
         <Description>Supporting types for writing expressive unit tests of REST-focused API wrappers, allowing simple and direct testing of expected clientside behaviour.
@@ -29,5 +28,4 @@
             <DependentUpon>JsonObjectMatcher.cs</DependentUpon>
         </Compile>
     </ItemGroup>
-
 </Project>
