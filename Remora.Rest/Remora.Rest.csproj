@@ -1,4 +1,4 @@
-<Project Sdk="Remora.Sdk/1.0.0-preview3">
+<Project Sdk="Remora.Sdk/1.0.0-preview6">
     <PropertyGroup>
         <Version>2.0.5</Version>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>

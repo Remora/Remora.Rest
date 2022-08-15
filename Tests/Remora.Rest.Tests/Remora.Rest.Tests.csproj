@@ -1,4 +1,4 @@
-<Project Sdk="Remora.Tests.Sdk/1.0.0-preview3">
+<Project Sdk="Remora.Tests.Sdk/1.0.0-preview6">
 
     <ItemGroup>
       <ProjectReference Include="..\..\Remora.Rest.Xunit\Remora.Rest.Xunit.csproj" />
