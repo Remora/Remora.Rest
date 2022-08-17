@@ -36,6 +36,9 @@ public class SnakeCaseNamingPolicyTests
     /// <param name="input">The input.</param>
     /// <param name="expected">The expected result.</param>
     [Theory]
+    [InlineData("", "")]
+    [InlineData("A", "a")]
+    [InlineData("AB", "ab")]
     [InlineData("IOStream", "io_stream")]
     [InlineData("IOStreamAPI", "io_stream_api")]
     [InlineData("already_snake", "already_snake")]
