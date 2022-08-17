@@ -39,6 +39,8 @@ public class SnakeCaseNamingPolicyTests
     [InlineData("", "")]
     [InlineData("A", "a")]
     [InlineData("AB", "ab")]
+    [InlineData("ABC", "abc")]
+    [InlineData("ABCD", "abcd")]
     [InlineData("IOStream", "io_stream")]
     [InlineData("IOStreamAPI", "io_stream_api")]
     [InlineData("already_snake", "already_snake")]
