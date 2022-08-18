@@ -45,6 +45,7 @@ public class SnakeCaseNamingPolicyTests
     [InlineData("IOStreamAPI", "io_stream_api")]
     [InlineData("already_snake", "already_snake")]
     [InlineData("SCREAMING_CASE", "screaming_case")]
+    [InlineData("Ada_Case", "ada_case")]
     [InlineData("NormalPascalCase", "normal_pascal_case")]
     [InlineData("camelCase", "camel_case")]
     [InlineData("camelCaseAPI", "camel_case_api")]

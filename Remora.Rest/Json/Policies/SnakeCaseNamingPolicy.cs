@@ -20,8 +20,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-using System.Collections.Generic;
-using System.Text;
+using System;
+using System.Buffers;
 using System.Text.Json;
 using JetBrains.Annotations;
 
@@ -45,48 +45,144 @@ public class SnakeCaseNamingPolicy : JsonNamingPolicy
     }
 
     /// <inheritdoc />
-    public override string ConvertName(string name)
+    public override string ConvertName(string input) => _upperCase
+        ? FastSnakeCaser.Snake(input).ToUpperInvariant()
+        : FastSnakeCaser.Snake(input);
+
+    /// <summary>
+    /// Converts C# identifiers to snake_case strings.
+    /// </summary>
+    /// <remarks>
+    /// This code is partially based on JSON.NET's implementation, with additional safety features and flexibility.
+    /// </remarks>
+    private static class FastSnakeCaser
     {
-        if (string.IsNullOrEmpty(name))
+        private const byte _stackAllocationCap = 128;
+
+        /// <summary>
+        /// Converts the input string to its equivalent snake_case representation.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The snake_case representation.</returns>
+        public static string Snake(string input)
         {
-            return name;
-        }
-
-        var builder = new StringBuilder();
-
-        var wordBoundaries = new List<int>();
-
-        char? previous = null;
-        for (var index = 0; index < name.Length; index++)
-        {
-            var c = name[index];
-
-            if (previous.HasValue && char.IsUpper(previous.Value) && char.IsLower(c))
+            if (string.IsNullOrEmpty(input))
             {
-                wordBoundaries.Add(index - 1);
+                return input;
             }
 
-            if (previous.HasValue && char.IsLower(previous.Value) && char.IsUpper(c))
-            {
-                wordBoundaries.Add(index);
-            }
-
-            previous = c;
+            var outputSize = input.Length + (input.Length / 2);
+            return outputSize <= _stackAllocationCap
+                ? SnakeStackAlloc(input, outputSize)
+                : SnakeHeapAlloc(input, outputSize);
         }
 
-        for (var index = 0; index < name.Length; index++)
+        /// <summary>
+        /// Converts the input string to its equivalent snake_case representation using stack-allocated buffers.
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="outputSize">The maximum size of the output string.</param>
+        /// <returns>The snake_case representation.</returns>
+        private static string SnakeStackAlloc(string input, int outputSize)
         {
-            var c = name[index];
-            if (wordBoundaries.Contains(index) && index != 0)
-            {
-                builder.Append('_');
-            }
-
-            builder.Append(char.ToLowerInvariant(c));
+            Span<char> output = stackalloc char[outputSize];
+            var length = SnakeCore(input, output);
+            return new(output[..length]);
         }
 
-        return _upperCase
-            ? builder.ToString().ToUpperInvariant()
-            : builder.ToString();
+        /// <summary>
+        /// Converts the input string to its equivalent snake_case representation using rented heap-allocated arrays.
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="outputSize">The maximum size of the output string.</param>
+        /// <returns>The snake_case representation.</returns>
+        private static string SnakeHeapAlloc(string input, int outputSize)
+        {
+            var output = ArrayPool<char>.Shared.Rent(outputSize);
+            try
+            {
+                var length = SnakeCore(input, output);
+                return new string(output[..length]);
+            }
+            finally
+            {
+                ArrayPool<char>.Shared.Return(output);
+            }
+        }
+
+        /// <summary>
+        /// Converts the input span to its equivalent snake_case representation.
+        /// </summary>
+        /// <param name="input">The input span.</param>
+        /// <param name="output">
+        /// The output span. This span must be large enough to accommodate the resulting representation.
+        /// </param>
+        /// <returns>
+        /// The length of the resulting representation. This value may be smaller than the size of the output buffer.
+        /// </returns>
+        private static int SnakeCore(ReadOnlySpan<char> input, Span<char> output)
+        {
+            var index = 0;
+            var state = InputState.Start;
+
+            for (var i = 0; i < input.Length; i++)
+            {
+                if (char.IsUpper(input[i]))
+                {
+                    switch (state)
+                    {
+                        case InputState.Upper:
+                        {
+                            var hasNext = i + 1 < input.Length;
+                            if (i > 0 && hasNext)
+                            {
+                                var nextChar = input[i + 1];
+                                if (!char.IsUpper(nextChar) && nextChar != '_')
+                                {
+                                    output[index] = '_';
+                                    index++;
+                                }
+                            }
+
+                            break;
+                        }
+                        case InputState.Lower:
+                        {
+                            output[index] = '_';
+                            index++;
+                            break;
+                        }
+                    }
+
+                    var c = char.ToLowerInvariant(input[i]);
+
+                    output[index] = c;
+                    index++;
+
+                    state = InputState.Upper;
+                }
+                else if (input[i] == '_')
+                {
+                    output[index] = '_';
+                    index++;
+                    state = InputState.Start;
+                }
+                else
+                {
+                    output[index] = input[i];
+                    index++;
+                    state = InputState.Lower;
+                }
+            }
+
+            return index;
+        }
+
+        private enum InputState
+        {
+            Start,
+            Lower,
+            Upper
+        }
     }
 }
