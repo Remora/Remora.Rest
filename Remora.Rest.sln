@@ -21,6 +21,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Core", "Remora.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Core.Tests", "Tests\Remora.Rest.Core.Tests\Remora.Rest.Core.Tests.csproj", "{9B0244DE-B9DF-4FB9-8AB5-CB047EEE1B30}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{F087BFD0-3A27-44ED-9F7F-9B0E0269CEE3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{893C17E9-9974-4E88-96F7-333C560B4A2C}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,5 +63,7 @@ Global
 		{063999E1-511A-4EB8-9C23-9A2A19A97E56} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
 		{F22AB5D2-E9E0-406E-80A6-B4D286F8991A} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
 		{9B0244DE-B9DF-4FB9-8AB5-CB047EEE1B30} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
+		{F087BFD0-3A27-44ED-9F7F-9B0E0269CEE3} = {0C122B49-2255-4E2E-A883-98270FC82290}
+		{893C17E9-9974-4E88-96F7-333C560B4A2C} = {F087BFD0-3A27-44ED-9F7F-9B0E0269CEE3}
 	EndGlobalSection
 EndGlobal
