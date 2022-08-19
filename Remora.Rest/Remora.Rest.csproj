@@ -1,6 +1,6 @@
-<Project Sdk="Remora.Sdk/1.0.0-preview6">
+<Project Sdk="Remora.Sdk/1.0.0">
     <PropertyGroup>
-        <Version>2.0.5</Version>
+        <Version>2.0.6</Version>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
             Drop .NET 5.0 as a target.
@@ -10,8 +10,8 @@
     <ItemGroup>
         <PackageReference Include="JsonDocumentPath" Version="1.0.3" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-        <PackageReference Include="OneOf" Version="3.0.216" />
-        <PackageReference Include="Remora.Results" Version="7.2.0" />
+        <PackageReference Include="OneOf" Version="3.0.223" />
+        <PackageReference Include="Remora.Results" Version="7.2.1" />
         <PackageReference Include="System.Text.Json" Version="6.0.5" />
     </ItemGroup>
 

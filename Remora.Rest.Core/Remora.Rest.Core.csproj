@@ -1,6 +1,6 @@
-<Project Sdk="Remora.Sdk/1.0.0-preview6">
+<Project Sdk="Remora.Sdk/1.0.0">
     <PropertyGroup>
-        <Version>2.0.3</Version>
+        <Version>2.0.4</Version>
         <Description>Core types for working with REST-oriented data models, such as logically optional fields and snowflake identifiers.</Description>
         <PackageReleaseNotes>
             Drop .NET 5.0 as a target.
