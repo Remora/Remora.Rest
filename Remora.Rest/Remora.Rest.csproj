@@ -1,6 +1,6 @@
 <Project Sdk="Remora.Sdk/1.0.0">
     <PropertyGroup>
-        <Version>2.0.6</Version>
+        <VersionPrefix>2.0.6</VersionPrefix>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
             Drop .NET 5.0 as a target.
