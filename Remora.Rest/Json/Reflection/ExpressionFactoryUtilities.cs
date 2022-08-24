@@ -24,6 +24,10 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
+using Remora.Rest.Core;
+using Remora.Rest.Extensions;
+using Remora.Rest.Json.Internal;
 
 namespace Remora.Rest.Json.Reflection;
 
@@ -50,6 +54,16 @@ internal delegate T ObjectFactory<out T>(params object?[] args);
 /// <param name="instance">The instance whose property to retrieve.</param>
 /// <returns>The retrieved property.</returns>
 internal delegate object InstancePropertyGetter(object instance);
+
+/// <summary>
+/// Represents a method to reads a certain property from <paramref name="instance"/> and,
+/// if it isn't an empty <see cref="Optional{TValue}"/>, writes it to the <paramref name="writer"/>
+/// like the info provided by <paramref name="dtoProperty"/> dictates.
+/// </summary>
+/// <param name="writer">The JSON writer to write to.</param>
+/// <param name="dtoProperty">The DTO property this writer is for.</param>
+/// <param name="instance">The instance to read the property value from.</param>
+internal delegate void DTOPropertyWriter(Utf8JsonWriter writer, DTOPropertyInfo dtoProperty, object instance);
 
 /// <summary>
 /// Handles application-specific creation of delegates for performing reflective operations using Linq Expressions as a
@@ -160,5 +174,94 @@ internal static class ExpressionFactoryUtilities
             Expression.Convert(Expression.Property(Expression.Convert(instance, type), property), typeof(object)),
             instance
         ).Compile();
+    }
+
+    /// <summary>
+    /// Creates a <see cref="DTOPropertyWriter"/> that retrieves the property using the given <paramref name="getter"/>
+    /// and writes it to JSON after. Correctly handles <see cref="Optional{TValue}"/> properties.
+    /// </summary>
+    /// <param name="getter">The method to retrieve the property value.</param>
+    /// <returns>A method that can be used to write the property to JSON.</returns>
+    public static DTOPropertyWriter CreatePropertyWriter(MethodInfo getter)
+    {
+        // Takes MethodInfo instead of PropertyInfo to simplify interface map lookup
+        var writer = Expression.Parameter(typeof(Utf8JsonWriter), "writer");
+        var dtoProperty = Expression.Parameter(typeof(DTOPropertyInfo), "dtoProperty");
+        var instance = Expression.Parameter(typeof(object), "instance");
+
+        return Expression.Lambda<DTOPropertyWriter>
+        (
+            Expression.Call
+            (
+                GetWritePropertyMethod(getter.ReturnType),
+                writer,
+                dtoProperty,
+                Expression.Call(Expression.Convert(instance, getter.DeclaringType!), getter)
+            ),
+            writer,
+            dtoProperty,
+            instance
+        ).Compile();
+    }
+
+    /// <summary>
+    /// Gets the correct method that can write a property of type <paramref name="valueType"/> to JSON.
+    /// </summary>
+    /// <param name="valueType">The type of the property to write.</param>
+    /// <returns>The correct method info.</returns>
+    private static MethodInfo GetWritePropertyMethod(Type valueType)
+    {
+        var flags = BindingFlags.NonPublic | BindingFlags.Static;
+
+        if (valueType.IsOptional())
+        {
+            return typeof(ExpressionFactoryUtilities)
+                .GetMethod(nameof(WriteOptionalProperty), flags)!
+                .MakeGenericMethod(valueType.GetGenericArguments());
+        }
+        else
+        {
+            return typeof(ExpressionFactoryUtilities)
+                .GetMethod(nameof(WriteRequiredProperty), flags)!
+                .MakeGenericMethod(valueType);
+        }
+    }
+
+    /// <summary>
+    /// Writes an <see cref="Optional{TValue}"/> property to JSON.
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <param name="writer">The JSON writer.</param>
+    /// <param name="dtoProperty">The DTO property.</param>
+    /// <param name="value">The property value.</param>
+    private static void WriteOptionalProperty<T>
+    (
+        Utf8JsonWriter writer,
+        DTOPropertyInfo dtoProperty,
+        Optional<T> value
+    )
+    {
+        if (value.HasValue)
+        {
+            WriteRequiredProperty(writer, dtoProperty, value.Value);
+        }
+    }
+
+    /// <summary>
+    /// Writes a property to JSON that is not <see cref="Optional{TValue}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <param name="writer">The JSON writer.</param>
+    /// <param name="dtoProperty">The DTO property.</param>
+    /// <param name="value">The property value.</param>
+    private static void WriteRequiredProperty<T>
+    (
+        Utf8JsonWriter writer,
+        DTOPropertyInfo dtoProperty,
+        T value
+    )
+    {
+        writer.WritePropertyName(dtoProperty.WriteName);
+        JsonSerializer.Serialize(writer, value, dtoProperty.Options);
     }
 }
