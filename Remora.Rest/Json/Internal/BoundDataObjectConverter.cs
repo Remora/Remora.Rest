@@ -132,19 +132,6 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
         }
 
         var cloned = new JsonSerializerOptions(options);
-
-        // I'm *claiming* DataObjectConverters won't be needed
-        // if a property converter is specified... so let's remove them for now
-        for (int i = cloned.Converters.Count - 1; i >= 0; i--)
-        {
-            var t = cloned.Converters[i].GetType();
-            if (t.IsConstructedGenericType &&
-                t.GetGenericTypeDefinition() == typeof(DataObjectConverter<,>))
-            {
-                cloned.Converters.RemoveAt(i);
-            }
-        }
-
         cloned.Converters.Insert(0, converter);
 
         return cloned;
