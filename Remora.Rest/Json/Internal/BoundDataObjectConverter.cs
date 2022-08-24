@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -40,7 +39,6 @@ namespace Remora.Rest.Json.Internal;
 internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : JsonConverter<TInterface>
     where TImplementation : TInterface
 {
-    // Same as in the original converter
     private readonly ObjectFactory<TInterface> _dtoFactory;
     private readonly bool _allowExtraProperties;
 
@@ -81,11 +79,11 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
         foreach (var property in dtoProperties)
         {
             var converter = source.GetConverter(property, options);
-            var propertyOptions = GetPropertyConverterOptions(options, converter);
+            var propertyOptions = CreatePropertyConverterOptions(options, converter);
             var defaultValue = source.GetDefaultValueForType(property.PropertyType);
             var readNames = source.GetReadJsonPropertyName(property, options);
             var writeNames = source.GetWriteJsonPropertyName(property, options);
-            var write = source.GetPropertyWriter(property);
+            var writer = source.GetPropertyWriter(property);
 
             // We cache this as well since the check is somewhat complex
             bool allowsNull = property.AllowsNull();
@@ -95,7 +93,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
                 property,
                 readNames,
                 writeNames,
-                write,
+                writer,
                 allowsNull,
                 defaultValue,
                 propertyOptions,
@@ -108,7 +106,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
                 readProperties.Add(data);
             }
 
-            if (property.CanWrite || source.IncludesReadOnlyProperty(property))
+            if (property.CanWrite || source.ShouldIncludeReadOnlyProperty(property))
             {
                 // Any property that is writable and not excluded due to being read-only,
                 // can be *written* to JSON.
@@ -124,7 +122,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
             .ToDictionary(x => x.n, x => (x.IsPrimary, x.DTOProperty));
     }
 
-    private static JsonSerializerOptions GetPropertyConverterOptions(JsonSerializerOptions options, JsonConverter? converter)
+    private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter? converter)
     {
         if (converter == null)
         {
@@ -145,15 +143,14 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
         JsonSerializerOptions options
     )
     {
-        if (reader.TokenType != JsonTokenType.StartObject ||
-            !reader.Read())
+        if (reader.TokenType != JsonTokenType.StartObject || !reader.Read())
         {
-            DataObjectConverterShared.ThrowJsonException();
+            throw new JsonException();
         }
 
         var readProperties = _readProperties;
 
-        // CMBK: Considering to cache this array and reuse it.
+        // Possible Optimization: Cache this array and reuse it.
         // F.e. in a thread-static field. This method isn't async anyways.
 
         // Avoid creating a dictionary and fill the arguments array directly
@@ -165,34 +162,30 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
 
         while (reader.TokenType != JsonTokenType.EndObject)
         {
-            var propertyName = reader.GetString();
+            var propertyName = reader.GetString()!;
             if (!reader.Read())
             {
-                DataObjectConverterShared.ThrowJsonException();
+                throw new JsonException();
             }
 
-            Debug.Assert(propertyName != null, "Expected property names to never be null.");
             var (isPrimaryChoice, dtoProperty) = GetReadPropertyInfo(propertyName);
 
             if (dtoProperty is null)
             {
                 if (!_allowExtraProperties)
                 {
-                    DataObjectConverterShared.ThrowJsonException();
+                    throw new JsonException();
                 }
 
                 // No matching property - we'll skip it
                 if (!reader.TrySkip())
                 {
-                    DataObjectConverterShared.ThrowJsonException("Couldn't skip elements.");
+                    throw new JsonException("Couldn't skip elements.");
                 }
 
                 if (!reader.Read())
                 {
-                    DataObjectConverterShared.ThrowJsonException
-                    (
-                        $"No matching DTO property for JSON property \"{propertyName}\" could be found."
-                    );
+                    throw new JsonException("Unexpectedly reached end of JSON.");
                 }
 
                 continue;
@@ -203,7 +196,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
             // Verify nullability
             if (propertyValue is null && !dtoProperty.AllowsNull)
             {
-                DataObjectConverterShared.ThrowJsonException();
+                throw new JsonException($"null isn't supported for DTO property \"{dtoProperty.Property.Name}\".");
             }
 
             int index = dtoProperty.ReadIndex;
@@ -214,7 +207,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
 
             if (!reader.Read())
             {
-                DataObjectConverterShared.ThrowJsonException();
+                throw new JsonException();
             }
         }
 
@@ -230,7 +223,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
                 }
                 else
                 {
-                    DataObjectConverterShared.ThrowJsonException
+                    throw new JsonException
                     (
                         $"The data property \"{dtoProperty.Property.Name}\" did not have a corresponding value in the JSON."
                     );
@@ -259,7 +252,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
 
         foreach (var dtoProperty in _writeProperties)
         {
-            dtoProperty.Write(writer, dtoProperty, value);
+            dtoProperty.Writer(writer, dtoProperty, value);
         }
 
         writer.WriteEndObject();

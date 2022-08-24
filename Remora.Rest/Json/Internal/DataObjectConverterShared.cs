@@ -20,9 +20,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-
 namespace Remora.Rest.Json.Internal;
 
 /// <summary>
@@ -42,14 +39,4 @@ internal static class DataObjectConverterShared
     /// It indicates a specific property has not been read from JSON yet.
     /// </summary>
     public static readonly object Missing = new MissingValue();
-
-    /// <summary>
-    /// Throws a <see cref="JsonException"/> with the specified <paramref name="message"/>.
-    /// </summary>
-    /// <param name="message">The exception message.</param>
-    [DoesNotReturn]
-    public static void ThrowJsonException(string? message = null)
-    {
-        throw new JsonException(message);
-    }
 }

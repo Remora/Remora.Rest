@@ -67,7 +67,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     private bool _allowExtraProperties = true;
 
     /// <summary>
-    /// Gets the DTO object factory.
+    /// Gets the DTO factory.
     /// </summary>
     internal ObjectFactory<TInterface> DTOFactory => _dtoFactory;
 
@@ -134,7 +134,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var getterMethod = property.GetGetMethod();
         if (getterMethod is null)
         {
-            throw new InvalidOperationException($"The property {property.Name} has no public getter");
+            throw new InvalidOperationException($"The property {property.Name} has no public getter.");
         }
 
         var interfaceGetterIndex = Array.IndexOf(interfaceMap.TargetMethods, getterMethod);
@@ -586,15 +586,18 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// <returns>The default value or <see langword="null"/>.</returns>
     internal object? GetDefaultValueForType(Type type)
     {
+        // There currently are only default values for Optional<T> types.
+        // For those, the default value will be the empty instance.
+        // For any other type, this method needs to be return null.
         return _dtoEmptyOptionals.GetValueOrDefault(type);
     }
 
     /// <summary>
-    /// Returns whether the specified property is to be included when serializing even if it is read-only.
+    /// Returns whether the specified property should be included when serializing even if it is read-only.
     /// </summary>
     /// <param name="property">The property.</param>
-    /// <returns>Whether the property is to be included even if it is read-only.</returns>
-    internal bool IncludesReadOnlyProperty(PropertyInfo property)
+    /// <returns>Whether the property should be included even if it is read-only.</returns>
+    internal bool ShouldIncludeReadOnlyProperty(PropertyInfo property)
     {
         return _includeReadOnlyOverrides.Contains(property);
     }

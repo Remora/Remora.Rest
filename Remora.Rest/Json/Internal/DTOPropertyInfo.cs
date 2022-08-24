@@ -33,7 +33,7 @@ namespace Remora.Rest.Json.Internal;
 /// <param name="Property">The CLR property of the implementation type.</param>
 /// <param name="ReadNames">The names this property allows when reading.</param>
 /// <param name="WriteName">The name used when writing this property.</param>
-/// <param name="Write">A delegate that writes the property.</param>
+/// <param name="Writer">A delegate that writes the property.</param>
 /// <param name="AllowsNull">Whether this property allows null.</param>
 /// <param name="DefaultValue">null, if this property is required, otherwise its default value (= default of <see cref="Optional{TValue}"/>).</param>
 /// <param name="Options">The serializer options used when serializing this property.</param>
@@ -43,7 +43,7 @@ internal sealed record DTOPropertyInfo
     PropertyInfo Property,
     string[] ReadNames,
     string WriteName,
-    DTOPropertyWriter Write,
+    DTOPropertyWriter Writer,
     bool AllowsNull,
     object? DefaultValue,
     JsonSerializerOptions Options,
