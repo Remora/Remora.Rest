@@ -79,7 +79,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// <summary>
     /// Gets a value indicating whether extra undefined properties should be allowed.
     /// </summary>
-    internal bool DoesAllowExtraProperties => _allowExtraProperties;
+    internal bool AllowsExtraProperties => _allowExtraProperties;
 
     /// <inheritdoc />
     public override bool CanConvert(Type typeToConvert)

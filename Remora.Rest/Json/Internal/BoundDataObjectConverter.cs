@@ -67,7 +67,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
     public BoundDataObjectConverter(DataObjectConverter<TInterface, TImplementation> source, JsonSerializerOptions options)
     {
         _dtoFactory = source.DTOFactory;
-        _allowExtraProperties = source.DoesAllowExtraProperties;
+        _allowExtraProperties = source.AllowsExtraProperties;
 
         var dtoProperties = source.DTOProperties;
 
