@@ -58,7 +58,7 @@ public class DataObjectConverterTests
 
         var value = JsonSerializer.Deserialize<ISimpleData>(payload, jsonOptions);
         Assert.NotNull(value);
-        Assert.Equal("booga", value!.Value);
+        Assert.Equal("booga", value.Value);
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class DataObjectConverterTests
 
         var value = JsonSerializer.Deserialize<IOptionalData>(payload, jsonOptions);
         Assert.NotNull(value);
-        Assert.True(value!.Value.HasValue);
+        Assert.True(value.Value.HasValue);
         Assert.Equal("booga", value.Value.Value);
     }
 
@@ -135,7 +135,7 @@ public class DataObjectConverterTests
 
         var value = JsonSerializer.Deserialize<IOptionalData>(payload, jsonOptions);
         Assert.NotNull(value);
-        Assert.False(value!.Value.HasValue);
+        Assert.False(value.Value.HasValue);
     }
 
     /// <summary>
@@ -214,7 +214,7 @@ public class DataObjectConverterTests
 
         var value = JsonSerializer.Deserialize<IConvertibleData>(payload, jsonOptions);
         Assert.NotNull(value);
-        Assert.Equal(StringifiedEnum.First, value!.Value);
+        Assert.Equal(StringifiedEnum.First, value.Value);
     }
 
     /// <summary>
@@ -266,7 +266,7 @@ public class DataObjectConverterTests
 
         var value = JsonSerializer.Deserialize<ISimpleData>(payload, jsonOptions);
         Assert.NotNull(value);
-        Assert.Equal("booga", value!.Value);
+        Assert.Equal("booga", value.Value);
     }
 
     /// <summary>
@@ -316,7 +316,7 @@ public class DataObjectConverterTests
 
         var value = JsonSerializer.Deserialize<IReadOnlyData>(payload, jsonOptions);
         Assert.NotNull(value);
-        Assert.Equal("booga", value!.Value);
+        Assert.Equal("booga", value.Value);
     }
 
     /// <summary>

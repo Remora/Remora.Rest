@@ -113,7 +113,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.False(property!.AllowsNull());
+            Assert.False(property.AllowsNull());
         }
 
         [Fact]
@@ -126,7 +126,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.True(property!.AllowsNull());
+            Assert.True(property.AllowsNull());
         }
 
         [Fact]
@@ -139,7 +139,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.False(property!.AllowsNull());
+            Assert.False(property.AllowsNull());
         }
 
         [Fact]
@@ -152,7 +152,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.True(property!.AllowsNull());
+            Assert.True(property.AllowsNull());
         }
 
         [Fact]
@@ -165,7 +165,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.False(property!.AllowsNull());
+            Assert.False(property.AllowsNull());
         }
 
         [Fact]
@@ -178,7 +178,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.True(property!.AllowsNull());
+            Assert.True(property.AllowsNull());
         }
 
         [Fact]
@@ -191,7 +191,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.False(property!.AllowsNull());
+            Assert.False(property.AllowsNull());
         }
 
         [Fact]
@@ -204,7 +204,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.False(property!.AllowsNull());
+            Assert.False(property.AllowsNull());
         }
 
         [Fact]
@@ -217,7 +217,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.True(property!.AllowsNull());
+            Assert.True(property.AllowsNull());
         }
 
         [Fact]
@@ -230,7 +230,7 @@ public static class PropertyInfoExtensionTests
             );
 
             Assert.NotNull(property);
-            Assert.False(property!.AllowsNull());
+            Assert.False(property.AllowsNull());
         }
     }
 }

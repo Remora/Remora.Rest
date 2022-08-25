@@ -97,7 +97,7 @@ public class CustomizationTests
 
         Assert.NotNull(value);
         Assert.IsType<Customized>(value);
-        Assert.Equal("some-other-value", ((Customized)value!).AdditionalValue);
+        Assert.Equal("some-other-value", ((Customized)value).AdditionalValue);
     }
 
     /// <summary>

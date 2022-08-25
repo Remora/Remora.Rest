@@ -110,7 +110,7 @@ public class SnowflakeTests
             var time = DateTimeOffset.Parse("2016-02-01T23:59:25.820Z");
 
             Assert.True(Snowflake.TryParse("143867839282020352", out var snowflake, 1420070400000));
-            Assert.Equal(time, snowflake!.Value.Timestamp);
+            Assert.Equal(time, snowflake.Value.Timestamp);
         }
     }
 
