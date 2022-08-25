@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Remora.Rest.Extensions;
 using Remora.Rest.Json.Reflection;
 
 namespace Remora.Rest.Json.Internal;
@@ -62,75 +61,14 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
     /// <summary>
     /// Initializes a new instance of the <see cref="BoundDataObjectConverter{TInterface, TImplementation}"/> class.
     /// </summary>
-    /// <param name="source">The source converter factory that created this instance.</param>
-    /// <param name="options">The serializer options this instance is bound to.</param>
-    public BoundDataObjectConverter(DataObjectConverter<TInterface, TImplementation> source, JsonSerializerOptions options)
+    /// <param name="converterOptions">The options to initialize this instance with.</param>
+    public BoundDataObjectConverter(BoundDataObjectConverterOptions<TInterface> converterOptions)
     {
-        _dtoFactory = source.DTOFactory;
-        _allowExtraProperties = source.AllowsExtraProperties;
+        (_dtoFactory, _allowExtraProperties, _writeProperties, _readProperties) = converterOptions;
 
-        var dtoProperties = source.DTOProperties;
-
-        var writeProperties = new List<DTOPropertyInfo>();
-        var readProperties = new List<DTOPropertyInfo>();
-
-        foreach (var property in dtoProperties)
-        {
-            var converter = source.GetConverter(property, options);
-            var propertyOptions = CreatePropertyConverterOptions(options, converter);
-            var defaultValue = source.GetDefaultValueForType(property.PropertyType);
-            var readNames = source.GetReadJsonPropertyName(property, options);
-            var writeNames = source.GetWriteJsonPropertyName(property, options);
-            var writer = source.GetPropertyWriter(property);
-
-            // We cache this as well since the check is somewhat complex
-            bool allowsNull = property.AllowsNull();
-
-            var data = new DTOPropertyInfo
-            (
-                property,
-                readNames,
-                writeNames,
-                writer,
-                allowsNull,
-                defaultValue,
-                propertyOptions,
-                readProperties.Count
-            );
-
-            if (property.CanWrite)
-            {
-                // If a property is writable, it can be *read* from JSON.
-                readProperties.Add(data);
-            }
-
-            if (property.CanWrite || source.ShouldIncludeReadOnlyProperty(property))
-            {
-                // Any property that is writable and not excluded due to being read-only,
-                // can be *written* to JSON.
-                writeProperties.Add(data);
-            }
-        }
-
-        _writeProperties = writeProperties.ToArray();
-        _readProperties = readProperties.ToArray();
-
-        _readPropertiesByName = readProperties
+        _readPropertiesByName = _readProperties
             .SelectMany(p => p.ReadNames.Select((n, i) => (IsPrimary: i == 0, n, DTOProperty: p)))
             .ToDictionary(x => x.n, x => (x.IsPrimary, x.DTOProperty));
-    }
-
-    private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter? converter)
-    {
-        if (converter == null)
-        {
-            return options;
-        }
-
-        var cloned = new JsonSerializerOptions(options);
-        cloned.Converters.Insert(0, converter);
-
-        return cloned;
     }
 
     /// <inheritdoc />

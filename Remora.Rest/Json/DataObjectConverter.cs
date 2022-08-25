@@ -66,21 +66,6 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// </summary>
     private bool _allowExtraProperties = true;
 
-    /// <summary>
-    /// Gets the DTO factory.
-    /// </summary>
-    internal ObjectFactory<TInterface> DTOFactory => _dtoFactory;
-
-    /// <summary>
-    /// Gets the list of the DTO properties to be serialized.
-    /// </summary>
-    internal IReadOnlyList<PropertyInfo> DTOProperties => _dtoProperties;
-
-    /// <summary>
-    /// Gets a value indicating whether extra undefined properties should be allowed.
-    /// </summary>
-    internal bool AllowsExtraProperties => _allowExtraProperties;
-
     /// <inheritdoc />
     public override bool CanConvert(Type typeToConvert)
     {
@@ -506,7 +491,69 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// <inheritdoc />
     public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
-        return new BoundDataObjectConverter<TInterface, TImplementation>(this, options);
+        var writeProperties = new List<DTOPropertyInfo>();
+        var readProperties = new List<DTOPropertyInfo>();
+
+        foreach (var property in _dtoProperties)
+        {
+            var converter = GetConverter(property, options);
+            var propertyOptions = CreatePropertyConverterOptions(options, converter);
+            var defaultValue = GetDefaultValueForType(property.PropertyType);
+            var readNames = GetReadJsonPropertyName(property, options);
+            var writeNames = GetWriteJsonPropertyName(property, options);
+            var writer = GetPropertyWriter(property);
+
+            // We cache this as well since the check is somewhat complex
+            bool allowsNull = property.AllowsNull();
+
+            var data = new DTOPropertyInfo
+            (
+                property,
+                readNames,
+                writeNames,
+                writer,
+                allowsNull,
+                defaultValue,
+                propertyOptions,
+                readProperties.Count
+            );
+
+            if (property.CanWrite)
+            {
+                // If a property is writable, it can be *read* from JSON.
+                readProperties.Add(data);
+            }
+
+            if (property.CanWrite || ShouldIncludeReadOnlyProperty(property))
+            {
+                // Any property that is writable and not excluded due to being read-only,
+                // can be *written* to JSON.
+                writeProperties.Add(data);
+            }
+        }
+
+        var converterOptions = new BoundDataObjectConverterOptions<TInterface>
+        (
+            _dtoFactory,
+            _allowExtraProperties,
+            writeProperties.ToArray(),
+            readProperties.ToArray()
+        );
+
+        return new BoundDataObjectConverter<TInterface, TImplementation>(converterOptions);
+    }
+
+    private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter? converter)
+    {
+        if (converter == null)
+        {
+            return options;
+        }
+
+        var cloned = new JsonSerializerOptions(options);
+        cloned.Converters.Insert(0, converter);
+
+        return cloned;
     }
 
     /// <summary>
@@ -515,7 +562,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// <param name="dtoProperty">The property to get the names for.</param>
     /// <param name="options">The active serializer options.</param>
     /// <returns>An array of the supported names for this property.</returns>
-    internal string[] GetReadJsonPropertyName(PropertyInfo dtoProperty, JsonSerializerOptions options)
+    private string[] GetReadJsonPropertyName(PropertyInfo dtoProperty, JsonSerializerOptions options)
     {
         return _readNameOverrides.TryGetValue(dtoProperty, out var overriddenName)
             ? overriddenName
@@ -528,7 +575,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// <param name="dtoProperty">The property to get the name for.</param>
     /// <param name="options">The active serializer options.</param>
     /// <returns>The name to write the property with.</returns>
-    internal string GetWriteJsonPropertyName(PropertyInfo dtoProperty, JsonSerializerOptions options)
+    private string GetWriteJsonPropertyName(PropertyInfo dtoProperty, JsonSerializerOptions options)
     {
         if (_writeNameOverrides.TryGetValue(dtoProperty, out var overriddenName))
         {
@@ -544,7 +591,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// <param name="dtoProperty">The property to get a property converter for.</param>
     /// <param name="options">The active serializer options.</param>
     /// <returns>The registered property converter, or <see langword="null"/> if no property converter was added.</returns>
-    internal JsonConverter? GetConverter(PropertyInfo dtoProperty, JsonSerializerOptions options)
+    private JsonConverter? GetConverter(PropertyInfo dtoProperty, JsonSerializerOptions options)
     {
         if (_converterOverrides.TryGetValue(dtoProperty, out var converter))
         {
@@ -584,7 +631,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// </remarks>
     /// <param name="type">The type to get the default value for.</param>
     /// <returns>The default value or <see langword="null"/>.</returns>
-    internal object? GetDefaultValueForType(Type type)
+    private object? GetDefaultValueForType(Type type)
     {
         // There currently are only default values for Optional<T> types.
         // For those, the default value will be the empty instance.
@@ -597,7 +644,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>Whether the property should be included even if it is read-only.</returns>
-    internal bool ShouldIncludeReadOnlyProperty(PropertyInfo property)
+    private bool ShouldIncludeReadOnlyProperty(PropertyInfo property)
     {
         return _includeReadOnlyOverrides.Contains(property);
     }
@@ -607,7 +654,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>A <see cref="DTOPropertyWriter"/> for the specified property.</returns>
-    internal DTOPropertyWriter GetPropertyWriter(PropertyInfo property)
+    private DTOPropertyWriter GetPropertyWriter(PropertyInfo property)
     {
         return _dtoPropertyWriters[property];
     }
