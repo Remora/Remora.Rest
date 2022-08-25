@@ -174,7 +174,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
             {
                 if (!_allowExtraProperties)
                 {
-                    throw new JsonException();
+                    throw new JsonException($"DTO disallows extra properties and has no matching property for JSON property {propertyName}.");
                 }
 
                 // No matching property - we'll skip it
