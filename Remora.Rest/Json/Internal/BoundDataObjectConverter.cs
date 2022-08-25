@@ -74,8 +74,6 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
         var writeProperties = new List<DTOPropertyInfo>();
         var readProperties = new List<DTOPropertyInfo>();
 
-        var interfaceMap = typeof(TImplementation).GetInterfaceMap(typeof(TInterface));
-
         foreach (var property in dtoProperties)
         {
             var converter = source.GetConverter(property, options);
@@ -158,7 +156,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
 
         // We use "Missing" as a sentinel to indicate that a value hasn't
         // been seen yet without needing to allocate additional memory.
-        constructorArguments.AsSpan().Fill(DataObjectConverterShared.Missing);
+        constructorArguments.AsSpan().Fill(DataObjectConverterHelpers.Missing);
 
         while (reader.TokenType != JsonTokenType.EndObject)
         {
@@ -196,11 +194,11 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
             // Verify nullability
             if (propertyValue is null && !dtoProperty.AllowsNull)
             {
-                throw new JsonException($"null isn't supported for DTO property \"{dtoProperty.Property.Name}\".");
+                throw new JsonException($"null is not a valid value for DTO property \"{dtoProperty.Property.Name}\".");
             }
 
             int index = dtoProperty.ReadIndex;
-            if (isPrimaryChoice || constructorArguments[index] == DataObjectConverterShared.Missing)
+            if (isPrimaryChoice || constructorArguments[index] == DataObjectConverterHelpers.Missing)
             {
                 constructorArguments[index] = propertyValue;
             }
@@ -214,7 +212,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
         // Polyfill/check properties that weren't found yet
         for (int i = 0; i < constructorArguments.Length; i++)
         {
-            if (constructorArguments[i] == DataObjectConverterShared.Missing)
+            if (constructorArguments[i] == DataObjectConverterHelpers.Missing)
             {
                 var dtoProperty = readProperties[i];
                 if (dtoProperty.DefaultValue != null)

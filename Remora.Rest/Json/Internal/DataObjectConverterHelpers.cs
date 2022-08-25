@@ -1,5 +1,5 @@
 ﻿//
-//  DataObjectConverterShared.cs
+//  DataObjectConverterHelpers.cs
 //
 //  Author:
 //       Jarl Gullberg <jarl.gullberg@gmail.com>
@@ -25,7 +25,7 @@ namespace Remora.Rest.Json.Internal;
 /// <summary>
 /// Shared, non-generic code for <see cref="DataObjectConverter{TInterface, TImplementation}"/>.
 /// </summary>
-internal static class DataObjectConverterShared
+internal static class DataObjectConverterHelpers
 {
     /// <summary>
     /// Type of <see cref="Missing"/>.

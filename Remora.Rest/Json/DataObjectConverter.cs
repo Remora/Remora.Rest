@@ -588,7 +588,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     {
         // There currently are only default values for Optional<T> types.
         // For those, the default value will be the empty instance.
-        // For any other type, this method needs to be return null.
+        // For any other type, this method returns null.
         return _dtoEmptyOptionals.GetValueOrDefault(type);
     }
 
