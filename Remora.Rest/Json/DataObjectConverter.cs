@@ -497,7 +497,8 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         foreach (var property in _dtoProperties)
         {
             var converter = GetConverter(property, options);
-            var propertyOptions = CreatePropertyConverterOptions(options, converter);
+            var propertyOptions = converter == null ? options : CreatePropertyConverterOptions(options, converter);
+
             var defaultValue = GetDefaultValueForType(property.PropertyType);
             var readNames = GetReadJsonPropertyName(property, options);
             var writeNames = GetWriteJsonPropertyName(property, options);
@@ -532,24 +533,17 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             }
         }
 
-        var converterOptions = new BoundDataObjectConverterOptions<TInterface>
+        return new BoundDataObjectConverter<TInterface, TImplementation>
         (
             _dtoFactory,
             _allowExtraProperties,
             writeProperties.ToArray(),
             readProperties.ToArray()
         );
-
-        return new BoundDataObjectConverter<TInterface, TImplementation>(converterOptions);
     }
 
-    private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter? converter)
+    private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter converter)
     {
-        if (converter == null)
-        {
-            return options;
-        }
-
         var cloned = new JsonSerializerOptions(options);
         cloned.Converters.Insert(0, converter);
 

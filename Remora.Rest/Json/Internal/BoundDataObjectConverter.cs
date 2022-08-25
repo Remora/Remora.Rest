@@ -61,10 +61,22 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
     /// <summary>
     /// Initializes a new instance of the <see cref="BoundDataObjectConverter{TInterface, TImplementation}"/> class.
     /// </summary>
-    /// <param name="converterOptions">The options to initialize this instance with.</param>
-    public BoundDataObjectConverter(BoundDataObjectConverterOptions<TInterface> converterOptions)
+    /// <param name="dtoFactory">The DTO factory.</param>
+    /// <param name="allowExtraProperties">Whether extra undefined properties should be allowed.</param>
+    /// <param name="writeProperties">Properties relevant when writing the DTO to JSON.</param>
+    /// <param name="readProperties">Properties relevant when reading the DTO from JSON.</param>
+    public BoundDataObjectConverter
+    (
+        ObjectFactory<TInterface> dtoFactory,
+        bool allowExtraProperties,
+        DTOPropertyInfo[] writeProperties,
+        DTOPropertyInfo[] readProperties
+    )
     {
-        (_dtoFactory, _allowExtraProperties, _writeProperties, _readProperties) = converterOptions;
+        _dtoFactory = dtoFactory;
+        _allowExtraProperties = allowExtraProperties;
+        _writeProperties = writeProperties;
+        _readProperties = readProperties;
 
         _readPropertiesByName = _readProperties
             .SelectMany(p => p.ReadNames.Select((n, i) => (IsPrimary: i == 0, n, DTOProperty: p)))
