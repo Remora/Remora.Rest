@@ -422,4 +422,53 @@ public class DataObjectConverterTests
         var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
         JsonAssert.Equivalent(expectedPayload, serialized);
     }
+
+    /// <summary>
+    /// Tests whether the converter can correctly serialize its data if provided as the implementation type.
+    /// </summary>
+    [Fact]
+    public void CanSerializeAsConcreteType()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<ISimpleData, SimpleData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+
+        SimpleData value = new SimpleData("booga");
+        var expectedPayload = JsonDocument.Parse("{ \"value\": \"booga\" }");
+
+        var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
+        JsonAssert.Equivalent(expectedPayload, serialized);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly deserialize its data if provided as the implementation type.
+    /// </summary>
+    [Fact]
+    public void CanDeserializeToConcreteType()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<ISimpleData, SimpleData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        var payload = "{ \"value\": \"booga\" }";
+
+        var value = JsonSerializer.Deserialize<SimpleData>(payload, jsonOptions);
+        Assert.NotNull(value);
+        Assert.Equal("booga", value.Value);
+    }
 }

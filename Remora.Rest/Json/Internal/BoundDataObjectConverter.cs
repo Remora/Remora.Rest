@@ -33,12 +33,10 @@ namespace Remora.Rest.Json.Internal;
 /// The actual implementation of <see cref="DataObjectConverter{TInterface, TImplementation}"/>, created by that same type.
 /// These instances are bound to a certain set of <see cref="JsonSerializerOptions"/> and cache any data it might need.
 /// </summary>
-/// <typeparam name="TInterface">The interface that is seen in the objects.</typeparam>
-/// <typeparam name="TImplementation">The concrete implementation.</typeparam>
-internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : JsonConverter<TInterface>
-    where TImplementation : TInterface
+/// <typeparam name="T">The type this instance converts.</typeparam>
+internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
 {
-    private readonly ObjectFactory<TInterface> _dtoFactory;
+    private readonly ObjectFactory<T> _dtoFactory;
     private readonly bool _allowExtraProperties;
 
     // Split the property list to avoid "CanWrite" checks everywhere and instead perform that preemptively
@@ -52,14 +50,8 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
     // Speed up looking up the correct property. Also implicitly means property names can't be duplicated
     private readonly Dictionary<string, (bool IsPrimary, DTOPropertyInfo DTOProperty)> _readPropertiesByName;
 
-    /// <inheritdoc />
-    public override bool CanConvert(Type typeToConvert)
-    {
-        return typeToConvert == typeof(TImplementation) || base.CanConvert(typeToConvert);
-    }
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="BoundDataObjectConverter{TInterface, TImplementation}"/> class.
+    /// Initializes a new instance of the <see cref="BoundDataObjectConverter{T}"/> class.
     /// </summary>
     /// <param name="dtoFactory">The DTO factory.</param>
     /// <param name="allowExtraProperties">Whether extra undefined properties should be allowed.</param>
@@ -67,7 +59,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
     /// <param name="readProperties">Properties relevant when reading the DTO from JSON.</param>
     public BoundDataObjectConverter
     (
-        ObjectFactory<TInterface> dtoFactory,
+        ObjectFactory<T> dtoFactory,
         bool allowExtraProperties,
         DTOPropertyInfo[] writeProperties,
         DTOPropertyInfo[] readProperties
@@ -84,7 +76,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
     }
 
     /// <inheritdoc />
-    public override TInterface Read
+    public override T Read
     (
         ref Utf8JsonReader reader,
         Type typeToConvert,
@@ -186,7 +178,7 @@ internal sealed class BoundDataObjectConverter<TInterface, TImplementation> : Js
     public override void Write
     (
         Utf8JsonWriter writer,
-        TInterface value,
+        T value,
         JsonSerializerOptions options
     )
     {

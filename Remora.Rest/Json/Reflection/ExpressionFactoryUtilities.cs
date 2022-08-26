@@ -93,7 +93,7 @@ internal static class ExpressionFactoryUtilities
             );
         }
 
-        if (constructor.DeclaringType.IsAssignableFrom(typeof(T)))
+        if (!typeof(T).IsAssignableFrom(constructor.DeclaringType))
         {
             throw new ArgumentException
             (

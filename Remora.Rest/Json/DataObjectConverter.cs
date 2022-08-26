@@ -44,7 +44,8 @@ namespace Remora.Rest.Json;
 public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFactory
     where TImplementation : TInterface
 {
-    private readonly ObjectFactory<TInterface> _dtoFactory;
+    // Stores the best-matching constructor
+    private readonly ConstructorInfo _dtoConstructor;
 
     private readonly IReadOnlyList<PropertyInfo> _dtoProperties;
 
@@ -60,6 +61,10 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
 
     private readonly Dictionary<PropertyInfo, JsonConverter> _converterOverrides;
     private readonly Dictionary<PropertyInfo, JsonConverterFactory> _converterFactoryOverrides;
+
+    // Lazily initialized based on what specific converter is requested
+    private ObjectFactory<TImplementation>? _implementationDtoFactory;
+    private ObjectFactory<TInterface>? _interfaceDtoFactory;
 
     /// <summary>
     /// Holds a value indicating whether extra undefined properties should be allowed.
@@ -91,7 +96,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var interfaceProperties = interfaceType.GetProperties();
 
         var dtoConstructor = FindBestMatchingConstructor(visibleProperties);
-        _dtoFactory = ExpressionFactoryUtilities.CreateFactory<TInterface>(dtoConstructor);
+        _dtoConstructor = dtoConstructor;
 
         _dtoProperties = ReorderProperties(visibleProperties, dtoConstructor);
 
@@ -533,13 +538,30 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             }
         }
 
-        return new BoundDataObjectConverter<TInterface, TImplementation>
-        (
-            _dtoFactory,
-            _allowExtraProperties,
-            writeProperties.ToArray(),
-            readProperties.ToArray()
-        );
+        if (typeToConvert == typeof(TInterface))
+        {
+            return new BoundDataObjectConverter<TInterface>
+            (
+                _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor),
+                _allowExtraProperties,
+                writeProperties.ToArray(),
+                readProperties.ToArray()
+            );
+        }
+        else if (typeToConvert == typeof(TImplementation))
+        {
+            return new BoundDataObjectConverter<TImplementation>
+            (
+                _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoConstructor),
+                _allowExtraProperties,
+                writeProperties.ToArray(),
+                readProperties.ToArray()
+            );
+        }
+        else
+        {
+            throw new ArgumentException("This converter cannot convert the provided type.", nameof(typeToConvert));
+        }
     }
 
     private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter converter)
