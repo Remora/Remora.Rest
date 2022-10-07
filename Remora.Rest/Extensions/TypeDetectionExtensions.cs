@@ -20,6 +20,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+using System;
+
 namespace Remora.Rest.Extensions;
 
 /// <summary>
@@ -32,7 +34,14 @@ public static class TypeDetectionExtensions
     /// </summary>
     /// <param name="array">The array.</param>
     /// <returns>true if the array contains PNG data; otherwise, false.</returns>
-    public static bool IsPNG(this byte[] array)
+    public static bool IsPNG(this byte[] array) => IsPNG(array.AsSpan());
+
+    /// <summary>
+    /// Determines whether the span is a view over PNG data.
+    /// </summary>
+    /// <param name="array">The span.</param>
+    /// <returns>true if the span contains PNG data; otherwise, false.</returns>
+    public static bool IsPNG(this ReadOnlySpan<byte> array)
     {
         if (array.Length < 8)
         {
@@ -54,7 +63,14 @@ public static class TypeDetectionExtensions
     /// </summary>
     /// <param name="array">The array.</param>
     /// <returns>true if the array contains GIF data; otherwise, false.</returns>
-    public static bool IsGIF(this byte[] array)
+    public static bool IsGIF(this byte[] array) => IsGIF(array.AsSpan());
+
+    /// <summary>
+    /// Determines whether the span is a view over GIF data.
+    /// </summary>
+    /// <param name="array">The span.</param>
+    /// <returns>true if the span contains GIF data; otherwise, false.</returns>
+    public static bool IsGIF(this ReadOnlySpan<byte> array)
     {
         if (array.Length < 3)
         {
@@ -69,7 +85,14 @@ public static class TypeDetectionExtensions
     /// </summary>
     /// <param name="array">The array.</param>
     /// <returns>true if the array contains JPG data; otherwise, false.</returns>
-    public static bool IsJPG(this byte[] array)
+    public static bool IsJPG(this byte[] array) => IsJPG(array.AsSpan());
+
+    /// <summary>
+    /// Determines whether the span is a view over JPG data.
+    /// </summary>
+    /// <param name="array">The span.</param>
+    /// <returns>true if the span contains JPG data; otherwise, false.</returns>
+    public static bool IsJPG(this ReadOnlySpan<byte> array)
     {
         if (array.Length < 3)
         {
