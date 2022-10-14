@@ -1,13 +1,20 @@
 <Project Sdk="Remora.Sdk/1.0.0">
+
+    <!-- Override target frameworks -->
     <PropertyGroup>
-        <VersionPrefix>1.2.1</VersionPrefix>
+        <LibraryFrameworks>$(ExecutableFrameworks)</LibraryFrameworks>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <VersionPrefix>2.0.0</VersionPrefix>
         <Description>Supporting types for writing expressive unit tests of REST-focused API wrappers, allowing simple and direct testing of expected clientside behaviour.
         </Description>
         <PackageReleaseNotes>
-            Drop .NET 5.0 as a target.
-            Add assertions for HttpRequestMessage to match the full request pipeline.
-            Add assertions for UrlEncodedFormData.
-            Add assertions for query string parameters.
+            Drop .NET Standard as a target.
+            Remove MultipartFormDataContentExtensions.
+            Remove JsonRequestMatcher.
+            Remove MultipartJsonPayloadRequestMatcher.
+            Utilize synchronous ReadAsStream instead of GetAwaiter().GetResult().
         </PackageReleaseNotes>
     </PropertyGroup>
 

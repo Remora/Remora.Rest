@@ -107,7 +107,7 @@ public static class HttpRequestMessageAssertions
     public static void HasJson(this HttpRequestMessage message, out JsonDocument json)
     {
         Assert.NotNull(message.Content);
-        var content = message.Content!.ReadAsStreamAsync().GetAwaiter().GetResult();
+        var content = message.Content.ReadAsStream();
 
         try
         {
@@ -198,7 +198,7 @@ public static class HttpRequestMessageAssertions
             c => c is StringContent s && s.Headers.ContentDisposition?.Name == partName
         );
 
-        var content = payloadContent.ReadAsStreamAsync().GetAwaiter().GetResult();
+        var content = payloadContent.ReadAsStream();
 
         try
         {
@@ -302,8 +302,11 @@ public static class HttpRequestMessageAssertions
     {
         message.HasMultipartFormData<StringContent>(name, c =>
         {
-            var actualValue = c.ReadAsStringAsync().GetAwaiter().GetResult();
-            Assert.Equal(expected, actualValue);
+            using var stream = c.ReadAsStream();
+            using var reader = new StreamReader(stream);
+            var content = reader.ReadToEnd();
+
+            Assert.Equal(expected, content);
         });
     }
 
@@ -361,7 +364,10 @@ public static class HttpRequestMessageAssertions
 
         var formContent = (FormUrlEncodedContent)message.Content!;
 
-        var content = formContent.ReadAsStringAsync().GetAwaiter().GetResult();
+        using var stream = formContent.ReadAsStream();
+        using var reader = new StreamReader(stream);
+        var content = reader.ReadToEnd();
+
         var collection = HttpUtility.ParseQueryString(content);
 
         data = collection.AllKeys.ToDictionary
