@@ -93,7 +93,6 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var interfaceType = typeof(TInterface);
 
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
-        var interfaceProperties = interfaceType.GetProperties();
 
         var dtoConstructor = FindBestMatchingConstructor(visibleProperties);
         _dtoConstructor = dtoConstructor;
@@ -494,7 +493,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     ) => AddPropertyConverter(propertyExpression, converterFactory);
 
     /// <inheritdoc />
-    public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+    public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
         var writeProperties = new List<DTOPropertyInfo>();
         var readProperties = new List<DTOPropertyInfo>();
