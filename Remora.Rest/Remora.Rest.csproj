@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JsonDocumentPath" Version="1.0.3" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-        <PackageReference Include="OneOf" Version="3.0.223" />
-        <PackageReference Include="Remora.Results" Version="7.2.2" />
-        <PackageReference Include="System.Text.Json" Version="6.0.5" />
+        <PackageReference Include="JsonDocumentPath" />
+        <PackageReference Include="Microsoft.Extensions.Http" />
+        <PackageReference Include="OneOf" />
+        <PackageReference Include="Remora.Results" />
+        <PackageReference Include="System.Text.Json" />
     </ItemGroup>
 
     <ItemGroup>

@@ -18,6 +18,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Remora.Results.Analyzers" Version="1.0.0-preview3" PrivateAssets="all" />
+        <PackageReference Include="Remora.Results.Analyzers" PrivateAssets="all" />
     </ItemGroup>
 </Project>
