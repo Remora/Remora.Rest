@@ -24,9 +24,36 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
+#pragma warning disable SA1402
+
 namespace Remora.Rest.Core;
+
+/// <summary>
+/// Contains utility methods for <see cref="Optional{TValue}"/>.
+/// </summary>
+[PublicAPI]
+public static class Optional
+{
+    /// <summary>
+    /// Gets a new <see cref="Optional{TValue}"/> of the specified <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the optional to create.</typeparam>
+    /// <returns>The newly created optional value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Optional<T> Empty<T>() => default;
+
+    /// <summary>
+    /// Gets a new <see cref="Optional{TValue}"/> with the specified value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <typeparam name="T">The type of the optional to create.</typeparam>
+    /// <returns>The newly created optional value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Optional<T> From<T>(T value) => new(value);
+}
 
 /// <summary>
 /// Represents an optional value. This is mainly used for JSON de/serializalization where a value can be either
@@ -38,6 +65,7 @@ namespace Remora.Rest.Core;
 /// </summary>
 /// <typeparam name="TValue">The inner type.</typeparam>
 [PublicAPI]
+[DebuggerDisplay("HasValue = {HasValue}, Value = {_value}")]
 public readonly struct Optional<TValue> : IOptional
 {
     private readonly TValue _value;
@@ -154,5 +182,87 @@ public readonly struct Optional<TValue> : IOptional
         return this.HasValue
             ? $"{{{_value?.ToString() ?? "null"}}}"
             : "Empty";
+    }
+
+    /// <summary>
+    /// Returns the value of the current <see cref="Optional{TValue}"/>, or <c>default</c> if the current
+    /// <see cref="Optional{TValue}"/> is empty.
+    /// </summary>
+    /// <returns>The value of <c>this</c> or <c>default</c> if none is present.</returns>
+    public TValue? OrDefault()
+    {
+        return TryGet(out var value) ? value : default;
+    }
+
+    /// <summary>
+    /// Returns the value of the current <see cref="Optional{TValue}"/>, or <paramref name="defaultValue"/> if
+    /// <see cref="Optional{TValue}"/> is <b>null or empty</b>.
+    /// </summary>
+    /// <param name="defaultValue">The default value to fallback to if the optional is empty.</param>
+    /// <returns>
+    /// The value of <see cref="Optional{TValue}"/> or <paramref name="defaultValue"/> if none is present.
+    /// </returns>
+    [return: NotNullIfNotNull(nameof(defaultValue))]
+    public TValue? OrDefault(TValue? defaultValue)
+    {
+        return IsDefined(out var value) ? value : defaultValue;
+    }
+
+    /// <summary>
+    /// Returns the value of the current <see cref="Optional{TValue}"/>, or throws the exception in
+    /// <paramref name="func"/> if empty.
+    /// </summary>
+    /// <param name="func">The function generating an <see cref="Exception"/>.</param>
+    /// <returns>The value of <see cref="Optional{TValue}"/>.</returns>
+    /// <exception cref="Exception">If <see cref="Optional{TValue}"/> is empty.</exception>
+    public TValue OrThrow([RequireStaticDelegate] Func<Exception> func)
+    {
+        return TryGet(out var value) ? value : throw func();
+    }
+
+    /// <summary>
+    /// Casts the current <see cref="Optional{TValue}"/> to a nullable <typeparamref name="TValue"/>?.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="Optional{TValue}"/> with the type pararameter changed to <typeparamref name="TValue"/>?.
+    /// </returns>
+    public Optional<TValue?> Nullable()
+    {
+        return TryGet(out var value) ? value : default(Optional<TValue?>);
+    }
+
+    /// <summary>
+    /// Gets the underlying value of a <see cref="Optional{TValue}"/> if it has one.
+    /// </summary>
+    /// <param name="value">Set to the value of <see cref="Optional{TValue}"/>, or <c>default</c> if it has none.</param>
+    /// <returns><c>true</c> if the <see cref="Optional{TValue}"/> has a value, even when it's <c>null</c>.</returns>
+    /// <seealso cref="IsDefined(out TValue?)"/>
+    public bool TryGet([MaybeNullWhen(false)] out TValue value)
+    {
+        if (this.HasValue)
+        {
+            value = _value;
+            return true;
+        }
+
+        value = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Applies a mapping function to the value of the <see cref="Optional{TValue}"/> if it has one; otherwise, returns
+    /// a new empty <see cref="Optional{TValue}"/> of the resulting type.
+    /// </summary>
+    /// <param name="mappingFunc">The mapping function.</param>
+    /// <typeparam name="TResult">The value type for the output of the mapping result.</typeparam>
+    /// <returns>
+    /// A new optional with the mapping result if <see cref="Optional{TValue}"/> is non-empty; an empty opitional
+    /// otherwise.
+    /// </returns>
+    public Optional<TResult> Map<TResult>(Func<TValue, TResult> mappingFunc)
+    {
+        return this.HasValue
+            ? mappingFunc(_value)
+            : default(Optional<TResult>);
     }
 }
