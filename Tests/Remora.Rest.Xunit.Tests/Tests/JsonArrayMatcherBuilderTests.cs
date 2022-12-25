@@ -21,6 +21,7 @@
 //
 
 using System;
+using System.Linq.Expressions;
 using System.Text.Json;
 using Remora.Rest.Xunit.Json;
 using Xunit;
@@ -34,13 +35,13 @@ namespace Remora.Rest.Xunit.Tests;
 public class JsonArrayMatcherBuilderTests
 {
     /// <summary>
-    /// Tests the <see cref="JsonArrayMatcherBuilder.WithCount(long)"/> and its overloads.
+    /// Tests the <see cref="JsonArrayMatcherBuilder.WithCount(Expression{Func{int, bool}})"/> and its overloads.
     /// </summary>
     public class WithCount
     {
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(long)"/> method returns true for an array
-        /// with a matching number of elements.
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(int)"/> method
+        /// returns true for an array with a matching number of elements.
         /// </summary>
         [Fact]
         public void ReturnsTrueForArrayWithMatchingConstantCount()
@@ -56,8 +57,8 @@ public class JsonArrayMatcherBuilderTests
         }
 
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(long)"/> method asserts for an array
-        /// with a mismatching number of elements.
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(int)"/> method
+        /// asserts for an array with a mismatching number of elements.
         /// </summary>
         [Fact]
         public void AssertsForArrayWithMismatchingConstantCount()
@@ -69,12 +70,12 @@ public class JsonArrayMatcherBuilderTests
                 .WithCount(2)
                 .Build();
 
-            Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(Func{long, bool})"/> method returns true
-        /// for an array with a matching predicate.
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(Expression{Func{int, bool}})"/> method
+        /// returns true for an array with a matching predicate.
         /// </summary>
         [Fact]
         public void ReturnsTrueForArrayWithMatchingPredicateCount()
@@ -83,15 +84,15 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithCount(c => c is > 0 and < 2)
+                .WithCount(c => c > 0 && c < 2)
                 .Build();
 
             Assert.True(matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(Func{long, bool})"/> method asserts
-        /// for an array with a mismatching number of elements.
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithCount(Expression{Func{int, bool}})"/> method
+        /// asserts for an array with a mismatching number of elements.
         /// </summary>
         [Fact]
         public void AssertsForArrayWithMismatchingPredicateCount()
@@ -100,7 +101,7 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithCount(c => c is > 1 and < 3)
+                .WithCount(c => c > 1 && c < 3)
                 .Build();
 
             Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
@@ -108,13 +109,13 @@ public class JsonArrayMatcherBuilderTests
     }
 
     /// <summary>
-    /// Tests the <see cref="JsonArrayMatcherBuilder.WithAtLeastCount"/> method.
+    /// Tests the <see cref="JsonArrayMatcherBuilder.WithGreaterOrEqualToCount"/> method.
     /// </summary>
-    public class WithAtLeastCount
+    public class WithGreaterOrEqualToCount
     {
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAtLeastCount"/> method returns true for an
-        /// array with an exactly matching number of elements.
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithGreaterOrEqualToCount"/> method returns true
+        /// for an array with an exactly matching number of elements.
         /// </summary>
         [Fact]
         public void ReturnsTrueForArrayWithExactCount()
@@ -123,15 +124,15 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithAtLeastCount(1)
+                .WithGreaterOrEqualToCount(1)
                 .Build();
 
             Assert.True(matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAtLeastCount"/> method returns true for an
-        /// array with a greater number of elements.
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithGreaterOrEqualToCount"/> method returns true
+        /// for an array with a greater number of elements.
         /// </summary>
         [Fact]
         public void ReturnsTrueForArrayWithGreaterCount()
@@ -140,14 +141,14 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithAtLeastCount(1)
+                .WithGreaterOrEqualToCount(1)
                 .Build();
 
             Assert.True(matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithAtLeastCount"/> method asserts for an
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithGreaterOrEqualToCount"/> method asserts for an
         /// array with a lesser number of elements.
         /// </summary>
         [Fact]
@@ -157,20 +158,20 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithAtLeastCount(2)
+                .WithGreaterOrEqualToCount(2)
                 .Build();
 
-            Assert.Throws<NotInRangeException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
         }
     }
 
     /// <summary>
-    /// Tests the <see cref="JsonArrayMatcherBuilder.WithNoMoreThanCount"/> method.
+    /// Tests the <see cref="JsonArrayMatcherBuilder.WithLessThanOrEqualCount"/> method.
     /// </summary>
-    public class WithNoMoreThanCount
+    public class WithLessThanOrEqualCount
     {
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithNoMoreThanCount"/> method returns true for an
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithLessThanOrEqualCount"/> method returns true for an
         /// array with an exactly matching number of elements.
         /// </summary>
         [Fact]
@@ -180,14 +181,14 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithNoMoreThanCount(1)
+                .WithLessThanOrEqualCount(1)
                 .Build();
 
             Assert.True(matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithNoMoreThanCount"/> method asserts for an
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithLessThanOrEqualCount"/> method asserts for an
         /// array with a greater number of elements.
         /// </summary>
         [Fact]
@@ -197,14 +198,14 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithNoMoreThanCount(1)
+                .WithLessThanOrEqualCount(1)
                 .Build();
 
-            Assert.Throws<InRangeException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
-        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithNoMoreThanCount"/> method returns true for an
+        /// Tests whether the <see cref="JsonArrayMatcherBuilder.WithLessThanOrEqualCount"/> method returns true for an
         /// array with a lesser number of elements.
         /// </summary>
         [Fact]
@@ -214,7 +215,7 @@ public class JsonArrayMatcherBuilderTests
             var document = JsonDocument.Parse(json);
 
             var matcher = new JsonArrayMatcherBuilder()
-                .WithNoMoreThanCount(2)
+                .WithLessThanOrEqualCount(2)
                 .Build();
 
             Assert.True(matcher.Matches(document.RootElement.EnumerateArray()));
@@ -371,7 +372,7 @@ public class JsonArrayMatcherBuilderTests
                 .WithElement(0, e => e.Is(4))
                 .Build();
 
-            Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
@@ -388,7 +389,7 @@ public class JsonArrayMatcherBuilderTests
                 .WithElement(1, e => e.Is(1))
                 .Build();
 
-            Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
         }
 
         /// <summary>
@@ -405,7 +406,7 @@ public class JsonArrayMatcherBuilderTests
                 .WithElement(3, e => e.Is(4))
                 .Build();
 
-            Assert.Throws<InRangeException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement.EnumerateArray()));
         }
     }
 }

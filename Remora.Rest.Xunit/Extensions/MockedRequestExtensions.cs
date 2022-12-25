@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using JetBrains.Annotations;
 using Remora.Rest.Xunit.Json;
@@ -59,7 +60,7 @@ public static class MockedRequestExtensions
     public static MockedRequest WithAuthentication
     (
         this MockedRequest request,
-        Func<AuthenticationHeaderValue, bool>? headerPredicate = null
+        Expression<Func<AuthenticationHeaderValue, bool>>? headerPredicate = null
     )
     {
         headerPredicate ??= _ => true;

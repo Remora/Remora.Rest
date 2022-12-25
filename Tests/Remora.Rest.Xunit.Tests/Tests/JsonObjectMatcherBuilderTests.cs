@@ -88,7 +88,7 @@ public class JsonObjectMatcherBuilderTests
                 .WithProperty("missing_property")
                 .Build();
 
-            Assert.Throws<ContainsException>(() => matcher.Matches(document.RootElement));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement));
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ public class JsonObjectMatcherBuilderTests
                 .WithProperty("value", p => p.Is(1))
                 .Build();
 
-            Assert.Throws<EqualException>(() => matcher.Matches(document.RootElement));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement));
         }
     }
 
@@ -148,7 +148,7 @@ public class JsonObjectMatcherBuilderTests
                 .WithoutProperty("value")
                 .Build();
 
-            Assert.Throws<DoesNotContainException>(() => matcher.Matches(document.RootElement));
+            Assert.Throws<XunitException>(() => matcher.Matches(document.RootElement));
         }
     }
 }

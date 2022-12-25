@@ -23,8 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using FluentAssertions;
 using JetBrains.Annotations;
-using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Json;
 
@@ -52,10 +52,8 @@ public class JsonObjectMatcherBuilder
         (
             obj =>
             {
-                if (!obj.TryGetProperty(name, out var property))
-                {
-                    throw new ContainsException(name, obj);
-                }
+                obj.TryGetProperty(name, out var property)
+                    .Should().NotBe(false, $"because a property named {name} should be present");
 
                 if (elementMatcherBuilder is null)
                 {
@@ -84,9 +82,13 @@ public class JsonObjectMatcherBuilder
     {
         _matchers.Add
         (
-            obj => obj.TryGetProperty(name, out _)
-                ? throw new DoesNotContainException(name, obj)
-                : true
+            obj =>
+            {
+                obj.TryGetProperty(name, out _)
+                    .Should().Be(false, $"because a property named {name} should not be present");
+
+                return true;
+            }
         );
 
         return this;
