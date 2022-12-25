@@ -28,7 +28,7 @@ using Remora.Rest.Json.Reflection;
 namespace Remora.Rest.Json.Internal;
 
 /// <summary>
-/// Bundles data needed for properties in <see cref="BoundDataObjectConverter{TInterface, TImplementation}"/>.
+/// Bundles data needed for properties in <see cref="BoundDataObjectConverter{T}"/>.
 /// </summary>
 /// <param name="Property">The CLR property of the implementation type.</param>
 /// <param name="ReadNames">The names this property allows when reading.</param>

@@ -55,11 +55,18 @@ public static class JsonAssertTests
         /// </summary>
         /// <param name="expected">The expected document.</param>
         /// <param name="actual">The actual document.</param>
+        /// <param name="expectedError">A substring which is expected in the final error message.</param>
         [ClassData(typeof(NonEquivalentJsonDocumentData))]
         [Theory]
-        public static void AssertsForNonEquivalentDocuments(JsonDocument expected, JsonDocument actual)
+        public static void AssertsForNonEquivalentDocuments
+        (
+            JsonDocument expected,
+            JsonDocument actual,
+            string expectedError
+        )
         {
-            Assert.ThrowsAny<XunitException>(() => JsonAssert.Equivalent(expected, actual));
+            var exception = Assert.ThrowsAny<XunitException>(() => JsonAssert.Equivalent(expected, actual));
+            Assert.Contains(expectedError, exception.Message);
         }
 
         /// <summary>
@@ -172,15 +179,15 @@ public static class JsonAssertTests
         }
     }
 
-    private class NonEquivalentJsonDocumentData : TheoryData<JsonDocument, JsonDocument>
+    private class NonEquivalentJsonDocumentData : TheoryData<JsonDocument, JsonDocument, string>
     {
         public NonEquivalentJsonDocumentData()
         {
             // value differences
-            Add(JsonDocument.Parse("\"ooga\""), JsonDocument.Parse("\"boga\""));
-            Add(JsonDocument.Parse("0"), JsonDocument.Parse("1"));
-            Add(JsonDocument.Parse("0.0"), JsonDocument.Parse("0.1"));
-            Add(JsonDocument.Parse("true"), JsonDocument.Parse("false"));
+            Add(JsonDocument.Parse("\"ooga\""), JsonDocument.Parse("\"boga\""), "be equivalent to \"ooga\"");
+            Add(JsonDocument.Parse("0"), JsonDocument.Parse("1"), "to be 0.0");
+            Add(JsonDocument.Parse("0.0"), JsonDocument.Parse("0.1"), "to be 0.0");
+            Add(JsonDocument.Parse("true"), JsonDocument.Parse("false"), "actual.ValueKind to be JsonValueKind.True");
 
             // type differences
             var values = new[]
@@ -196,19 +203,19 @@ public static class JsonAssertTests
                 var otherValues = values.Except(new[] { value });
                 foreach (var otherValue in otherValues)
                 {
-                    Add(JsonDocument.Parse(value), JsonDocument.Parse(otherValue));
+                    Add(JsonDocument.Parse(value), JsonDocument.Parse(otherValue), "actual.ValueKind to be");
                 }
             }
 
             // arrays and objects with value differences
-            Add(JsonDocument.Parse("[ 1 ]"), JsonDocument.Parse("[ 2 ]"));
-            Add(JsonDocument.Parse("{ \"property\": 1 }"), JsonDocument.Parse("{ \"property\": 2 }"));
+            Add(JsonDocument.Parse("[ 1 ]"), JsonDocument.Parse("[ 2 ]"), "to be 1.0");
+            Add(JsonDocument.Parse("{ \"property\": 1 }"), JsonDocument.Parse("{ \"property\": 2 }"), "to be 1.0");
 
             // arrays with count differences
-            Add(JsonDocument.Parse("[ 1 ]"), JsonDocument.Parse("[ 1, 2 ]"));
+            Add(JsonDocument.Parse("[ 1 ]"), JsonDocument.Parse("[ 1, 2 ]"), "to have 1 item");
 
             // reordered arrays
-            Add(JsonDocument.Parse("[ 1, 2 ]"), JsonDocument.Parse("[ 2, 1 ]"));
+            Add(JsonDocument.Parse("[ 1, 2 ]"), JsonDocument.Parse("[ 2, 1 ]"), "to be 1.0");
 
             // objects with missing properties
             Add
@@ -220,7 +227,8 @@ public static class JsonAssertTests
                 JsonDocument.Parse
                 (
                     "{ \"property\": 1 }"
-                )
+                ),
+                "item matching e.NameEquals(\"other\")"
             );
         }
     }

@@ -4,21 +4,18 @@
     <PropertyGroup>
         <LibraryFrameworks>$(ExecutableFrameworks)</LibraryFrameworks>
     </PropertyGroup>
-    
+
     <PropertyGroup>
-        <VersionPrefix>2.0.0</VersionPrefix>
+        <VersionPrefix>2.0.1</VersionPrefix>
         <Description>Supporting types for writing expressive unit tests of REST-focused API wrappers, allowing simple and direct testing of expected clientside behaviour.
         </Description>
         <PackageReleaseNotes>
-            Drop .NET Standard as a target.
-            Remove MultipartFormDataContentExtensions.
-            Remove JsonRequestMatcher.
-            Remove MultipartJsonPayloadRequestMatcher.
-            Utilize synchronous ReadAsStream instead of GetAwaiter().GetResult().
+            Upgrade Remora.Sdk and nuget packages.
         </PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentAssertions" PrivateAssets="contentfiles;analyzers;build;compile" />
         <PackageReference Include="RichardSzalay.MockHttp" />
         <PackageReference Include="xunit.assert" />
         <PackageReference Include="System.Text.Json" />

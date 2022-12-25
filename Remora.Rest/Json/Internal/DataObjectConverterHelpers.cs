@@ -35,7 +35,7 @@ internal static class DataObjectConverterHelpers
     }
 
     /// <summary>
-    /// Sentinel value for use by <see cref="BoundDataObjectConverter{TInterface, TImplementation}"/>.
+    /// Sentinel value for use by <see cref="BoundDataObjectConverter{T}"/>.
     /// It indicates a specific property has not been read from JSON yet.
     /// </summary>
     public static readonly object Missing = new MissingValue();

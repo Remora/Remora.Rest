@@ -23,6 +23,7 @@
 using System;
 using System.Linq;
 using System.Text.Json;
+using FluentAssertions;
 using JetBrains.Annotations;
 using Xunit;
 
@@ -66,7 +67,8 @@ public static class JsonAssert
     {
         assertOptions ??= JsonAssertOptions.Default;
 
-        Assert.Equal(expected.ValueKind, actual.ValueKind);
+        actual.ValueKind
+            .Should().Be(expected.ValueKind);
 
         switch (expected.ValueKind)
         {
@@ -88,7 +90,8 @@ public static class JsonAssert
                         }
                     }
 
-                    Assert.Single(actualElements, ae => ae.NameEquals(expectedElement.Name));
+                    actualElements
+                        .Should().ContainSingle(e => e.NameEquals(expectedElement.Name));
 
                     var matchingElement = actualElements.Single(ae => ae.NameEquals(expectedElement.Name));
                     Equivalent(expectedElement.Value, matchingElement.Value, assertOptions);
@@ -103,7 +106,7 @@ public static class JsonAssert
                     .Where(e => !assertOptions.AllowSkip(e))
                     .ToList();
 
-                Assert.Equal(expectedElements.Count, actualElements.Count);
+                actualElements.Should().HaveSameCount(expectedElements);
 
                 for (var i = 0; i < expectedElements.Count; ++i)
                 {
@@ -114,18 +117,18 @@ public static class JsonAssert
             }
             case JsonValueKind.String:
             {
-                Assert.Equal(expected.GetString(), actual.GetString());
+                actual.GetString().Should().BeEquivalentTo(expected.GetString());
                 break;
             }
             case JsonValueKind.Number:
             {
-                Assert.Equal(expected.GetDouble(), actual.GetDouble());
+                actual.GetDouble().Should().Be(expected.GetDouble());
                 break;
             }
             case JsonValueKind.True:
             case JsonValueKind.False:
             {
-                Assert.Equal(expected.GetBoolean(), actual.GetBoolean());
+                actual.GetBoolean().Should().Be(expected.GetBoolean());
                 break;
             }
             case JsonValueKind.Undefined:

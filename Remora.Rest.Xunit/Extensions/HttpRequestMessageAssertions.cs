@@ -24,14 +24,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
 using System.Web;
+using FluentAssertions;
 using JetBrains.Annotations;
 using Remora.Rest.Xunit.Json;
-using Xunit;
 using Xunit.Sdk;
 
 namespace Remora.Rest.Xunit.Extensions;
@@ -48,7 +49,8 @@ public static class HttpRequestMessageAssertions
     /// <param name="message">The message.</param>
     public static void HasNoContent(this HttpRequestMessage message)
     {
-        Assert.Null(message.Content);
+        message.Content
+            .Should().BeNull();
     }
 
     /// <summary>
@@ -57,7 +59,8 @@ public static class HttpRequestMessageAssertions
     /// <param name="message">The message.</param>
     public static void HasAuthentication(this HttpRequestMessage message)
     {
-        Assert.NotNull(message.Headers.Authorization);
+        message.Headers.Authorization
+            .Should().NotBeNull();
     }
 
     /// <summary>
@@ -68,11 +71,11 @@ public static class HttpRequestMessageAssertions
     public static void HasAuthentication
     (
         this HttpRequestMessage message,
-        Func<AuthenticationHeaderValue, bool> headerPredicate
+        Expression<Func<AuthenticationHeaderValue, bool>> headerPredicate
     )
     {
         message.HasAuthentication();
-        Assert.True(headerPredicate(message.Headers.Authorization!), "The authentication predicate did not match.");
+        message.Headers.Authorization.Should().Match(headerPredicate);
     }
 
     /// <summary>
@@ -106,8 +109,8 @@ public static class HttpRequestMessageAssertions
     /// <param name="json">The contained json body.</param>
     public static void HasJson(this HttpRequestMessage message, out JsonDocument json)
     {
-        Assert.NotNull(message.Content);
-        var content = message.Content.ReadAsStream();
+        message.Content.Should().NotBeNull();
+        var content = message.Content!.ReadAsStream();
 
         try
         {
@@ -149,11 +152,8 @@ public static class HttpRequestMessageAssertions
     )
     {
         message.HasJson(out var json);
-
-        if (matcher is not null)
-        {
-            Assert.True(matcher.Matches(json.RootElement));
-        }
+        json.RootElement
+            .Should().Match<JsonElement>(e => matcher.Matches(e));
     }
 
     /// <summary>
@@ -183,15 +183,20 @@ public static class HttpRequestMessageAssertions
         string partName = "payload_json"
     )
     {
-        Assert.NotNull(message.Content);
-        Assert.IsType<MultipartFormDataContent>(message.Content);
+        message.Content
+            .Should().NotBeNull();
+
+        message.Content
+            .Should().BeOfType<MultipartFormDataContent>();
+
         var multipart = (MultipartFormDataContent)message.Content!;
 
-        Assert.Single
-        (
-            multipart,
-            c => c is StringContent s && s.Headers.ContentDisposition?.Name == partName
-        );
+        multipart
+            .Should().ContainSingle(c => c is StringContent)
+                .Which
+                .Should().BeOfType<StringContent>()
+                    .Which.Headers.ContentDisposition!.Name
+                    .Should().NotBeNull().And.Be(partName);
 
         var payloadContent = multipart.Single
         (
@@ -245,7 +250,7 @@ public static class HttpRequestMessageAssertions
     )
     {
         message.HasMultipartJsonPayload(out var json, partName);
-        Assert.True(matcher.Matches(json.RootElement));
+        json.RootElement.Should().Match<JsonElement>(e => matcher.Matches(e));
     }
 
     /// <summary>
@@ -254,8 +259,11 @@ public static class HttpRequestMessageAssertions
     /// <param name="message">The message.</param>
     public static void HasMultipartFormData(this HttpRequestMessage message)
     {
-        Assert.NotNull(message.Content);
-        Assert.IsType<MultipartFormDataContent>(message.Content);
+        message.Content
+            .Should().NotBeNull();
+
+        message.Content
+            .Should().BeOfType<MultipartFormDataContent>();
     }
 
     /// <summary>
@@ -276,14 +284,17 @@ public static class HttpRequestMessageAssertions
         message.HasMultipartFormData();
 
         var formContent = (MultipartFormDataContent)message.Content!;
-        Assert.Contains(formContent, c => c.Headers.Any(h => h.Value.Any(v => v.Contains($"name={name}"))));
+        formContent
+            .Should().Contain(c => c.Headers.Any(h => h.Value.Any(v => v.Contains($"name={name}"))));
 
         var contentWithName = formContent.Single
         (
             c => c.Headers.Any(h => h.Value.Any(v => v.Contains($"name={name}")))
         );
 
-        Assert.IsType<TContent>(contentWithName);
+        contentWithName
+            .Should().BeOfType<TContent>();
+
         expectation?.Invoke((TContent)contentWithName);
     }
 
@@ -306,7 +317,7 @@ public static class HttpRequestMessageAssertions
             using var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
 
-            Assert.Equal(expected, content);
+            content.Should().Be(expected);
         });
     }
 
@@ -328,14 +339,16 @@ public static class HttpRequestMessageAssertions
         message.HasMultipartFormData<StreamContent>(name, c =>
         {
             // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-            Assert.Contains(c.Headers, h => h.Value.Any(v => v.Contains($"filename={expectedFilename}")));
+            c.Headers
+                .Should().Contain(h => h.Value.Any(v => v.Contains($"filename={expectedFilename}")));
 
             // Reflection hackery
             var innerStream = (Stream)typeof(StreamContent)
                 .GetField("_content", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(c)!;
 
-            Assert.Equal(expectedContent, innerStream);
+            innerStream
+                .Should().BeSameAs(expectedContent);
         });
     }
 
@@ -359,8 +372,11 @@ public static class HttpRequestMessageAssertions
         out IReadOnlyDictionary<string, string> data
     )
     {
-        Assert.NotNull(message.Content);
-        Assert.IsType<FormUrlEncodedContent>(message.Content);
+        message.Content
+            .Should().NotBeNull();
+
+        message.Content
+            .Should().BeOfType<FormUrlEncodedContent>();
 
         var formContent = (FormUrlEncodedContent)message.Content!;
 
@@ -396,13 +412,11 @@ public static class HttpRequestMessageAssertions
 
         if (strict)
         {
-            Assert.Equal(expectations.Count, data.Count);
+            expectations.Should().BeEquivalentTo(data);
         }
-
-        foreach (var (key, value) in expectations)
+        else
         {
-            Assert.Contains(key, data);
-            Assert.Equal(value, data[key]);
+            expectations.Should().BeSubsetOf(data);
         }
     }
 
@@ -426,8 +440,9 @@ public static class HttpRequestMessageAssertions
         out IReadOnlyDictionary<string, string> data
     )
     {
-        Assert.NotNull(message.RequestUri?.Query);
-        Assert.False(message.RequestUri?.Query == string.Empty);
+        message.RequestUri?.Query
+            .Should().NotBeNull().And
+            .NotBeEmpty();
 
         var collection = HttpUtility.ParseQueryString(message.RequestUri!.Query);
         data = collection.AllKeys.ToDictionary
@@ -456,13 +471,11 @@ public static class HttpRequestMessageAssertions
 
         if (strict)
         {
-            Assert.Equal(expectations.Count, data.Count);
+            expectations.Should().BeEquivalentTo(data);
         }
-
-        foreach (var (key, value) in expectations)
+        else
         {
-            Assert.Contains(key, data);
-            Assert.Equal(value, data[key]);
+            expectations.Should().BeSubsetOf(data);
         }
     }
 }

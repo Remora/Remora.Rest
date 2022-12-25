@@ -154,20 +154,22 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
         // Polyfill/check properties that weren't found yet
         for (int i = 0; i < constructorArguments.Length; i++)
         {
-            if (constructorArguments[i] == DataObjectConverterHelpers.Missing)
+            if (constructorArguments[i] != DataObjectConverterHelpers.Missing)
             {
-                var dtoProperty = readProperties[i];
-                if (dtoProperty.DefaultValue != null)
-                {
-                    constructorArguments[i] = dtoProperty.DefaultValue;
-                }
-                else
-                {
-                    throw new JsonException
-                    (
-                        $"The data property \"{dtoProperty.Property.Name}\" did not have a corresponding value in the JSON."
-                    );
-                }
+                continue;
+            }
+
+            var dtoProperty = readProperties[i];
+            if (dtoProperty.DefaultValue != null)
+            {
+                constructorArguments[i] = dtoProperty.DefaultValue;
+            }
+            else
+            {
+                throw new JsonException
+                (
+                    $"The data property \"{dtoProperty.Property.Name}\" did not have a corresponding value in the JSON."
+                );
             }
         }
 

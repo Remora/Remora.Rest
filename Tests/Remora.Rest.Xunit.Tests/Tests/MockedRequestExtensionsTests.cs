@@ -62,7 +62,7 @@ public static class MockedRequestExtensionsTests
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
             request.Content = new StringContent("wooga");
 
-            await Assert.ThrowsAsync<NullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ public static class MockedRequestExtensionsTests
 
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ public static class MockedRequestExtensionsTests
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
-                .WithAuthentication(a => a.Scheme is "Bearer" && a.Parameter is "wooga")
+                .WithAuthentication(a => a.Scheme == "Bearer" && a.Parameter == "wooga")
                 .Respond(HttpStatusCode.OK);
 
             var client = mockHandler.ToHttpClient();
@@ -128,7 +128,7 @@ public static class MockedRequestExtensionsTests
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "booga");
 
-            await Assert.ThrowsAsync<TrueException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -161,7 +161,7 @@ public static class MockedRequestExtensionsTests
         {
             var mockHandler = new MockHttpMessageHandler();
             mockHandler.Expect(HttpMethod.Get, "https://unit-test")
-                .WithAuthentication(a => a.Scheme is "Bearer" && a.Parameter is "wooga")
+                .WithAuthentication(a => a.Scheme == "Bearer" && a.Parameter == "wooga")
                 .Respond(HttpStatusCode.OK);
 
             var client = mockHandler.ToHttpClient();
@@ -195,7 +195,7 @@ public static class MockedRequestExtensionsTests
 
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ public static class MockedRequestExtensionsTests
 
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -327,7 +327,7 @@ public static class MockedRequestExtensionsTests
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
             request.Content = new StringContent("ooga");
 
-            await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<SingleException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -401,7 +401,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -476,7 +476,7 @@ public static class MockedRequestExtensionsTests
 
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -496,7 +496,7 @@ public static class MockedRequestExtensionsTests
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
             request.Content = new StringContent("fail");
 
-            await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -519,7 +519,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -543,7 +543,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -567,7 +567,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -612,7 +612,7 @@ public static class MockedRequestExtensionsTests
 
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-            await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -634,7 +634,7 @@ public static class MockedRequestExtensionsTests
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
             request.Content = new StringContent("fail");
 
-            await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -659,7 +659,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -685,7 +685,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -712,7 +712,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -739,7 +739,7 @@ public static class MockedRequestExtensionsTests
 
             request.Content = multipart;
 
-            await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+            await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
         }
 
         /// <summary>
@@ -800,7 +800,7 @@ public static class MockedRequestExtensionsTests
 
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
 
-                await Assert.ThrowsAsync<NotNullException>(async () => await client.SendAsync(request));
+                await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -822,7 +822,7 @@ public static class MockedRequestExtensionsTests
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
                 request.Content = new StringContent("fail");
 
-                await Assert.ThrowsAsync<IsTypeException>(async () => await client.SendAsync(request));
+                await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -881,7 +881,7 @@ public static class MockedRequestExtensionsTests
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
                 request.Content = new FormUrlEncodedContent(actual);
 
-                await Assert.ThrowsAsync<ContainsException>(async () => await client.SendAsync(request));
+                await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -911,7 +911,7 @@ public static class MockedRequestExtensionsTests
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
                 request.Content = new FormUrlEncodedContent(actual);
 
-                await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+                await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>
@@ -947,7 +947,7 @@ public static class MockedRequestExtensionsTests
                 var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
                 request.Content = new FormUrlEncodedContent(actual);
 
-                await Assert.ThrowsAsync<EqualException>(async () => await client.SendAsync(request));
+                await Assert.ThrowsAsync<XunitException>(async () => await client.SendAsync(request));
             }
 
             /// <summary>

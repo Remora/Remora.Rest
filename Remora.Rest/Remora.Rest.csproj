@@ -1,9 +1,9 @@
 <Project Sdk="Remora.Sdk">
     <PropertyGroup>
-        <VersionPrefix>3.1.0</VersionPrefix>
+        <VersionPrefix>3.1.1</VersionPrefix>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
-            Add Span-based overloads of IsPNG, IsGIF, and IsJPG.
+            Upgrade Remora.Sdk and nuget packages.
         </PackageReleaseNotes>
     </PropertyGroup>
 
