@@ -161,7 +161,7 @@ public readonly struct Optional<TValue> : IOptional
 
     /// <summary>
     /// Returns the value of the current <see cref="Optional{TValue}"/>, or <c>default</c> if the current
-    /// <see cref="Optional{TValue}"/> is empty.
+    /// <see cref="Optional{TValue}"/> has no value.
     /// </summary>
     /// <returns>The value of <c>this</c> or <c>default</c> if none is present.</returns>
     public TValue? OrDefault()
@@ -173,7 +173,7 @@ public readonly struct Optional<TValue> : IOptional
 
     /// <summary>
     /// Returns the value of the current <see cref="Optional{TValue}"/>, or <paramref name="defaultValue"/> if
-    /// <see cref="Optional{TValue}"/> is <b>null or empty</b>.
+    /// <see cref="Optional{TValue}"/> has no value or its value is null.
     /// </summary>
     /// <param name="defaultValue">The default value to fallback to if the optional is empty.</param>
     /// <returns>
@@ -189,11 +189,11 @@ public readonly struct Optional<TValue> : IOptional
 
     /// <summary>
     /// Returns the value of the current <see cref="Optional{TValue}"/>, or throws the exception in
-    /// <paramref name="func"/> if empty.
+    /// <paramref name="func"/> if the current <see cref="Optional{TValue}"/> has no value.
     /// </summary>
     /// <param name="func">The function generating an <see cref="Exception"/>.</param>
     /// <returns>The value of <see cref="Optional{TValue}"/>.</returns>
-    /// <exception cref="Exception">If <see cref="Optional{TValue}"/> is empty.</exception>
+    /// <exception cref="Exception">If <see cref="Optional{TValue}"/> has no value.</exception>
     // Compile-time optimization: taking an Exception here would lead to an allocation on every call; taking a static
     // Delegate that produces an Exception only allocates in the failing case.
     public TValue OrThrow([RequireStaticDelegate] Func<Exception> func)
@@ -238,12 +238,12 @@ public readonly struct Optional<TValue> : IOptional
 
     /// <summary>
     /// Applies a mapping function to the value of the <see cref="Optional{TValue}"/> if it has one; otherwise, returns
-    /// a new empty <see cref="Optional{TValue}"/> of the resulting type.
+    /// a new <see cref="Optional{TValue}"/> of the resulting type with no value.
     /// </summary>
     /// <param name="mappingFunc">The mapping function.</param>
     /// <typeparam name="TResult">The value type for the output of the mapping result.</typeparam>
     /// <returns>
-    /// A new optional with the mapping result if <see cref="Optional{TValue}"/> is non-empty; an empty optional
+    /// A new optional with the mapping result if <see cref="Optional{TValue}"/> has a value; an optional with no value
     /// otherwise.
     /// </returns>
     public Optional<TResult> Map<TResult>(Func<TValue, TResult> mappingFunc)
