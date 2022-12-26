@@ -598,7 +598,7 @@ public static class OptionalTests
         public static void ReturnsNullValueForClasses()
         {
             var a = default(Optional<object>);
-            Assert.Equal(null, a.OrDefault());
+            Assert.Null(a.OrDefault());
         }
 
         [Fact]
@@ -636,8 +636,7 @@ public static class OptionalTests
         public static void ThrowsIfDoesNotContainValue()
         {
             var a = default(Optional<int>);
-            Assert.Throws<InvalidOperationException>(()
-                => a.OrThrow(static () => new InvalidOperationException("Expected")));
+            Assert.Throws<InvalidOperationException>(() => a.OrThrow(static () => new InvalidOperationException("Expected")));
         }
 
         [Fact]
@@ -645,8 +644,7 @@ public static class OptionalTests
         {
             Optional<int> a = 1;
 
-            var exception =
-                Record.Exception(() => a.OrThrow(static () => new InvalidOperationException("Not expected")));
+            var exception = Record.Exception(() => a.OrThrow(static () => new InvalidOperationException("Not expected")));
             Assert.Null(exception);
         }
     }
