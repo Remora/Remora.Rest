@@ -24,12 +24,14 @@ using System;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
 namespace Remora.Rest.Json;
 
 /// <summary>
 /// Converts instances of the <see cref="Color"/> struct to and from JSON.
 /// </summary>
+[PublicAPI]
 public class ColorConverter : JsonConverter<Color>
 {
     /// <inheritdoc />

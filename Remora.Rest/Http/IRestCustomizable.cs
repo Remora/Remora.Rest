@@ -21,12 +21,14 @@
 //
 
 using System;
+using JetBrains.Annotations;
 
 namespace Remora.Rest;
 
 /// <summary>
 /// Represents a type that can accept customizations for REST requests.
 /// </summary>
+[PublicAPI]
 public interface IRestCustomizable
 {
     /// <summary>

@@ -166,7 +166,9 @@ public readonly struct Optional<TValue> : IOptional
     /// <returns>The value of <c>this</c> or <c>default</c> if none is present.</returns>
     public TValue? OrDefault()
     {
-        return TryGet(out var value) ? value : default;
+        return TryGet(out var value)
+            ? value
+            : default;
     }
 
     /// <summary>
@@ -180,7 +182,9 @@ public readonly struct Optional<TValue> : IOptional
     [return: NotNullIfNotNull(nameof(defaultValue))]
     public TValue? OrDefault(TValue? defaultValue)
     {
-        return IsDefined(out var value) ? value : defaultValue;
+        return IsDefined(out var value)
+            ? value
+            : defaultValue;
     }
 
     /// <summary>
@@ -194,7 +198,9 @@ public readonly struct Optional<TValue> : IOptional
     // Delegate that produces an Exception only allocates in the failing case.
     public TValue OrThrow([RequireStaticDelegate] Func<Exception> func)
     {
-        return TryGet(out var value) ? value : throw func();
+        return TryGet(out var value)
+            ? value
+            : throw func();
     }
 
     /// <summary>
@@ -205,7 +211,9 @@ public readonly struct Optional<TValue> : IOptional
     /// </returns>
     public Optional<TValue?> AsNullableOptional()
     {
-        return TryGet(out var value) ? value : default(Optional<TValue?>);
+        return TryGet(out var value)
+            ? value
+            : default(Optional<TValue?>);
     }
 
     /// <summary>
@@ -238,6 +246,8 @@ public readonly struct Optional<TValue> : IOptional
     /// </returns>
     public Optional<TResult> Map<TResult>(Func<TValue, TResult> mappingFunc)
     {
-        return this.HasValue ? mappingFunc(_value) : default(Optional<TResult>);
+        return this.HasValue
+            ? mappingFunc(_value)
+            : default(Optional<TResult>);
     }
 }

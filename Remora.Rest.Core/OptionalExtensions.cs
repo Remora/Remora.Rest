@@ -20,11 +20,14 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+using JetBrains.Annotations;
+
 namespace Remora.Rest.Core;
 
 /// <summary>
 /// Contains extension methods for <see cref="Optional{TValue}"/>.
 /// </summary>
+[PublicAPI]
 public static class OptionalExtensions
 {
     // These methods have to be an extension because they take Optional<T?> as the type of `this`
@@ -66,7 +69,9 @@ public static class OptionalExtensions
     /// <returns>The <see cref="Optional{TValue}"/>.</returns>
     public static Optional<T> AsOptional<T>(this T? nullable) where T : struct
     {
-        return nullable is { } value ? new Optional<T>(value) : default;
+        return nullable is { } value
+            ? new Optional<T>(value)
+            : default;
     }
 
     /// <summary>
@@ -78,6 +83,8 @@ public static class OptionalExtensions
     /// <returns>The <see cref="Optional{TValue}"/>.</returns>
     public static Optional<T> AsOptional<T>(this T? nullable) where T : class
     {
-        return nullable != null ? new Optional<T>(nullable) : default;
+        return nullable is not null
+            ? new Optional<T>(nullable)
+            : default;
     }
 }

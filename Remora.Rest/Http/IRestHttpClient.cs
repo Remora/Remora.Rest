@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Remora.Results;
 
 namespace Remora.Rest;
@@ -31,6 +32,7 @@ namespace Remora.Rest;
 /// <summary>
 /// Represents the public API of a REST HTTP client.
 /// </summary>
+[PublicAPI]
 public interface IRestHttpClient : IRestCustomizable
 {
     /// <summary>

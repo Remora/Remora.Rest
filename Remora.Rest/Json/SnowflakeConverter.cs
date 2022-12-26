@@ -23,11 +23,13 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 using Remora.Rest.Core;
 
 namespace Remora.Rest.Json;
 
 /// <inheritdoc />
+[PublicAPI]
 public class SnowflakeConverter : JsonConverter<Snowflake>
 {
     /// <summary>

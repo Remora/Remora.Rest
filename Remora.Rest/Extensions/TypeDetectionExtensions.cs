@@ -21,12 +21,14 @@
 //
 
 using System;
+using JetBrains.Annotations;
 
 namespace Remora.Rest.Extensions;
 
 /// <summary>
 /// Extension methods for <see cref="byte"/> arrays, used to detect file types.
 /// </summary>
+[PublicAPI]
 public static class TypeDetectionExtensions
 {
     /// <summary>
