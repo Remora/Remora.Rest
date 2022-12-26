@@ -32,34 +32,10 @@ using JetBrains.Annotations;
 namespace Remora.Rest.Core;
 
 /// <summary>
-/// Contains utility methods for <see cref="Optional{TValue}"/>.
-/// </summary>
-[PublicAPI]
-public static class Optional
-{
-    /// <summary>
-    /// Gets a new <see cref="Optional{TValue}"/> of the specified <typeparamref name="T"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the optional to create.</typeparam>
-    /// <returns>The newly created optional value.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Optional<T> Empty<T>() => default;
-
-    /// <summary>
-    /// Gets a new <see cref="Optional{TValue}"/> with the specified value.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <typeparam name="T">The type of the optional to create.</typeparam>
-    /// <returns>The newly created optional value.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Optional<T> From<T>(T value) => new(value);
-}
-
-/// <summary>
 /// Represents an optional value. This is mainly used for JSON de/serializalization where a value can be either
 /// present, null, or completely missing.
 ///
-/// While a <see cref="Nullable"/> allows for a value to be logically present but contain a null value,
+/// While a <see cref="AsNullableOptional"/> allows for a value to be logically present but contain a null value,
 /// <see cref="Optional{TValue}"/> allows for a value to be logically missing. For example, an optional without a
 /// value would never be serialized, but a nullable with a null value would (albeit as "null").
 /// </summary>
@@ -215,6 +191,8 @@ public readonly struct Optional<TValue> : IOptional
     /// <param name="func">The function generating an <see cref="Exception"/>.</param>
     /// <returns>The value of <see cref="Optional{TValue}"/>.</returns>
     /// <exception cref="Exception">If <see cref="Optional{TValue}"/> is empty.</exception>
+    // Compile-time optimization: taking an Exception here would lead to an allocation on every call; taking a static
+    // Delegate that produces an Exception only allocates in the failing case.
     public TValue OrThrow([RequireStaticDelegate] Func<Exception> func)
     {
         return TryGet(out var value) ? value : throw func();
@@ -226,7 +204,7 @@ public readonly struct Optional<TValue> : IOptional
     /// <returns>
     /// An <see cref="Optional{TValue}"/> with the type pararameter changed to <typeparamref name="TValue"/>?.
     /// </returns>
-    public Optional<TValue?> Nullable()
+    public Optional<TValue?> AsNullableOptional()
     {
         return TryGet(out var value) ? value : default(Optional<TValue?>);
     }
@@ -261,8 +239,6 @@ public readonly struct Optional<TValue> : IOptional
     /// </returns>
     public Optional<TResult> Map<TResult>(Func<TValue, TResult> mappingFunc)
     {
-        return this.HasValue
-            ? mappingFunc(_value)
-            : default(Optional<TResult>);
+        return this.HasValue ? mappingFunc(_value) : default(Optional<TResult>);
     }
 }
