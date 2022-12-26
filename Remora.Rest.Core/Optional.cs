@@ -166,7 +166,7 @@ public readonly struct Optional<TValue> : IOptional
     /// <returns>The value of <c>this</c> or <c>default</c> if none is present.</returns>
     public TValue? OrDefault()
     {
-        return TryGet(out var value)
+        return IsDefined(out var value)
             ? value
             : default;
     }
