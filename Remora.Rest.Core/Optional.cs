@@ -201,7 +201,7 @@ public readonly struct Optional<TValue> : IOptional
     /// Casts the current <see cref="Optional{TValue}"/> to a nullable <typeparamref name="TValue"/>?.
     /// </summary>
     /// <returns>
-    /// An <see cref="Optional{TValue}"/> with the type pararameter changed to <typeparamref name="TValue"/>?.
+    /// An <see cref="Optional{TValue}"/> with the type parameter changed to <typeparamref name="TValue"/>?.
     /// </returns>
     public Optional<TValue?> AsNullableOptional()
     {
@@ -233,7 +233,7 @@ public readonly struct Optional<TValue> : IOptional
     /// <param name="mappingFunc">The mapping function.</param>
     /// <typeparam name="TResult">The value type for the output of the mapping result.</typeparam>
     /// <returns>
-    /// A new optional with the mapping result if <see cref="Optional{TValue}"/> is non-empty; an empty opitional
+    /// A new optional with the mapping result if <see cref="Optional{TValue}"/> is non-empty; an empty optional
     /// otherwise.
     /// </returns>
     public Optional<TResult> Map<TResult>(Func<TValue, TResult> mappingFunc)
