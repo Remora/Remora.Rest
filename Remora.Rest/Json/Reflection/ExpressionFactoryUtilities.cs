@@ -88,7 +88,7 @@ internal static class ExpressionFactoryUtilities
         {
             throw new ArgumentException
             (
-                $"Constructor does not belong to a type",
+                "Constructor does not belong to a type",
                 nameof(constructor)
             );
         }
