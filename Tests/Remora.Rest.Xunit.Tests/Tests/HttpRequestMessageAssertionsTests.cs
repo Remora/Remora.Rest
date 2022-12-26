@@ -92,7 +92,10 @@ public static class HttpRequestMessageAssertionsTests
             var request = new HttpRequestMessage(HttpMethod.Get, "https://unit-test");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "booga");
 
-            Assert.Throws<EqualException>(() => request.HasAuthentication(v => Assert.Equal("unexpected", v.Parameter)));
+            Assert.Throws<EqualException>
+            (
+                () => request.HasAuthentication(v => Assert.Equal("unexpected", v.Parameter))
+            );
         }
 
         /// <summary>

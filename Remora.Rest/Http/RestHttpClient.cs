@@ -644,7 +644,10 @@ public class RestHttpClient<TError> : IRestHttpClient
                 {
                     return allowNullReturn
                         ? default
-                        : throw new InvalidOperationException("The requested path does not exist or the found content is empty.");
+                        : throw new InvalidOperationException
+                        (
+                            "The requested path does not exist or the found content is empty."
+                        );
                 }
 
                 entity = element.Value.ToObject<TEntity>(_serializerOptions);

@@ -228,7 +228,11 @@ public static class JsonAssertOptionTests
         {
             var options = JsonAssertOptions.Default;
             var property = (JsonProperty)typeof(JsonProperty)
-                .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new[] { typeof(JsonElement), typeof(string) })!
+                .GetConstructor
+                (
+                    BindingFlags.NonPublic | BindingFlags.Instance,
+                    new[] { typeof(JsonElement), typeof(string) }
+                )!
                 .Invoke(new object[] { default(JsonElement), "_property" });
 
             Assert.True(options.AllowMissingBy(property));
@@ -243,7 +247,11 @@ public static class JsonAssertOptionTests
         {
             var options = JsonAssertOptions.Default;
             var property = (JsonProperty)typeof(JsonProperty)
-                .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new[] { typeof(JsonElement), typeof(string) })!
+                .GetConstructor
+                (
+                    BindingFlags.NonPublic | BindingFlags.Instance,
+                    new[] { typeof(JsonElement), typeof(string) }
+                )!
                 .Invoke(new object[] { default(JsonElement), "property" });
 
             Assert.False(options.AllowMissingBy(property));

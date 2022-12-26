@@ -30,8 +30,9 @@ using Remora.Rest.Json.Reflection;
 namespace Remora.Rest.Json.Internal;
 
 /// <summary>
-/// The actual implementation of <see cref="DataObjectConverter{TInterface, TImplementation}"/>, created by that same type.
-/// These instances are bound to a certain set of <see cref="JsonSerializerOptions"/> and cache any data it might need.
+/// The actual implementation of <see cref="DataObjectConverter{TInterface, TImplementation}"/>, created by that same
+/// type. These instances are bound to a certain set of <see cref="JsonSerializerOptions"/> and cache any data it might
+/// need.
 /// </summary>
 /// <typeparam name="T">The type this instance converts.</typeparam>
 internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
@@ -114,7 +115,10 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
             {
                 if (!_allowExtraProperties)
                 {
-                    throw new JsonException($"DTO disallows extra properties and has no matching property for JSON property {propertyName}.");
+                    throw new JsonException
+                    (
+                        $"DTO disallows extra properties and has no matching property for JSON property {propertyName}."
+                    );
                 }
 
                 // No matching property - we'll skip it
@@ -131,7 +135,12 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
                 continue;
             }
 
-            var propertyValue = JsonSerializer.Deserialize(ref reader, dtoProperty.Property.PropertyType, dtoProperty.Options);
+            var propertyValue = JsonSerializer.Deserialize
+            (
+                ref reader,
+                dtoProperty.Property.PropertyType,
+                dtoProperty.Options
+            );
 
             // Verify nullability
             if (propertyValue is null && !dtoProperty.AllowsNull)

@@ -539,20 +539,23 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
 
         if (typeToConvert == typeof(TInterface))
         {
+            _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor);
             return new BoundDataObjectConverter<TInterface>
             (
-                _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor),
+                _interfaceDtoFactory,
                 _allowExtraProperties,
                 writeProperties.ToArray(),
                 readProperties.ToArray()
             );
         }
 
+        // ReSharper disable once InvertIf
         if (typeToConvert == typeof(TImplementation))
         {
+            _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoConstructor);
             return new BoundDataObjectConverter<TImplementation>
             (
-                _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoConstructor),
+                _implementationDtoFactory,
                 _allowExtraProperties,
                 writeProperties.ToArray(),
                 readProperties.ToArray()
@@ -562,7 +565,11 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         throw new ArgumentException("This converter cannot convert the provided type.", nameof(typeToConvert));
     }
 
-    private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter converter)
+    private static JsonSerializerOptions CreatePropertyConverterOptions
+    (
+        JsonSerializerOptions options,
+        JsonConverter converter
+    )
     {
         var cloned = new JsonSerializerOptions(options);
         cloned.Converters.Insert(0, converter);
@@ -604,7 +611,9 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// </summary>
     /// <param name="dtoProperty">The property to get a property converter for.</param>
     /// <param name="options">The active serializer options.</param>
-    /// <returns>The registered property converter, or <see langword="null"/> if no property converter was added.</returns>
+    /// <returns>
+    /// The registered property converter, or <see langword="null"/> if no property converter was added.
+    /// </returns>
     private JsonConverter? GetConverter(PropertyInfo dtoProperty, JsonSerializerOptions options)
     {
         if (_converterOverrides.TryGetValue(dtoProperty, out var converter))
@@ -641,7 +650,8 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// Gets the default value for a type or <see langword="null"/> if it has no default value.
     /// </summary>
     /// <remarks>
-    /// This always either <see langword="default"/> for <see cref="Optional{TValue}"/> or <see langword="null"/> for any other type.
+    /// This always either <see langword="default"/> for <see cref="Optional{TValue}"/> or <see langword="null"/> for
+    /// any other type.
     /// </remarks>
     /// <param name="type">The type to get the default value for.</param>
     /// <returns>The default value or <see langword="null"/>.</returns>
@@ -664,7 +674,8 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     }
 
     /// <summary>
-    /// Gets a delegate that can write the <paramref name="property"/> to JSON given an instance of <typeparamref name="TImplementation"/>.
+    /// Gets a delegate that can write the <paramref name="property"/> to JSON given an instance of
+    /// <typeparamref name="TImplementation"/>.
     /// </summary>
     /// <param name="property">The property.</param>
     /// <returns>A <see cref="DTOPropertyWriter"/> for the specified property.</returns>

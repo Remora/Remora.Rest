@@ -35,9 +35,13 @@ namespace Remora.Rest.Json.Internal;
 /// <param name="WriteName">The name used when writing this property.</param>
 /// <param name="Writer">A delegate that writes the property.</param>
 /// <param name="AllowsNull">Whether this property allows null.</param>
-/// <param name="DefaultValue">null, if this property is required, otherwise its default value (= default of <see cref="Optional{TValue}"/>).</param>
+/// <param name="DefaultValue">
+/// null, if this property is required, otherwise its default value (= default of <see cref="Optional{TValue}"/>).
+/// </param>
 /// <param name="Options">The serializer options used when serializing this property.</param>
-/// <param name="ReadIndex">The index of this property in the _readProperties array. Has no meaning when writing the object to JSON.</param>
+/// <param name="ReadIndex">
+/// The index of this property in the _readProperties array. Has no meaning when writing the object to JSON.
+/// </param>
 internal sealed record DTOPropertyInfo
 (
     PropertyInfo Property,

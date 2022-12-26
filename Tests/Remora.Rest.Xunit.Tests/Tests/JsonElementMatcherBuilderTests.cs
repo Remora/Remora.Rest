@@ -1609,8 +1609,8 @@ public class JsonElementMatcherBuilderTests
         public class DateTimeOffset
         {
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method returns true for an
-            /// element that is an <see cref="System.DateTimeOffset"/> value, equal to the value under test.
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method returns true
+            /// for an element that is an <see cref="System.DateTimeOffset"/> value, equal to the value under test.
             /// </summary>
             [Fact]
             public void ReturnsTrueForDateTimeOffsetElementWithEqualValue()
@@ -1628,8 +1628,8 @@ public class JsonElementMatcherBuilderTests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for an
-            /// element that is an <see cref="System.DateTimeOffset"/> value, not equal to the value under test.
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for
+            /// an element that is an <see cref="System.DateTimeOffset"/> value, not equal to the value under test.
             /// </summary>
             [Fact]
             public void AssertsForDateTimeOffsetElementWithUnequalValue()
@@ -1647,8 +1647,8 @@ public class JsonElementMatcherBuilderTests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for an
-            /// element that is not an <see cref="System.DateTimeOffset"/>.
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for
+            /// an element that is not an <see cref="System.DateTimeOffset"/>.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
             [Theory]
@@ -1671,8 +1671,8 @@ public class JsonElementMatcherBuilderTests
             }
 
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for an
-            /// element that is not representable as an <see cref="System.DateTimeOffset"/>.
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(System.DateTimeOffset)"/> method asserts for
+            /// an element that is not representable as an <see cref="System.DateTimeOffset"/>.
             /// </summary>
             /// <param name="json">The JSON to test.</param>
             [Theory]
@@ -1695,8 +1695,8 @@ public class JsonElementMatcherBuilderTests
         public class ByteEnumeration
         {
             /// <summary>
-            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(IEnumerable{byte})"/> method returns true for an
-            /// element that is an <see cref="IEnumerable{T}"/> value, equal to the value under test.
+            /// Tests whether the <see cref="JsonElementMatcherBuilder.Is(IEnumerable{byte})"/> method returns true for
+            /// an element that is an <see cref="IEnumerable{T}"/> value, equal to the value under test.
             /// </summary>
             [Fact]
             public void ReturnsTrueForByteEnumerationElementWithEqualValue()

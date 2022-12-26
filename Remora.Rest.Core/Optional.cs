@@ -219,7 +219,9 @@ public readonly struct Optional<TValue> : IOptional
     /// <summary>
     /// Gets the underlying value of a <see cref="Optional{TValue}"/> if it has one.
     /// </summary>
-    /// <param name="value">Set to the value of <see cref="Optional{TValue}"/>, or <c>default</c> if it has none.</param>
+    /// <param name="value">
+    /// Set to the value of <see cref="Optional{TValue}"/>, or <c>default</c> if it has none.
+    /// </param>
     /// <returns><c>true</c> if the <see cref="Optional{TValue}"/> has a value, even when it's <c>null</c>.</returns>
     /// <seealso cref="IsDefined(out TValue?)"/>
     public bool TryGet([MaybeNullWhen(false)] out TValue value)

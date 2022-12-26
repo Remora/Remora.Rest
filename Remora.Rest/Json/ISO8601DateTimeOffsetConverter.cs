@@ -58,6 +58,9 @@ public class ISO8601DateTimeOffsetConverter : JsonConverter<DateTimeOffset>
     public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
     {
         var offset = value.Offset;
-        writer.WriteStringValue(value.ToString($"yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'ffffff'+'{offset.Hours:D2}':'{offset.Minutes:D2}"));
+        writer.WriteStringValue
+        (
+            value.ToString($"yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'ffffff'+'{offset.Hours:D2}':'{offset.Minutes:D2}")
+        );
     }
 }
