@@ -25,7 +25,7 @@ using JetBrains.Annotations;
 namespace Remora.Rest.Core;
 
 /// <summary>
-/// Contains extension methods for <see cref="Optional{TValue}"/>.
+/// Contains extension methods for <see cref="Optional{TValue}"/> where the contained value is a reference type.
 /// </summary>
 [PublicAPI]
 public static class OptionalExtensionsClass
@@ -56,20 +56,6 @@ public static class OptionalExtensionsClass
     {
         return optional.IsDefined(out var value)
             ? new Optional<T>(value)
-            : default;
-    }
-
-    /// <summary>
-    /// Converts a nullable value to a non-nullable <see cref="Optional{TValue}"/> which is empty if the input value is
-    /// <c>null</c>.
-    /// </summary>
-    /// <param name="nullable">The nullable input value.</param>
-    /// <typeparam name="T">The type of the value.</typeparam>
-    /// <returns>The <see cref="Optional{TValue}"/>.</returns>
-    public static Optional<T> AsOptional<T>(this T? nullable) where T : class
-    {
-        return nullable is not null
-            ? new Optional<T>(nullable)
             : default;
     }
 }
