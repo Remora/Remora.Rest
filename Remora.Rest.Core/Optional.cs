@@ -1,23 +1,7 @@
 //
-//  Optional.cs
-//
-//  Author:
-//       Jarl Gullberg <jarl.gullberg@gmail.com>
-//
-//  Copyright (c) Jarl Gullberg
-//
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU Lesser General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  SPDX-FileName: Optional.cs
+//  SPDX-FileCopyrightText: Copyright (c) Jarl Gullberg
+//  SPDX-License-Identifier: LGPL-3.0-or-later
 //
 
 using System;
@@ -40,7 +24,6 @@ namespace Remora.Rest.Core;
 /// </summary>
 /// <typeparam name="TValue">The inner type.</typeparam>
 [PublicAPI]
-[DebuggerDisplay("HasValue = {HasValue}, Value = {_value}")]
 public readonly struct Optional<TValue> : IOptional
 {
     private readonly TValue _value;
@@ -101,65 +84,7 @@ public readonly struct Optional<TValue> : IOptional
         return true;
     }
 
-    /// <summary>
-    /// Implicitly converts actual values into an optional.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>The created optional.</returns>
-    public static implicit operator Optional<TValue>(TValue value)
-    {
-        return new(value);
-    }
-
-    /// <summary>
-    /// Compares two optionals, for equality.
-    /// </summary>
-    /// <param name="left">The left operand.</param>
-    /// <param name="right">The right operand.</param>
-    /// <returns>true if the operands are equal, false otherwise.</returns>
-    public static bool operator ==(Optional<TValue> left, Optional<TValue> right)
-        => left.Equals(right);
-
-    /// <summary>
-    /// Compares two optionals, for inequality.
-    /// </summary>
-    /// <param name="left">The left operand.</param>
-    /// <param name="right">The right operand.</param>
-    /// <returns>false if the operands are equal, true otherwise.</returns>
-    public static bool operator !=(Optional<TValue> left, Optional<TValue> right)
-        => !left.Equals(right);
-
-    /// <summary>
-    /// Compares this instance for equality with another instance.
-    /// </summary>
-    /// <param name="other">The other instance.</param>
-    /// <returns>true if the instances are considered equal; otherwise, false.</returns>
-    public bool Equals(Optional<TValue> other)
-    {
-        return EqualityComparer<TValue>.Default.Equals(_value, other._value) && this.HasValue == other.HasValue;
-    }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        return obj is Optional<TValue> other && Equals(other);
-    }
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(_value, this.HasValue);
-    }
-
-    /// <inheritdoc />
-    public override string ToString()
-    {
-        return this.HasValue
-            ? $"{{{_value?.ToString() ?? "null"}}}"
-            : "Empty";
-    }
-
-    /// <summary>
+     /// <summary>
     /// Returns the value of the current <see cref="Optional{TValue}"/>, or <c>default</c> if the current
     /// <see cref="Optional{TValue}"/> has no value.
     /// </summary>
@@ -238,5 +163,63 @@ public readonly struct Optional<TValue> : IOptional
         return this.HasValue
             ? mappingFunc(_value)
             : default(Optional<TResult>);
+    }
+
+    /// <summary>
+    /// Implicitly converts actual values into an optional.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The created optional.</returns>
+    public static implicit operator Optional<TValue>(TValue value)
+    {
+        return new(value);
+    }
+
+    /// <summary>
+    /// Compares two optionals, for equality.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>true if the operands are equal, false otherwise.</returns>
+    public static bool operator ==(Optional<TValue> left, Optional<TValue> right)
+        => left.Equals(right);
+
+    /// <summary>
+    /// Compares two optionals, for inequality.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>false if the operands are equal, true otherwise.</returns>
+    public static bool operator !=(Optional<TValue> left, Optional<TValue> right)
+        => !left.Equals(right);
+
+    /// <summary>
+    /// Compares this instance for equality with another instance.
+    /// </summary>
+    /// <param name="other">The other instance.</param>
+    /// <returns>true if the instances are considered equal; otherwise, false.</returns>
+    public bool Equals(Optional<TValue> other)
+    {
+        return EqualityComparer<TValue>.Default.Equals(_value, other._value) && this.HasValue == other.HasValue;
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return obj is Optional<TValue> other && Equals(other);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(_value, this.HasValue);
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return this.HasValue
+            ? _value?.ToString() ?? "null"
+            : "Empty";
     }
 }

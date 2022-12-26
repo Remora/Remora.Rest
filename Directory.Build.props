@@ -2,6 +2,7 @@
     <PropertyGroup>
         <LegalAuthor>Jarl Gullberg</LegalAuthor>
         <LegalEmail>jarl.gullberg@gmail.com</LegalEmail>
+        <UseSPDXFileHeaders>true</UseSPDXFileHeaders>
     </PropertyGroup>
 
     <!-- NuGet-related properties -->
