@@ -24,7 +24,6 @@ namespace Remora.Rest.Core;
 /// </summary>
 /// <typeparam name="TValue">The inner type.</typeparam>
 [PublicAPI]
-[DebuggerDisplay("HasValue = {HasValue}, Value = {_value}")]
 public readonly struct Optional<TValue> : IOptional
 {
     private readonly TValue _value;
