@@ -35,7 +35,7 @@ namespace Remora.Rest.Core;
 /// Represents an optional value. This is mainly used for JSON de/serializalization where a value can be either
 /// present, null, or completely missing.
 ///
-/// While a <see cref="AsNullableOptional"/> allows for a value to be logically present but contain a null value,
+/// While a <see cref="Nullable"/> allows for a value to be logically present but contain a null value,
 /// <see cref="Optional{TValue}"/> allows for a value to be logically missing. For example, an optional without a
 /// value would never be serialized, but a nullable with a null value would (albeit as "null").
 /// </summary>
