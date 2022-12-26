@@ -584,4 +584,208 @@ public static class OptionalTests
             Assert.Equal(HashCode.Combine(1, true), a.GetHashCode());
         }
     }
+
+    public static class OrDefault
+    {
+        [Fact]
+        public static void ReturnsDefaultValueOfTypeForStructs()
+        {
+            var a = default(Optional<int>);
+            Assert.Equal(default, a.OrDefault());
+        }
+
+        [Fact]
+        public static void ReturnsNullValueForClasses()
+        {
+            var a = default(Optional<object>);
+            Assert.Equal(null, a.OrDefault());
+        }
+
+        [Fact]
+        public static void ReturnsExistingValueIfContainsValue()
+        {
+            Optional<int> a = 1;
+            Assert.Equal(1, a.OrDefault());
+            Assert.Equal(1, a.OrDefault(2));
+        }
+
+        [Fact]
+        public static void ReturnsProvidedValueIfNull()
+        {
+            Optional<string?> a = null;
+            Assert.Equal("Expected", a.OrDefault("Expected"));
+
+            Optional<int?> b = null;
+            Assert.Equal(1, b.OrDefault(1));
+        }
+
+        [Fact]
+        public static void ReturnsProvidedDefaultValueIfDoesNotContainValue()
+        {
+            var a = default(Optional<string>);
+            Assert.Equal("Expected", a.OrDefault("Expected"));
+
+            var b = default(Optional<int>);
+            Assert.Equal(1, b.OrDefault(1));
+        }
+    }
+
+    public static class OrThrow
+    {
+        [Fact]
+        public static void ThrowsIfDoesNotContainValue()
+        {
+            var a = default(Optional<int>);
+            Assert.Throws<InvalidOperationException>(()
+                => a.OrThrow(static () => new InvalidOperationException("Expected")));
+        }
+
+        [Fact]
+        public static void DoesNotThrowIfContainsValue()
+        {
+            Optional<int> a = 1;
+
+            var exception =
+                Record.Exception(() => a.OrThrow(static () => new InvalidOperationException("Not expected")));
+            Assert.Null(exception);
+        }
+    }
+
+    public static class AsNullableOptional
+    {
+        [Fact]
+        public static void ProducesCorrectValueWhenEmpty()
+        {
+            var a = default(Optional<object>);
+            var result = a.AsNullableOptional();
+
+            // ReSharper disable once ArrangeDefaultValueWhenTypeNotEvident
+            Assert.Equal(default(Optional<object?>), result);
+            Assert.False(result.HasValue);
+        }
+
+        [Fact]
+        public static void ProducesCorrectValueWhenPresent()
+        {
+            Optional<string> a = "Hello world";
+            var result = a.AsNullableOptional();
+
+            // ReSharper disable once ArrangeDefaultValueWhenTypeNotEvident
+            Assert.Equal(new Optional<string?>("Hello world"), result);
+            Assert.True(result.HasValue);
+        }
+    }
+
+    public static class TryGet
+    {
+        [Fact]
+        public static void ReturnsTrueIfOptionalHasValue()
+        {
+            Optional<int> a = 1;
+            Assert.True(a.TryGet(out var value));
+            Assert.Equal(1, value);
+        }
+
+        [Fact]
+        public static void ReturnsTrueAndProducesNullIfOptionalHasNullValue()
+        {
+            Optional<object?> nullValue = null;
+            Assert.True(nullValue.TryGet(out var value));
+            Assert.Null(value);
+        }
+
+        [Fact]
+        public static void ReturnsFalseIfOptionalHasNoValue()
+        {
+            var a = default(Optional<int>);
+            Assert.False(a.TryGet(out var value));
+            Assert.Equal(default, value);
+        }
+    }
+
+    public static class Map
+    {
+        [Fact]
+        public static void CanMap()
+        {
+            Optional<int> a = 1;
+
+            var mapped = a.Map(x => x + 1);
+            Assert.Equal(new Optional<int>(2), mapped);
+        }
+
+        [Fact]
+        public static void ReturnsOptionalWithNoValueIfInputHasNoValue()
+        {
+            var a = default(Optional<int>);
+
+            var mapped = a.Map(x => x + 1);
+            Assert.False(mapped.HasValue);
+        }
+    }
+
+    public static class ConvertNullToEmpty
+    {
+        public static class Struct
+        {
+            [Fact]
+            public static void ReturnsOptionalWithNoValueIfInputIsNull()
+            {
+                Optional<int?> a = null;
+
+                var result = a.ConvertNullToEmpty();
+                Assert.False(result.HasValue);
+            }
+
+            [Fact]
+            public static void ReturnsOptionalWithNoValueIfInputIsEmpty()
+            {
+                var a = default(Optional<int?>);
+
+                var result = a.ConvertNullToEmpty();
+                Assert.False(result.HasValue);
+            }
+
+            [Fact]
+            public static void ReturnsOptionalWithValueIfInputHasValue()
+            {
+                Optional<int?> a = 1;
+
+                var result = a.ConvertNullToEmpty();
+                Assert.True(result.IsDefined(out var value));
+                Assert.Equal(1, value);
+            }
+        }
+
+        public static class Class
+        {
+            [Fact]
+            public static void ReturnsOptionalWithNoValueIfInputIsNull()
+            {
+                Optional<string?> a = null;
+
+                var result = a.ConvertNullToEmpty();
+                Assert.False(result.HasValue);
+            }
+
+            [Fact]
+            public static void ReturnsOptionalWithNoValueIfInputIsEmpty()
+            {
+                var a = default(Optional<string?>);
+
+                var result = a.ConvertNullToEmpty();
+                Assert.False(result.HasValue);
+            }
+
+            [Fact]
+            public static void ReturnsOptionalWithValueIfInputHasValue()
+            {
+                Optional<string?> a = "Expected";
+
+                var result = a.ConvertNullToEmpty();
+                Assert.True(result.IsDefined(out var value));
+                Assert.Equal("Expected", value);
+            }
+        }
+    }
 }
