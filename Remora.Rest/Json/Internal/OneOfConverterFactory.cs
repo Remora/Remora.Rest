@@ -44,15 +44,15 @@ internal class OneOfConverterFactory : JsonConverterFactory
         var genericType = typeToConvert.GetGenericTypeDefinition();
         return genericType switch
         {
-            var t when t == typeof(OneOf<>) => true,
-            var t when t == typeof(OneOf<,>) => true,
-            var t when t == typeof(OneOf<,,>) => true,
-            var t when t == typeof(OneOf<,,,>) => true,
-            var t when t == typeof(OneOf<,,,,>) => true,
-            var t when t == typeof(OneOf<,,,,,>) => true,
-            var t when t == typeof(OneOf<,,,,,,>) => true,
-            var t when t == typeof(OneOf<,,,,,,,>) => true,
-            var t when t == typeof(OneOf<,,,,,,,,>) => true,
+            _ when genericType == typeof(OneOf<>) => true,
+            _ when genericType == typeof(OneOf<,>) => true,
+            _ when genericType == typeof(OneOf<,,>) => true,
+            _ when genericType == typeof(OneOf<,,,>) => true,
+            _ when genericType == typeof(OneOf<,,,,>) => true,
+            _ when genericType == typeof(OneOf<,,,,,>) => true,
+            _ when genericType == typeof(OneOf<,,,,,,>) => true,
+            _ when genericType == typeof(OneOf<,,,,,,,>) => true,
+            _ when genericType == typeof(OneOf<,,,,,,,,>) => true,
             _ => false
         };
     }
