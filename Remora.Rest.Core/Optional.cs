@@ -219,7 +219,7 @@ public readonly struct Optional<TValue> : IOptional
     public override string ToString()
     {
         return this.HasValue
-            ? $"{{{_value?.ToString() ?? "null"}}}"
+            ? _value?.ToString() ?? "null"
             : "Empty";
     }
 }
