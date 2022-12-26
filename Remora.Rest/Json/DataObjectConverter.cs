@@ -185,7 +185,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// <param name="visibleProperties">The visible set of properties.</param>
     /// <returns>The constructor.</returns>
     /// <exception cref="MissingMethodException">Thrown if no appropriate constructor can be found.</exception>
-    private ConstructorInfo FindBestMatchingConstructor(PropertyInfo[] visibleProperties)
+    private static ConstructorInfo FindBestMatchingConstructor(PropertyInfo[] visibleProperties)
     {
         var visiblePropertyTypes = visibleProperties
             .Where(p => p.CanWrite)
