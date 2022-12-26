@@ -509,7 +509,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             var writer = GetPropertyWriter(property);
 
             // We cache this as well since the check is somewhat complex
-            bool allowsNull = property.AllowsNull();
+            var allowsNull = property.AllowsNull();
 
             var data = new DTOPropertyInfo
             (

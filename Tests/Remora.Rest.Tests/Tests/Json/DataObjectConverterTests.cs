@@ -441,7 +441,7 @@ public class DataObjectConverterTests
 
         var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
 
-        SimpleData value = new SimpleData("booga");
+        var value = new SimpleData("booga");
         var expectedPayload = JsonDocument.Parse("{ \"value\": \"booga\" }");
 
         var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));

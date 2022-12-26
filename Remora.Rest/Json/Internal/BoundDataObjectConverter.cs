@@ -139,7 +139,7 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
                 throw new JsonException($"null is not a valid value for DTO property \"{dtoProperty.Property.Name}\".");
             }
 
-            int index = dtoProperty.ReadIndex;
+            var index = dtoProperty.ReadIndex;
             if (isPrimaryChoice || constructorArguments[index] == DataObjectConverterHelpers.Missing)
             {
                 constructorArguments[index] = propertyValue;
@@ -152,7 +152,7 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
         }
 
         // Polyfill/check properties that weren't found yet
-        for (int i = 0; i < constructorArguments.Length; i++)
+        for (var i = 0; i < constructorArguments.Length; i++)
         {
             if (constructorArguments[i] != DataObjectConverterHelpers.Missing)
             {
