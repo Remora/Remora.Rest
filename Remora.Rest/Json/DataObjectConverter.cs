@@ -547,7 +547,8 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
                 readProperties.ToArray()
             );
         }
-        else if (typeToConvert == typeof(TImplementation))
+
+        if (typeToConvert == typeof(TImplementation))
         {
             return new BoundDataObjectConverter<TImplementation>
             (
@@ -557,10 +558,8 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
                 readProperties.ToArray()
             );
         }
-        else
-        {
-            throw new ArgumentException("This converter cannot convert the provided type.", nameof(typeToConvert));
-        }
+
+        throw new ArgumentException("This converter cannot convert the provided type.", nameof(typeToConvert));
     }
 
     private static JsonSerializerOptions CreatePropertyConverterOptions(JsonSerializerOptions options, JsonConverter converter)

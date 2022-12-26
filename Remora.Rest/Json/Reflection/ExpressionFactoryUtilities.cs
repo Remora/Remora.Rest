@@ -219,12 +219,10 @@ internal static class ExpressionFactoryUtilities
                 .GetMethod(nameof(WriteOptionalProperty), flags)!
                 .MakeGenericMethod(valueType.GetGenericArguments());
         }
-        else
-        {
-            return typeof(ExpressionFactoryUtilities)
-                .GetMethod(nameof(WriteRequiredProperty), flags)!
-                .MakeGenericMethod(valueType);
-        }
+
+        return typeof(ExpressionFactoryUtilities)
+            .GetMethod(nameof(WriteRequiredProperty), flags)!
+            .MakeGenericMethod(valueType);
     }
 
     /// <summary>
