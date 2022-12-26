@@ -62,7 +62,7 @@ public class UnitTimeSpanConverter : JsonConverter<TimeSpan>
             TimeUnit.Minutes => TimeSpan.FromMinutes(value),
             TimeUnit.Seconds => TimeSpan.FromSeconds(value),
             TimeUnit.Milliseconds => TimeSpan.FromMilliseconds(value),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(_unit), "Unknown configured time unit")
         };
     }
 
@@ -98,7 +98,7 @@ public class UnitTimeSpanConverter : JsonConverter<TimeSpan>
             }
             default:
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(_unit), "Unknown configured time unit");
             }
         }
     }

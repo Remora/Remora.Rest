@@ -133,7 +133,7 @@ public static class PropertyInfoExtensions
             }
             default:
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(topLevelNullability), "Unknown nullability state");
             }
         }
     }
