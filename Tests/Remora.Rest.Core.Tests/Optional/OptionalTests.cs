@@ -869,4 +869,57 @@ public static class OptionalTests
             }
         }
     }
+
+    public static class AsNullable
+    {
+        public static class Struct
+        {
+            [Fact]
+            public static void ProducesCorrectValueWhenEmpty()
+            {
+                var a = default(Optional<int>);
+                var result = a.AsNullable();
+
+                // ReSharper disable once ArrangeDefaultValueWhenTypeNotEvident
+                Assert.Equal(default(int?), result);
+                Assert.False(result.HasValue);
+            }
+
+            [Fact]
+            public static void ProducesCorrectValueWhenPresent()
+            {
+                Optional<int> a = 1;
+                var result = a.AsNullable();
+
+                // ReSharper disable once ArrangeDefaultValueWhenTypeNotEvident
+                Assert.Equal(1, result);
+                Assert.True(result.HasValue);
+            }
+        }
+
+        public static class Class
+        {
+            [Fact]
+            public static void ProducesCorrectValueWhenEmpty()
+            {
+                var a = default(Optional<string>);
+                var result = a.AsNullable();
+
+                // ReSharper disable once ArrangeDefaultValueWhenTypeNotEvident
+                Assert.Null(result);
+            }
+
+            [Fact]
+            public static void ProducesCorrectValueWhenPresent()
+            {
+                // ReSharper disable once SuggestVarOrType_BuiltInTypes
+                // ReSharper disable once VariableCanBeNotNullable
+                Optional<string> a = "Hello world";
+                var result = a.AsNullable();
+
+                // ReSharper disable once ArrangeDefaultValueWhenTypeNotEvident
+                Assert.Equal("Hello world", result);
+            }
+        }
+    }
 }
