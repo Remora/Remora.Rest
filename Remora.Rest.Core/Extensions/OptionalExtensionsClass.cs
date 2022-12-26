@@ -42,4 +42,18 @@ public static class OptionalExtensionsClass
             ? new Optional<T>(value)
             : default;
     }
+
+    /// <summary>
+    /// Converts an <see cref="Optional{TValue}"/> to a nullable value, which is <c>null</c> if the
+    /// <see cref="Optional{TValue}"/> is null or has no value, and non-null otherwise.
+    /// </summary>
+    /// <param name="optional">The optional input value.</param>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <returns>The nullable value.</returns>
+    public static T? AsNullable<T>(this Optional<T> optional) where T : class
+    {
+        return optional.TryGet(out var value)
+            ? value
+            : null;
+    }
 }

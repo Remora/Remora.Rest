@@ -4,6 +4,7 @@
 //  SPDX-License-Identifier: LGPL-3.0-or-later
 //
 
+using System;
 using JetBrains.Annotations;
 
 namespace Remora.Rest.Core;
@@ -41,5 +42,19 @@ public static class OptionalExtensionsStruct
         return optional.IsDefined(out var value)
             ? new Optional<T>(value.Value)
             : default;
+    }
+
+    /// <summary>
+    /// Converts an <see cref="Optional{TValue}"/> to a <see cref="Nullable{T}"/>, which is <c>null</c> if the
+    /// <see cref="Optional{TValue}"/> is null or has no value, and non-null otherwise.
+    /// </summary>
+    /// <param name="optional">The optional input value.</param>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <returns>The nullable value.</returns>
+    public static T? AsNullable<T>(this Optional<T> optional) where T : struct
+    {
+        return optional.TryGet(out var value)
+            ? value
+            : null;
     }
 }
