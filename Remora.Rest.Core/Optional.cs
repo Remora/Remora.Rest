@@ -204,19 +204,6 @@ public readonly struct Optional<TValue> : IOptional
     }
 
     /// <summary>
-    /// Casts the current <see cref="Optional{TValue}"/> to a nullable <typeparamref name="TValue"/>?.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="Optional{TValue}"/> with the type parameter changed to <typeparamref name="TValue"/>?.
-    /// </returns>
-    public Optional<TValue?> AsNullableOptional()
-    {
-        return TryGet(out var value)
-            ? value
-            : default(Optional<TValue?>);
-    }
-
-    /// <summary>
     /// Gets the underlying value of a <see cref="Optional{TValue}"/> if it has one.
     /// </summary>
     /// <param name="value">
