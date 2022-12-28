@@ -1,0 +1,14 @@
+<Project Sdk="Remora.Tests.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Remora.Rest.Core.Analyzers\Remora.Rest.Core.Analyzers.csproj" />
+        <ProjectReference Include="..\..\Remora.Rest.Core\Remora.Rest.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.XUnit" Version="1.1.1" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.XUnit" Version="1.1.1" />
+    </ItemGroup>
+
+</Project>
