@@ -29,6 +29,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Core.Analyzers", "Remora.Rest.Core.Analyzers\Remora.Rest.Core.Analyzers.csproj", "{E2669E0A-3A01-4A5D-A9D6-5674397217E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Core.Analyzers.Tests", "Tests\Remora.Rest.Core.Analyzers.Tests\Remora.Rest.Core.Analyzers.Tests.csproj", "{10A0DE80-588D-4677-8BD8-58E18BB3FD76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +63,14 @@ Global
 		{9B0244DE-B9DF-4FB9-8AB5-CB047EEE1B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B0244DE-B9DF-4FB9-8AB5-CB047EEE1B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B0244DE-B9DF-4FB9-8AB5-CB047EEE1B30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2669E0A-3A01-4A5D-A9D6-5674397217E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2669E0A-3A01-4A5D-A9D6-5674397217E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2669E0A-3A01-4A5D-A9D6-5674397217E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2669E0A-3A01-4A5D-A9D6-5674397217E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10A0DE80-588D-4677-8BD8-58E18BB3FD76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10A0DE80-588D-4677-8BD8-58E18BB3FD76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10A0DE80-588D-4677-8BD8-58E18BB3FD76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10A0DE80-588D-4677-8BD8-58E18BB3FD76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{063999E1-511A-4EB8-9C23-9A2A19A97E56} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
@@ -66,5 +78,6 @@ Global
 		{9B0244DE-B9DF-4FB9-8AB5-CB047EEE1B30} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
 		{F087BFD0-3A27-44ED-9F7F-9B0E0269CEE3} = {0C122B49-2255-4E2E-A883-98270FC82290}
 		{893C17E9-9974-4E88-96F7-333C560B4A2C} = {F087BFD0-3A27-44ED-9F7F-9B0E0269CEE3}
+		{10A0DE80-588D-4677-8BD8-58E18BB3FD76} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
 	EndGlobalSection
 EndGlobal
