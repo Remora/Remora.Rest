@@ -46,7 +46,7 @@ internal static class Descriptors
     (
         id: "REM1003",
         title: "Use TryGet",
-        messageFormat: "Use TryGet instead of IsDefined, since the behaviour is identical when the optional's value is not nullable",
+        messageFormat: "IsDefined behaves identically to TryGet when the optional's value is not nullable",
         category: DiagnosticCategories.APIUsageOpportunities,
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true
