@@ -1,10 +1,9 @@
 <Project Sdk="Remora.Sdk">
     <PropertyGroup>
-        <VersionPrefix>2.1.0</VersionPrefix>
+        <VersionPrefix>2.2.0</VersionPrefix>
         <Description>Core types for working with REST-oriented data models, such as logically optional fields and snowflake identifiers.</Description>
         <PackageReleaseNotes>
-            Add many Optional&lt;T&gt; helper methods
-            Improve ToString override.
+            Add support for direct comparison with ulongs for snowflakes.
         </PackageReleaseNotes>
     </PropertyGroup>
 </Project>
