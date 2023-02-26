@@ -175,21 +175,7 @@ public class SnowflakeTests
     }
 
     /// <summary>
-    /// Tests the <see cref="object.ToString"/> method.
-    /// </summary>
-    public new class ToString
-    {
-        [Fact]
-        public void PrintsValue()
-        {
-            var snowflake = new Snowflake(143867839282020352u);
-
-            Assert.Equal("143867839282020352", snowflake.ToString());
-        }
-    }
-
-    /// <summary>
-    /// Tests the <see cref="object.Equals(object?)"/> method.
+    /// Tests the <see cref="object.Equals(object?)"/> method and its overloads.
     /// </summary>
     public new class Equals
     {
@@ -228,20 +214,14 @@ public class SnowflakeTests
 
             Assert.True(snowflake.Equals(otherSnowflake));
         }
-    }
 
-    /// <summary>
-    /// Tests the <see cref="object.GetHashCode"/> method.
-    /// </summary>
-    public new class GetHashCode
-    {
         [Fact]
-        public void HasSameHashAsValue()
+        public void ReturnsTrueForULongWithSameValue()
         {
-            var value = 143867839282020352u;
             var snowflake = new Snowflake(143867839282020352u);
+            var otherSnowflake = 143867839282020352u;
 
-            Assert.Equal(value.GetHashCode(), snowflake.GetHashCode());
+            Assert.True(snowflake.Equals(otherSnowflake));
         }
     }
 
@@ -260,6 +240,46 @@ public class SnowflakeTests
             var secondSnowflake = new Snowflake(second);
 
             Assert.Equal(first.CompareTo(second), firstSnowflake.CompareTo(secondSnowflake));
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsULongValue(ulong first, ulong second)
+        {
+            var firstSnowflake = new Snowflake(first);
+
+            Assert.Equal(first.CompareTo(second), firstSnowflake.CompareTo(second));
+        }
+    }
+
+    /// <summary>
+    /// Tests the <see cref="object.GetHashCode"/> method.
+    /// </summary>
+    public new class GetHashCode
+    {
+        [Fact]
+        public void HasSameHashAsValue()
+        {
+            var value = 143867839282020352u;
+            var snowflake = new Snowflake(143867839282020352u);
+
+            Assert.Equal(value.GetHashCode(), snowflake.GetHashCode());
+        }
+    }
+
+    /// <summary>
+    /// Tests the <see cref="object.ToString"/> method.
+    /// </summary>
+    public new class ToString
+    {
+        [Fact]
+        public void PrintsValue()
+        {
+            var snowflake = new Snowflake(143867839282020352u);
+
+            Assert.Equal("143867839282020352", snowflake.ToString());
         }
     }
 
@@ -282,6 +302,34 @@ public class SnowflakeTests
 
             Assert.Equal(first == second, firstSnowflake == secondSnowflake);
         }
+
+        [Theory]
+        [InlineData(ulong.MinValue, ulong.MinValue)]
+        [InlineData(ulong.MaxValue, ulong.MaxValue)]
+        [InlineData(143867839282020352U, 143867839282020352U)]
+        [InlineData(143867839282020352U, 169780104564572169U)]
+        [InlineData(169780104564572169U, 143867839282020352U)]
+        [InlineData(169780104564572169U, 169780104564572169U)]
+        public void EquatesSameAsRightULongValue(ulong first, ulong second)
+        {
+            var firstSnowflake = new Snowflake(first);
+
+            Assert.Equal(first == second, firstSnowflake == second);
+        }
+
+        [Theory]
+        [InlineData(ulong.MinValue, ulong.MinValue)]
+        [InlineData(ulong.MaxValue, ulong.MaxValue)]
+        [InlineData(143867839282020352U, 143867839282020352U)]
+        [InlineData(143867839282020352U, 169780104564572169U)]
+        [InlineData(169780104564572169U, 143867839282020352U)]
+        [InlineData(169780104564572169U, 169780104564572169U)]
+        public void EquatesSameAsLeftULongValue(ulong first, ulong second)
+        {
+            var secondSnowflake = new Snowflake(second);
+
+            Assert.Equal(first == second, first == secondSnowflake);
+        }
     }
 
     /// <summary>
@@ -303,6 +351,34 @@ public class SnowflakeTests
 
             Assert.Equal(first != second, firstSnowflake != secondSnowflake);
         }
+
+        [Theory]
+        [InlineData(ulong.MinValue, ulong.MinValue)]
+        [InlineData(ulong.MaxValue, ulong.MaxValue)]
+        [InlineData(143867839282020352U, 143867839282020352U)]
+        [InlineData(143867839282020352U, 169780104564572169U)]
+        [InlineData(169780104564572169U, 143867839282020352U)]
+        [InlineData(169780104564572169U, 169780104564572169U)]
+        public void EquatesSameAsRightULongValue(ulong first, ulong second)
+        {
+            var firstSnowflake = new Snowflake(first);
+
+            Assert.Equal(first != second, firstSnowflake != second);
+        }
+
+        [Theory]
+        [InlineData(ulong.MinValue, ulong.MinValue)]
+        [InlineData(ulong.MaxValue, ulong.MaxValue)]
+        [InlineData(143867839282020352U, 143867839282020352U)]
+        [InlineData(143867839282020352U, 169780104564572169U)]
+        [InlineData(169780104564572169U, 143867839282020352U)]
+        [InlineData(169780104564572169U, 169780104564572169U)]
+        public void EquatesSameAsLeftULongValue(ulong first, ulong second)
+        {
+            var secondSnowflake = new Snowflake(second);
+
+            Assert.Equal(first != second, first != secondSnowflake);
+        }
     }
 
     /// <summary>
@@ -320,6 +396,28 @@ public class SnowflakeTests
             var secondSnowflake = new Snowflake(second);
 
             Assert.Equal(first < second, firstSnowflake < secondSnowflake);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsRightULongValue(ulong first, ulong second)
+        {
+            var firstSnowflake = new Snowflake(first);
+
+            Assert.Equal(first < second, firstSnowflake < second);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsLeftULongValue(ulong first, ulong second)
+        {
+            var secondSnowflake = new Snowflake(second);
+
+            Assert.Equal(first < second, first < secondSnowflake);
         }
     }
 
@@ -339,6 +437,28 @@ public class SnowflakeTests
 
             Assert.Equal(first > second, firstSnowflake > secondSnowflake);
         }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsRightULongValue(ulong first, ulong second)
+        {
+            var firstSnowflake = new Snowflake(first);
+
+            Assert.Equal(first > second, firstSnowflake > second);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsLeftULongValue(ulong first, ulong second)
+        {
+            var secondSnowflake = new Snowflake(second);
+
+            Assert.Equal(first > second, first > secondSnowflake);
+        }
     }
 
     /// <summary>
@@ -357,6 +477,28 @@ public class SnowflakeTests
 
             Assert.Equal(first <= second, firstSnowflake <= secondSnowflake);
         }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsRightULongValue(ulong first, ulong second)
+        {
+            var firstSnowflake = new Snowflake(first);
+
+            Assert.Equal(first <= second, firstSnowflake <= second);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsLeftULongValue(ulong first, ulong second)
+        {
+            var secondSnowflake = new Snowflake(second);
+
+            Assert.Equal(first <= second, first <= secondSnowflake);
+        }
     }
 
     /// <summary>
@@ -374,6 +516,28 @@ public class SnowflakeTests
             var secondSnowflake = new Snowflake(second);
 
             Assert.Equal(first >= second, firstSnowflake >= secondSnowflake);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsRightULongValue(ulong first, ulong second)
+        {
+            var firstSnowflake = new Snowflake(first);
+
+            Assert.Equal(first >= second, firstSnowflake >= second);
+        }
+
+        [Theory]
+        [InlineData(0, 0)]
+        [InlineData(0, 1)]
+        [InlineData(1, 0)]
+        public void ComparesSameAsLeftULongValue(ulong first, ulong second)
+        {
+            var secondSnowflake = new Snowflake(second);
+
+            Assert.Equal(first >= second, first >= secondSnowflake);
         }
     }
 }
