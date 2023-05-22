@@ -40,24 +40,26 @@ public class UseAsNullableCodeFix : CodeFixProvider
             return;
         }
 
+        var isFirstArmTheSuccessCase = true;
         ExpressionSyntax optional;
+
         switch (conditional.Condition)
         {
             case PrefixUnaryExpressionSyntax prefixExpression
                 when prefixExpression.IsKind(SyntaxKind.LogicalNotExpression):
             {
-                if (prefixExpression.Operand is not MemberAccessExpressionSyntax memberAccess)
+                if (prefixExpression.Operand is not MemberAccessExpressionSyntax innerAccess)
                 {
                     return;
                 }
 
-                optional = memberAccess.Expression;
-
+                isFirstArmTheSuccessCase = false;
+                optional = innerAccess.Expression;
                 break;
             }
-            case MemberAccessExpressionSyntax memberAccess:
+            case MemberAccessExpressionSyntax innerAccess:
             {
-                optional = memberAccess.Expression;
+                optional = innerAccess.Expression;
                 break;
             }
             default:
@@ -66,7 +68,7 @@ public class UseAsNullableCodeFix : CodeFixProvider
             }
         }
 
-        var asNullableCall = SyntaxFactory.InvocationExpression
+        ExpressionSyntax replacement = SyntaxFactory.InvocationExpression
         (
             SyntaxFactory.MemberAccessExpression
             (
@@ -76,7 +78,17 @@ public class UseAsNullableCodeFix : CodeFixProvider
             )
         );
 
-        var fixTitle = $"Replace with \"{asNullableCall.GetText()}\"";
+        var valueArm = isFirstArmTheSuccessCase ? conditional.WhenTrue : conditional.WhenFalse;
+        if (valueArm is MemberAccessExpressionSyntax memberAccess && !memberAccess.Expression.IsEquivalentTo(optional))
+        {
+            replacement = SyntaxFactory.ConditionalAccessExpression
+            (
+                replacement,
+                SyntaxFactory.MemberBindingExpression(memberAccess.Name)
+            );
+        }
+
+        var fixTitle = $"Replace with \"{replacement.GetText()}\"";
         context.RegisterCodeFix
         (
             CodeAction.Create
@@ -84,7 +96,7 @@ public class UseAsNullableCodeFix : CodeFixProvider
                 title: fixTitle,
                 createChangedDocument: _ =>
                 {
-                    var newRoot = root.ReplaceNode(node, asNullableCall.WithTriviaFrom(node));
+                    var newRoot = root.ReplaceNode(node, replacement.WithTriviaFrom(node));
                     return Task.FromResult(context.Document.WithSyntaxRoot(newRoot));
                 },
                 equivalenceKey: fixTitle

@@ -223,7 +223,7 @@ public class UseAsNullableCodeFixTests : OptionalCodeFixTests<UseAsNullableAnaly
         """;
 
         this.ExpectedDiagnostics.Clear();
-        this.ExpectedDiagnostics.Add(DiagnosticResult.CompilerWarning("REM1001").WithSpan(10, 22, 10, 63));
+        this.ExpectedDiagnostics.Add(DiagnosticResult.CompilerWarning("REM1001").WithSpan(10, 22, 10, 70));
 
         this.FixedCode = """
             using Remora.Rest.Core;
@@ -235,9 +235,7 @@ public class UseAsNullableCodeFixTests : OptionalCodeFixTests<UseAsNullableAnaly
                     Optional<string> optional = default;
                     int? result = default;
 
-                    var tuple = (optional, 1);
-
-                    result = tuple.Item1.AsNullable()?.Length;
+                    result = optional.AsNullable()?.Length;
                 }
             }
         """;

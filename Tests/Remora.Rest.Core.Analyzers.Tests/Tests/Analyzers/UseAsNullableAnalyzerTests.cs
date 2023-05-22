@@ -156,7 +156,7 @@ public class UseAsNullableAnalyzerTests : OptionalAnalyzerTests<UseAsNullableAna
         """;
 
         this.ExpectedDiagnostics.Clear();
-        this.ExpectedDiagnostics.Add(DiagnosticResult.CompilerWarning("REM1001").WithSpan(10, 22, 10, 63));
+        this.ExpectedDiagnostics.Add(DiagnosticResult.CompilerWarning("REM1001").WithSpan(10, 22, 10, 70));
 
         await RunAsync();
     }

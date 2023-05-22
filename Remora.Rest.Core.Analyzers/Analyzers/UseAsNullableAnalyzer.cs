@@ -89,9 +89,9 @@ public class UseAsNullableAnalyzer : DiagnosticAnalyzer
         }
 
         var valueTypeInfo = semanticModel.GetTypeInfo(memberAccess.Expression);
-        if (valueTypeInfo.Type?.Name is not "Optional")
+        while (valueTypeInfo.Type?.Name is not "Optional" && memberAccess.Expression is MemberAccessExpressionSyntax parentAccess)
         {
-            return;
+            memberAccess = parentAccess;
         }
 
         if (memberAccess.Name.Identifier.Text != nameof(Optional<int>.Value))
