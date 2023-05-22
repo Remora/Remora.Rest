@@ -39,12 +39,13 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     // Empty optionals for all properties of type Optional<T> (for polyfilling default values)
     private readonly IReadOnlyDictionary<Type, object?> _dtoEmptyOptionals;
 
-    private readonly Dictionary<PropertyInfo, string[]> _readNameOverrides;
-    private readonly Dictionary<PropertyInfo, string> _writeNameOverrides;
-    private readonly HashSet<PropertyInfo> _includeReadOnlyOverrides;
+    private readonly Dictionary<PropertyInfo, string[]> _readNameOverrides = new();
+    private readonly Dictionary<PropertyInfo, string> _writeNameOverrides = new();
+    private readonly HashSet<PropertyInfo> _includeReadOnlyOverrides = new();
+    private readonly HashSet<PropertyInfo> _excludeOverrides = new();
 
-    private readonly Dictionary<PropertyInfo, JsonConverter> _converterOverrides;
-    private readonly Dictionary<PropertyInfo, JsonConverterFactory> _converterFactoryOverrides;
+    private readonly Dictionary<PropertyInfo, JsonConverter> _converterOverrides = new();
+    private readonly Dictionary<PropertyInfo, JsonConverterFactory> _converterFactoryOverrides = new();
 
     // Lazily initialized based on what specific converter is requested
     private ObjectFactory<TImplementation>? _implementationDtoFactory;
@@ -66,13 +67,6 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// </summary>
     public DataObjectConverter()
     {
-        _readNameOverrides = new Dictionary<PropertyInfo, string[]>();
-        _writeNameOverrides = new Dictionary<PropertyInfo, string>();
-        _includeReadOnlyOverrides = new HashSet<PropertyInfo>();
-
-        _converterOverrides = new Dictionary<PropertyInfo, JsonConverter>();
-        _converterFactoryOverrides = new Dictionary<PropertyInfo, JsonConverterFactory>();
-
         var implementationType = typeof(TImplementation);
         var interfaceType = typeof(TInterface);
 
@@ -253,6 +247,43 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         }
 
         _includeReadOnlyOverrides.Add(property);
+        return this;
+    }
+
+    /// <summary>
+    /// Explicitly marks a property as excluded in the set of serialized properties. This is useful when read-write
+    /// properties need to be kept off the wire for some reason.
+    /// </summary>
+    /// <param name="propertyExpression">The property expression.</param>
+    /// <typeparam name="TProperty">The property type.</typeparam>
+    /// <returns>The converter, with the inclusion.</returns>
+    public DataObjectConverter<TInterface, TImplementation> ExcludeWhenSerializing<TProperty>
+    (
+        Expression<Func<TImplementation, TProperty>> propertyExpression
+    )
+    {
+        if (propertyExpression.Body is not MemberExpression memberExpression)
+        {
+            throw new InvalidOperationException();
+        }
+
+        var member = memberExpression.Member;
+        if (member is not PropertyInfo property)
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (!_dtoProperties.Contains(property))
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (_excludeOverrides.Contains(property))
+        {
+            return this;
+        }
+
+        _excludeOverrides.Add(property);
         return this;
     }
 
@@ -513,7 +544,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
                 readProperties.Add(data);
             }
 
-            if (property.CanWrite || ShouldIncludeReadOnlyProperty(property))
+            if ((property.CanWrite || ShouldIncludeReadOnlyProperty(property)) && !_excludeOverrides.Contains(property))
             {
                 // Any property that is writable and not excluded due to being read-only,
                 // can be *written* to JSON.
@@ -526,6 +557,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor);
             return new BoundDataObjectConverter<TInterface>
             (
+                _dtoConstructor,
                 _interfaceDtoFactory,
                 _allowExtraProperties,
                 writeProperties.ToArray(),
@@ -539,6 +571,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoConstructor);
             return new BoundDataObjectConverter<TImplementation>
             (
+                _dtoConstructor,
                 _implementationDtoFactory,
                 _allowExtraProperties,
                 writeProperties.ToArray(),

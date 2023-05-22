@@ -7,8 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Remora.Rest.Core;
 using Remora.Rest.Json.Reflection;
 
 namespace Remora.Rest.Json.Internal;
@@ -35,15 +37,19 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
     // Speed up looking up the correct property. Also implicitly means property names can't be duplicated
     private readonly Dictionary<string, (bool IsPrimary, DTOPropertyInfo DTOProperty)> _readPropertiesByName;
 
+    private readonly Dictionary<DTOPropertyInfo, Optional<object?>> _defaultValues = new();
+
     /// <summary>
     /// Initializes a new instance of the <see cref="BoundDataObjectConverter{T}"/> class.
     /// </summary>
+    /// <param name="chosenConstructor">The constructor that was chosen for the object factory.</param>
     /// <param name="dtoFactory">The DTO factory.</param>
     /// <param name="allowExtraProperties">Whether extra undefined properties should be allowed.</param>
     /// <param name="writeProperties">Properties relevant when writing the DTO to JSON.</param>
     /// <param name="readProperties">Properties relevant when reading the DTO from JSON.</param>
     public BoundDataObjectConverter
     (
+        ConstructorInfo chosenConstructor,
         ObjectFactory<T> dtoFactory,
         bool allowExtraProperties,
         DTOPropertyInfo[] writeProperties,
@@ -54,6 +60,24 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
         _allowExtraProperties = allowExtraProperties;
         _writeProperties = writeProperties;
         _readProperties = readProperties;
+
+        var constructorParameters = chosenConstructor.GetParameters();
+        for (var i = 0; i < chosenConstructor.GetParameters().Length; ++i)
+        {
+            var argument = constructorParameters[i];
+            var property = readProperties[i];
+
+            if (!argument.HasDefaultValue)
+            {
+                continue;
+            }
+
+            _defaultValues.Add
+            (
+                property,
+                new(argument.DefaultValue)
+            );
+        }
 
         _readPropertiesByName = _readProperties
             .SelectMany(p => p.ReadNames.Select((n, i) => (IsPrimary: i == 0, n, DTOProperty: p)))
@@ -153,7 +177,11 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
             }
 
             var dtoProperty = readProperties[i];
-            if (dtoProperty.DefaultValue != null)
+            if (_defaultValues.TryGetValue(dtoProperty, out var defaultValue))
+            {
+                constructorArguments[i] = defaultValue.Value;
+            }
+            else if (dtoProperty.DefaultValue is not null)
             {
                 constructorArguments[i] = dtoProperty.DefaultValue;
             }

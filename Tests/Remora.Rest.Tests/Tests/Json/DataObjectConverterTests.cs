@@ -455,4 +455,161 @@ public class DataObjectConverterTests
         Assert.NotNull(value);
         Assert.Equal("booga", value.Value);
     }
+
+    /// <summary>
+    /// Tests whether the converter fails correctly when deserializing data record with an excluded member.
+    /// </summary>
+    [Fact]
+    public void CannotDeserializeDataWithExcludedMemberWithoutDefaultValue()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IExcludedData, ExcludedData>()
+                        .ExcludeWhenSerializing(d => d.DoNotSerialize);
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        var payload = "{ \"serialize\": \"booga\" }";
+
+        Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IExcludedData>(payload, jsonOptions));
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly serialize a data record with an excluded member.
+    /// </summary>
+    [Fact]
+    public void CanSerializeDataWithExcludedMemberWithoutDefaultValue()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IExcludedData, ExcludedData>()
+                        .ExcludeWhenSerializing(d => d.DoNotSerialize);
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        IExcludedData value = new ExcludedData("booga", "wooga");
+
+        var expectedPayload = JsonDocument.Parse("{ \"serialize\": \"booga\" }");
+
+        var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
+        JsonAssert.Equivalent(expectedPayload, serialized);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly deserialize a data record with an excluded member where the excluded
+    /// member has a default value.
+    /// </summary>
+    [Fact]
+    public void CanDeserializeDataWithExcludedMemberWithDefaultValue()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IExcludedData, ExcludedDataWithDefaultValue>()
+                        .ExcludeWhenSerializing(d => d.DoNotSerialize);
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        var payload = "{ \"serialize\": \"booga\" }";
+
+        var value = JsonSerializer.Deserialize<IExcludedData>(payload, jsonOptions);
+        Assert.NotNull(value);
+        Assert.Equal("booga", value.Serialize);
+        Assert.Equal("value", value.DoNotSerialize);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly serialize a data record with an excluded member where the excluded
+    /// member has a default value.
+    /// </summary>
+    [Fact]
+    public void CanSerializeDataWithExcludedMemberWithDefaultValue()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IExcludedData, ExcludedDataWithDefaultValue>()
+                        .ExcludeWhenSerializing(d => d.DoNotSerialize);
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        IExcludedData value = new ExcludedDataWithDefaultValue("booga");
+
+        var expectedPayload = JsonDocument.Parse("{ \"serialize\": \"booga\" }");
+
+        var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
+        JsonAssert.Equivalent(expectedPayload, serialized);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly deserialize a data record with an excluded member where the excluded
+    /// member is read-only.
+    /// </summary>
+    [Fact]
+    public void CanDeserializeDataWithExcludedMemberWithReadOnlyMember()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IExcludedData, ExcludedDataWithReadOnlyMember>()
+                        .ExcludeWhenSerializing(d => d.DoNotSerialize);
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        var payload = "{ \"serialize\": \"booga\" }";
+
+        var value = JsonSerializer.Deserialize<IExcludedData>(payload, jsonOptions);
+        Assert.NotNull(value);
+        Assert.Equal("booga", value.Serialize);
+        Assert.Equal("value", value.DoNotSerialize);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly serialize a data record with an excluded member where the excluded
+    /// member is read-only.
+    /// </summary>
+    [Fact]
+    public void CanSerializeDataWithExcludedMemberWithReadOnlyMember()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IExcludedData, ExcludedDataWithDefaultValue>()
+                        .ExcludeWhenSerializing(d => d.DoNotSerialize);
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        IExcludedData value = new ExcludedDataWithReadOnlyMember("booga");
+
+        var expectedPayload = JsonDocument.Parse("{ \"serialize\": \"booga\" }");
+
+        var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
+        JsonAssert.Equivalent(expectedPayload, serialized);
+    }
 }

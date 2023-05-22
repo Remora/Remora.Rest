@@ -23,6 +23,9 @@
       <Compile Update="Data\DataObjects\INonConventionalData.cs">
         <DependentUpon>NonConventionalData.cs</DependentUpon>
       </Compile>
+      <Compile Update="Data\DataObjects\IExcludedData.cs">
+        <DependentUpon>ExcludedData.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
