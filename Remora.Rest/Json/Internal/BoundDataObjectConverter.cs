@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Remora.Rest.Core;
 using Remora.Rest.Json.Reflection;
 
 namespace Remora.Rest.Json.Internal;
@@ -37,7 +36,7 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
     // Speed up looking up the correct property. Also implicitly means property names can't be duplicated
     private readonly Dictionary<string, (bool IsPrimary, DTOPropertyInfo DTOProperty)> _readPropertiesByName;
 
-    private readonly Dictionary<DTOPropertyInfo, Optional<object?>> _defaultValues = new();
+    private readonly Dictionary<DTOPropertyInfo, object?> _defaultConstructorValues = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BoundDataObjectConverter{T}"/> class.
@@ -72,10 +71,17 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
                 continue;
             }
 
-            _defaultValues.Add
+            var defaultValue = argument.DefaultValue;
+            if (argument.ParameterType.IsValueType && defaultValue is null)
+            {
+                // explicitly create a default value, since it's not stored for some reason
+                defaultValue = Activator.CreateInstance(argument.ParameterType);
+            }
+
+            _defaultConstructorValues.Add
             (
                 property,
-                new(argument.DefaultValue)
+                defaultValue
             );
         }
 
@@ -177,9 +183,9 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
             }
 
             var dtoProperty = readProperties[i];
-            if (_defaultValues.TryGetValue(dtoProperty, out var defaultValue))
+            if (_defaultConstructorValues.TryGetValue(dtoProperty, out var defaultValue))
             {
-                constructorArguments[i] = defaultValue.Value;
+                constructorArguments[i] = defaultValue;
             }
             else if (dtoProperty.DefaultValue is not null)
             {
