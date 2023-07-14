@@ -26,6 +26,9 @@
       <Compile Update="Data\DataObjects\IExcludedData.cs">
         <DependentUpon>ExcludedData.cs</DependentUpon>
       </Compile>
+      <Compile Update="Data\DataObjects\IConstructorArgumentData.cs">
+        <DependentUpon>ConstructorArgumentData.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

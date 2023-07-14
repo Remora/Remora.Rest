@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Remora.Rest.Extensions;
 using Remora.Rest.Json;
+using Remora.Rest.Json.Internal;
 using Remora.Rest.Json.Policies;
 using Remora.Rest.Tests.Data.DataObjects;
 using Remora.Rest.Xunit;
@@ -608,6 +609,140 @@ public class DataObjectConverterTests
         IExcludedData value = new ExcludedDataWithReadOnlyMember("booga");
 
         var expectedPayload = JsonDocument.Parse("{ \"serialize\": \"booga\" }");
+
+        var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
+        JsonAssert.Equivalent(expectedPayload, serialized);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly deserialize a data record where data values are sourced from the
+    /// type's primary constructor.
+    /// </summary>
+    [Fact]
+    public void CanDeserializeDataWithConstructorProvidedDefaults()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IConstructorArgumentData, ConstructorArgumentData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        var payload = "{ }";
+
+        var value = JsonSerializer.Deserialize<IConstructorArgumentData>(payload, jsonOptions);
+        Assert.NotNull(value);
+
+        Assert.Equal(0, value.ValueType);
+        Assert.Null(value.NullableValueType);
+        Assert.Equal(default, value.OptionalValueType);
+        Assert.Equal(default, value.OptionalNullableValueType);
+
+        Assert.Equal(string.Empty, value.ReferenceType);
+        Assert.Null(value.NullableReferenceType);
+        Assert.Equal(default, value.OptionalReferenceType);
+        Assert.Equal(default, value.OptionalNullableReferenceType);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly serialize a data record where data values are sourced from the
+    /// type's primary constructor.
+    /// </summary>
+    [Fact]
+    public void CanSerializeDataWithConstructorProvidedDefaults()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IConstructorArgumentData, ConstructorArgumentData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+
+        IConstructorArgumentData value = new ConstructorArgumentData();
+
+        var expectedPayload = JsonDocument.Parse("{ \n  \"value_type\": 0,\n  \"nullable_value_type\": null,\n  \"reference_type\": \"\",\n  \"nullable_reference_type\": null\n}");
+
+        var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
+        JsonAssert.Equivalent(expectedPayload, serialized);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly deserialize a data record where default values are sourced from the
+    /// type's primary constructor, but the real values come from the payload.
+    /// </summary>
+    [Fact]
+    public void CanDeserializeDataWithConstructorProvidedDefaultsWhereDataIsFromPayload()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+
+                    json.AddConverter<OptionalConverterFactory>();
+                    json.AddDataObjectConverter<IConstructorArgumentData, ConstructorArgumentData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        var payload = "{ \n  \"value_type\": 1,\n  \"nullable_value_type\": 2,\n  \"optional_value_type\": 3,\n  \"optional_nullable_value_type\": 4,\n  \"reference_type\": \"ooga\",\n  \"nullable_reference_type\": \"booga\",\n  \"optional_reference_type\": \"wooga\",\n  \"optional_nullable_reference_type\": \"mooga\"\n}";
+
+        var value = JsonSerializer.Deserialize<IConstructorArgumentData>(payload, jsonOptions);
+        Assert.NotNull(value);
+
+        Assert.Equal(1, value.ValueType);
+        Assert.Equal(2, value.NullableValueType);
+        Assert.Equal(3, value.OptionalValueType);
+        Assert.Equal(4, value.OptionalNullableValueType);
+
+        Assert.Equal("ooga", value.ReferenceType);
+        Assert.Equal("booga", value.NullableReferenceType);
+        Assert.Equal("wooga", value.OptionalReferenceType);
+        Assert.Equal("mooga", value.OptionalNullableReferenceType);
+    }
+
+    /// <summary>
+    /// Tests whether the converter can correctly serialize a data record where data values are sourced from the
+    /// type's primary constructor.
+    /// </summary>
+    [Fact]
+    public void CanSerializeDataWithConstructorProvidedDefaultsWhereDataIsFromInstance()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IConstructorArgumentData, ConstructorArgumentData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+
+        IConstructorArgumentData value = new ConstructorArgumentData
+        (
+            1,
+            2,
+            3,
+            4,
+            "ooga",
+            "booga",
+            "wooga",
+            "mooga"
+        );
+
+        var expectedPayload = JsonDocument.Parse("{ \n  \"value_type\": 1,\n  \"nullable_value_type\": 2,\n  \"optional_value_type\": 3,\n  \"optional_nullable_value_type\": 4,\n  \"reference_type\": \"ooga\",\n  \"nullable_reference_type\": \"booga\",\n  \"optional_reference_type\": \"wooga\",\n  \"optional_nullable_reference_type\": \"mooga\"\n}");
 
         var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
         JsonAssert.Equivalent(expectedPayload, serialized);
