@@ -534,7 +534,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             var converter = GetConverter(property, options);
             var propertyOptions = converter == null ? options : CreatePropertyConverterOptions(options, converter);
 
-            var defaultValue = parameter == null ? null : GetDefaultValueForParameter(parameter);
+            var defaultValue = GetDefaultValueForParameter(property.PropertyType, parameter);
             var readNames = GetReadJsonPropertyName(property, options);
             var writeNames = GetWriteJsonPropertyName(property, options);
             var writer = GetPropertyWriter(property);
@@ -681,29 +681,28 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// Gets the default value for a parameter. If this is an <see cref="Optional{TValue}"/> parameter,
     /// uses <see langword="default"/> if there is no explicit default.
     /// </summary>
+    /// <param name="propertyType">The type of the associated property. This should be equal to the parameter's type, unless it is null.</param>
     /// <param name="parameter">The parameter to get the default value for.</param>
     /// <returns>Empty, if there is no default, otherwise the default parameter value.</returns>
-    private Optional<object?> GetDefaultValueForParameter(ParameterInfo parameter)
+    private Optional<object?> GetDefaultValueForParameter(Type propertyType, ParameterInfo? parameter)
     {
-        var type = parameter.ParameterType;
-
         // If there is an explicit default parameter, we use that.
         object? defaultValue;
-        if (parameter.HasDefaultValue)
+        if (parameter != null && parameter.HasDefaultValue)
         {
             defaultValue = parameter.DefaultValue;
-            if (type.IsValueType && defaultValue is null)
+            if (propertyType.IsValueType && defaultValue is null)
             {
                 // "default" default parameters for value-types are null here. Instantiate the appropriate value.
                 // We try to grab an empty optional first since there is a good chance we're dealing with an Optional<T>.
-                defaultValue = _dtoEmptyOptionals.GetValueOrDefault(type) ?? Activator.CreateInstance(type);
+                defaultValue = _dtoEmptyOptionals.GetValueOrDefault(propertyType) ?? Activator.CreateInstance(propertyType);
             }
 
             return defaultValue;
         }
 
         // Polyfill default parameters for Optional<T> properties.
-        if (_dtoEmptyOptionals.TryGetValue(type, out defaultValue))
+        if (_dtoEmptyOptionals.TryGetValue(propertyType, out defaultValue))
         {
             return defaultValue;
         }
