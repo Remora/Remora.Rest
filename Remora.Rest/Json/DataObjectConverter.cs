@@ -28,8 +28,8 @@ namespace Remora.Rest.Json;
 public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFactory
     where TImplementation : TInterface
 {
-    // Stores the best-matching constructor
-    private readonly ConstructorInfo _dtoConstructor;
+    // Stores the initialization info.
+    private readonly IInitializationInfo _dtoInitialization;
 
     private readonly IReadOnlyList<PropertyInfo> _dtoProperties;
 
@@ -73,9 +73,17 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
 
         var dtoConstructor = FindBestMatchingConstructor(visibleProperties);
-        _dtoConstructor = dtoConstructor;
 
-        _dtoProperties = ReorderProperties(visibleProperties, dtoConstructor);
+        if (dtoConstructor is not null)
+        {
+            _dtoInitialization = new ConstructorInitializationInfo(dtoConstructor);
+            _dtoProperties = ReorderProperties(visibleProperties, dtoConstructor);
+        }
+        else
+        {
+            _dtoInitialization = new ObjectInitializationInfo(implementationType, visibleProperties);
+            _dtoProperties = visibleProperties;
+        }
 
         var interfaceMap = implementationType.GetInterfaceMap(interfaceType);
         _dtoPropertyWriters = _dtoProperties
@@ -161,9 +169,9 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// need not match.
     /// </summary>
     /// <param name="visibleProperties">The visible set of properties.</param>
-    /// <returns>The constructor.</returns>
-    /// <exception cref="MissingMethodException">Thrown if no appropriate constructor can be found.</exception>
-    private static ConstructorInfo FindBestMatchingConstructor(PropertyInfo[] visibleProperties)
+    /// <returns>The constructor, or <c>null</c> if none was found and construction is to fall back
+    /// to using an object initializer.</returns>
+    private static ConstructorInfo? FindBestMatchingConstructor(PropertyInfo[] visibleProperties)
     {
         var visiblePropertyTypes = visibleProperties
             .Where(p => p.CanWrite)
@@ -177,11 +185,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             var singleCandidate = implementationConstructors[0];
             return IsMatchingConstructor(singleCandidate, visiblePropertyTypes)
                 ? singleCandidate
-                : throw new MissingMethodException
-                (
-                    implementationType.Name,
-                    $"ctor({string.Join(", ", visiblePropertyTypes.Select(t => t.Name))})"
-                );
+                : null;
         }
 
         var matchingConstructors = implementationType.GetConstructors()
@@ -192,11 +196,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             return matchingConstructors[0];
         }
 
-        throw new MissingMethodException
-        (
-            implementationType.Name,
-            $"ctor({string.Join(", ", visiblePropertyTypes.Select(t => t.Name))})"
-        );
+        return null;
     }
 
     /// <summary>
@@ -554,29 +554,47 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
 
         if (typeToConvert == typeof(TInterface))
         {
-            _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor);
-            return new BoundDataObjectConverter<TInterface>
-            (
-                _dtoConstructor,
-                _interfaceDtoFactory,
-                _allowExtraProperties,
-                writeProperties.ToArray(),
-                readProperties.ToArray()
-            );
+            _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoInitialization);
+
+            return _dtoInitialization is ConstructorInitializationInfo constructor
+                ? new BoundDataObjectConverter<TInterface>
+                (
+                    constructor.Constructor,
+                    _interfaceDtoFactory,
+                    _allowExtraProperties,
+                    writeProperties.ToArray(),
+                    readProperties.ToArray()
+                )
+                : new BoundDataObjectConverter<TInterface>
+                (
+                    _interfaceDtoFactory,
+                    _allowExtraProperties,
+                    writeProperties.ToArray(),
+                    readProperties.ToArray()
+                );
         }
 
         // ReSharper disable once InvertIf
         if (typeToConvert == typeof(TImplementation))
         {
-            _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoConstructor);
-            return new BoundDataObjectConverter<TImplementation>
-            (
-                _dtoConstructor,
-                _implementationDtoFactory,
-                _allowExtraProperties,
-                writeProperties.ToArray(),
-                readProperties.ToArray()
-            );
+            _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoInitialization);
+
+            return _dtoInitialization is ConstructorInitializationInfo constructor
+                ? new BoundDataObjectConverter<TImplementation>
+                (
+                    constructor.Constructor,
+                    _implementationDtoFactory,
+                    _allowExtraProperties,
+                    writeProperties.ToArray(),
+                    readProperties.ToArray()
+                )
+                : new BoundDataObjectConverter<TImplementation>
+                (
+                    _implementationDtoFactory,
+                    _allowExtraProperties,
+                    writeProperties.ToArray(),
+                    readProperties.ToArray()
+                );
         }
 
         throw new ArgumentException("This converter cannot convert the provided type.", nameof(typeToConvert));

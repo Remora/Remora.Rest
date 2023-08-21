@@ -54,12 +54,8 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
         DTOPropertyInfo[] writeProperties,
         DTOPropertyInfo[] readProperties
     )
+        : this(dtoFactory, allowExtraProperties, writeProperties, readProperties)
     {
-        _dtoFactory = dtoFactory;
-        _allowExtraProperties = allowExtraProperties;
-        _writeProperties = writeProperties;
-        _readProperties = readProperties;
-
         var constructorParameters = chosenConstructor.GetParameters();
         for (var i = 0; i < chosenConstructor.GetParameters().Length; ++i)
         {
@@ -84,6 +80,27 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
                 defaultValue
             );
         }
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BoundDataObjectConverter{T}"/> class.
+    /// </summary>
+    /// <param name="dtoFactory">The DTO factory.</param>
+    /// <param name="allowExtraProperties">Whether extra undefined properties should be allowed.</param>
+    /// <param name="writeProperties">Properties relevant when writing the DTO to JSON.</param>
+    /// <param name="readProperties">Properties relevant when reading the DTO from JSON.</param>
+    public BoundDataObjectConverter
+    (
+        ObjectFactory<T> dtoFactory,
+        bool allowExtraProperties,
+        DTOPropertyInfo[] writeProperties,
+        DTOPropertyInfo[] readProperties
+    )
+    {
+        _dtoFactory = dtoFactory;
+        _allowExtraProperties = allowExtraProperties;
+        _writeProperties = writeProperties;
+        _readProperties = readProperties;
 
         _readPropertiesByName = _readProperties
             .SelectMany(p => p.ReadNames.Select((n, i) => (IsPrimary: i == 0, n, DTOProperty: p)))
