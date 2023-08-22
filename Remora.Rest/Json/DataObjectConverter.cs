@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -513,12 +514,27 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var writeProperties = new List<DTOPropertyInfo>();
         var readProperties = new List<DTOPropertyInfo>();
 
-        foreach (var property in _dtoProperties)
+        var parameters = _dtoConstructor.GetParameters();
+        var properties = _dtoProperties;
+        for (int i = 0; i < properties.Count; i++)
         {
+            var property = properties[i];
+
+            // Properties are currently sorted to match the parameter order, followed by read-only properties.
+            // As such, we assume that this code will give us the matching parameter for a property.
+            var parameter = (uint)i < (uint)parameters.Length ? parameters[i] : null;
+
+            // Just to be sure, we assert this behavior here. This is essentially how property reordering associated property and parameter.
+            Debug.Assert
+            (
+                parameter == null || (property.Name.Equals(parameter.Name, StringComparison.InvariantCultureIgnoreCase) && property.PropertyType == parameter.ParameterType),
+                "Expectations around property/parameter order are upheld."
+            );
+
             var converter = GetConverter(property, options);
             var propertyOptions = converter == null ? options : CreatePropertyConverterOptions(options, converter);
 
-            var defaultValue = GetDefaultValueForType(property.PropertyType);
+            var defaultValue = GetDefaultValueForParameter(property.PropertyType, parameter);
             var readNames = GetReadJsonPropertyName(property, options);
             var writeNames = GetWriteJsonPropertyName(property, options);
             var writer = GetPropertyWriter(property);
@@ -554,47 +570,27 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
 
         if (typeToConvert == typeof(TInterface))
         {
-            _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoInitialization);
-
-            return _dtoInitialization is ConstructorInitializationInfo constructor
-                ? new BoundDataObjectConverter<TInterface>
-                (
-                    constructor.Constructor,
-                    _interfaceDtoFactory,
-                    _allowExtraProperties,
-                    writeProperties.ToArray(),
-                    readProperties.ToArray()
-                )
-                : new BoundDataObjectConverter<TInterface>
-                (
-                    _interfaceDtoFactory,
-                    _allowExtraProperties,
-                    writeProperties.ToArray(),
-                    readProperties.ToArray()
-                );
+            _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor);
+            return new BoundDataObjectConverter<TInterface>
+            (
+                _interfaceDtoFactory,
+                _allowExtraProperties,
+                writeProperties.ToArray(),
+                readProperties.ToArray()
+            );
         }
 
         // ReSharper disable once InvertIf
         if (typeToConvert == typeof(TImplementation))
         {
-            _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoInitialization);
-
-            return _dtoInitialization is ConstructorInitializationInfo constructor
-                ? new BoundDataObjectConverter<TImplementation>
-                (
-                    constructor.Constructor,
-                    _implementationDtoFactory,
-                    _allowExtraProperties,
-                    writeProperties.ToArray(),
-                    readProperties.ToArray()
-                )
-                : new BoundDataObjectConverter<TImplementation>
-                (
-                    _implementationDtoFactory,
-                    _allowExtraProperties,
-                    writeProperties.ToArray(),
-                    readProperties.ToArray()
-                );
+            _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoConstructor);
+            return new BoundDataObjectConverter<TImplementation>
+            (
+                _implementationDtoFactory,
+                _allowExtraProperties,
+                writeProperties.ToArray(),
+                readProperties.ToArray()
+            );
         }
 
         throw new ArgumentException("This converter cannot convert the provided type.", nameof(typeToConvert));
@@ -682,20 +678,37 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     }
 
     /// <summary>
-    /// Gets the default value for a type or <see langword="null"/> if it has no default value.
+    /// Gets the default value for a parameter. If this is an <see cref="Optional{TValue}"/> parameter,
+    /// uses <see langword="default"/> if there is no explicit default.
     /// </summary>
-    /// <remarks>
-    /// This always either <see langword="default"/> for <see cref="Optional{TValue}"/> or <see langword="null"/> for
-    /// any other type.
-    /// </remarks>
-    /// <param name="type">The type to get the default value for.</param>
-    /// <returns>The default value or <see langword="null"/>.</returns>
-    private object? GetDefaultValueForType(Type type)
+    /// <param name="propertyType">The type of the associated property. This should be equal to the parameter's type, unless it is null.</param>
+    /// <param name="parameter">The parameter to get the default value for.</param>
+    /// <returns>Empty, if there is no default, otherwise the default parameter value.</returns>
+    private Optional<object?> GetDefaultValueForParameter(Type propertyType, ParameterInfo? parameter)
     {
-        // There currently are only default values for Optional<T> types.
-        // For those, the default value will be the empty instance.
-        // For any other type, this method returns null.
-        return _dtoEmptyOptionals.GetValueOrDefault(type);
+        // If there is an explicit default parameter, we use that.
+        object? defaultValue;
+        if (parameter != null && parameter.HasDefaultValue)
+        {
+            defaultValue = parameter.DefaultValue;
+            if (propertyType.IsValueType && defaultValue is null)
+            {
+                // "default" default parameters for value-types are null here. Instantiate the appropriate value.
+                // We try to grab an empty optional first since there is a good chance we're dealing with an Optional<T>.
+                defaultValue = _dtoEmptyOptionals.GetValueOrDefault(propertyType) ?? Activator.CreateInstance(propertyType);
+            }
+
+            return defaultValue;
+        }
+
+        // Polyfill default parameters for Optional<T> properties.
+        if (_dtoEmptyOptionals.TryGetValue(propertyType, out defaultValue))
+        {
+            return defaultValue;
+        }
+
+        // Otherwise, we have no default value.
+        return default;
     }
 
     /// <summary>
