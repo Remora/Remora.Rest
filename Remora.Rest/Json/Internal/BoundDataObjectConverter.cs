@@ -49,7 +49,6 @@ internal sealed class BoundDataObjectConverter<T> : JsonConverter<T>
         DTOPropertyInfo[] writeProperties,
         DTOPropertyInfo[] readProperties
     )
-        : this(dtoFactory, allowExtraProperties, writeProperties, readProperties)
     {
         _dtoFactory = dtoFactory;
         _allowExtraProperties = allowExtraProperties;
