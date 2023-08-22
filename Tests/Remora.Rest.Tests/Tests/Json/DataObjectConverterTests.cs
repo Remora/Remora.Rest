@@ -747,4 +747,36 @@ public class DataObjectConverterTests
         var serialized = JsonDocument.Parse(JsonSerializer.Serialize(value, jsonOptions));
         JsonAssert.Equivalent(expectedPayload, serialized);
     }
+
+    /// <summary>
+    /// Tests whether the converter can correctly deserialize into an old-style object without a constructor.
+    /// </summary>
+    [Fact]
+    public void CanDeserializeOldStyleObjects()
+    {
+        var services = new ServiceCollection()
+            .Configure<JsonSerializerOptions>
+            (
+                json =>
+                {
+                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                    json.AddDataObjectConverter<IOldStyleData, OldStyleData>();
+                })
+            .BuildServiceProvider();
+
+        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+
+        var payload =
+            """
+            {
+                "value": "ooga",
+                "other_value": 4
+            }
+            """;
+
+        OldStyleData deserialized = JsonSerializer.Deserialize<OldStyleData>(payload, jsonOptions)!;
+
+        Assert.Equal("ooga", deserialized.Value);
+        Assert.Equal(4, deserialized.OtherValue);
+    }
 }

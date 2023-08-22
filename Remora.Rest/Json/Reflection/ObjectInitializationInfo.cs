@@ -52,7 +52,11 @@ internal class ObjectInitializationInfo : IInitializationInfo
                 (property, index) => Expression.Bind
                 (
                     property,
-                    Expression.ArrayIndex(arguments, Expression.Constant(index))
+                    Expression.Convert
+                    (
+                        Expression.ArrayIndex(arguments, Expression.Constant(index)),
+                        property.PropertyType
+                    )
                 )
             );
 
