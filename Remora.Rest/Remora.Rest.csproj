@@ -7,12 +7,21 @@
         </PackageReleaseNotes>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <IsAotCompatible>true</IsAotCompatible>
+        <IsTrimmable>true</IsTrimmable>
+        <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+        <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+        <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="JsonDocumentPath" />
         <PackageReference Include="Microsoft.Extensions.Http" />
         <PackageReference Include="OneOf" />
         <PackageReference Include="Remora.Results" />
         <PackageReference Include="System.Text.Json" />
+        <PackageReference Include="PolyKit" Version="2.0.30" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,4 +33,19 @@
     <ItemGroup>
       <ProjectReference Include="..\Remora.Rest.Core\Remora.Rest.Core.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Remora.Rest.Generators\Remora.Rest.Generators.csproj" Pack="false">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <OutputItemType>Content</OutputItemType>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </ProjectReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Package the generator in the analyzer directory of the nuget package -->
+        <None Include="$(OutputPath)\Remora.Rest.Generators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
+
 </Project>

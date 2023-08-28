@@ -689,7 +689,6 @@ public class DataObjectConverterTests
                 {
                     json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
 
-                    json.AddConverter<OptionalConverterFactory>();
                     json.AddDataObjectConverter<IConstructorArgumentData, ConstructorArgumentData>();
                 })
             .BuildServiceProvider();

@@ -4,6 +4,7 @@
 //  SPDX-License-Identifier: LGPL-3.0-or-later
 //
 
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
@@ -24,6 +25,7 @@ public static class JsonSerializerOptionsExtensions
     /// <typeparam name="TInterface">The interface type.</typeparam>
     /// <typeparam name="TActual">The actual type.</typeparam>
     /// <returns>The added converter.</returns>
+    [Obsolete]
     public static DataObjectConverter<TInterface, TActual> AddDataObjectConverter<TInterface, TActual>
     (
         this JsonSerializerOptions options

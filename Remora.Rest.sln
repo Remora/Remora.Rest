@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Core.Analyzers"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Core.Analyzers.Tests", "Tests\Remora.Rest.Core.Analyzers.Tests\Remora.Rest.Core.Analyzers.Tests.csproj", "{10A0DE80-588D-4677-8BD8-58E18BB3FD76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remora.Rest.Generators", "Remora.Rest.Generators\Remora.Rest.Generators.csproj", "{9FC8E8D1-598B-4726-9DC2-958C728A84FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{10A0DE80-588D-4677-8BD8-58E18BB3FD76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10A0DE80-588D-4677-8BD8-58E18BB3FD76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10A0DE80-588D-4677-8BD8-58E18BB3FD76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FC8E8D1-598B-4726-9DC2-958C728A84FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FC8E8D1-598B-4726-9DC2-958C728A84FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FC8E8D1-598B-4726-9DC2-958C728A84FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FC8E8D1-598B-4726-9DC2-958C728A84FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{063999E1-511A-4EB8-9C23-9A2A19A97E56} = {54F6B070-C37B-4D9B-98C9-1D69D17791CC}
