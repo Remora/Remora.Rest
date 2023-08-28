@@ -133,7 +133,7 @@ public class FluentJsonContextSourceGenerator : ISourceGenerator
 
         var contextNamespaceString = contextNamespace.IsGlobalNamespace
             ? string.Empty
-            : $"\nnamespace {contextNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)};\n";
+            : $"\nnamespace {contextNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", string.Empty)};\n";
 
         return contextNamespaceString;
     }
@@ -175,6 +175,11 @@ public class FluentJsonContextSourceGenerator : ISourceGenerator
         ContextConfiguration contextConfiguration
     )
     {
+        if (contextConfiguration.DataObjects.Count <= 0)
+        {
+            return Array.Empty<string>();
+        }
+
         var converterInitializations = new List<string>();
         var fullyQualifiedNames = contextConfiguration.DataObjects
             .Select
@@ -185,7 +190,9 @@ public class FluentJsonContextSourceGenerator : ISourceGenerator
             .ToArray();
 
         converterInitializations.AddRange
-            (fullyQualifiedNames.Select(o => $"new InterfaceConverter<{o.Key}, {o.Value}>()"));
+        (
+            fullyQualifiedNames.Select(o => $"new InterfaceConverter<{o.Key}, {o.Value}>()")
+        );
 
         var type = contextConfiguration.DataObjects.First().Key;
         var typeSemanticContext = context.Compilation.GetSemanticModel(type.SyntaxTree);
@@ -200,7 +207,13 @@ public class FluentJsonContextSourceGenerator : ISourceGenerator
                 }
             )
             .Cast<INamedTypeSymbol>()
-            .Single(t => t.Name is "Optional");
+            .SingleOrDefault(t => t.Name is "Optional");
+
+        if (optionalType is null)
+        {
+            // type does not use any optionals
+            return converterInitializations;
+        }
 
         if (typeSemanticContext.GetSymbolInfo(type).Symbol is not ITypeSymbol symbol)
         {
@@ -269,9 +282,9 @@ public class FluentJsonContextSourceGenerator : ISourceGenerator
                             ?? context.Compilation.GlobalNamespace;
 
         var namespaceString = typeNamespace.IsGlobalNamespace
-            ? "global"
-            : typeNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            ? "global::"
+            : $"{typeNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.";
 
-        return $"{namespaceString}::{type.Name}";
+        return $"{namespaceString}{type.Name}";
     }
 }

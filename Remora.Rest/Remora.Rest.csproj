@@ -21,7 +21,7 @@
         <PackageReference Include="OneOf" />
         <PackageReference Include="Remora.Results" />
         <PackageReference Include="System.Text.Json" />
-        <PackageReference Include="PolyKit" Version="2.0.30" />
+        <PackageReference Include="PolyKit" />
     </ItemGroup>
 
     <ItemGroup>

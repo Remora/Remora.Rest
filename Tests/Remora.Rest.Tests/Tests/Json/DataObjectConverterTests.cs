@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Remora.Rest.Extensions;
 using Remora.Rest.Json;
-using Remora.Rest.Json.Internal;
+using Remora.Rest.Json.Contexts;
 using Remora.Rest.Json.Policies;
 using Remora.Rest.Tests.Data.DataObjects;
 using Remora.Rest.Xunit;
@@ -29,19 +29,17 @@ public class DataObjectConverterTests
     public void CanDeserializeSimpleDataObject()
     {
         var services = new ServiceCollection()
-            .Configure<JsonSerializerOptions>
-            (
-                json =>
-                {
-                    json.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
-                    json.AddDataObjectConverter<ISimpleData, SimpleData>();
-                })
+            .Configure<JsonSerializerOptions>(json => json.PropertyNamingPolicy = new SnakeCaseNamingPolicy())
+            .AddSingleton<JsonSerializerOptions>(s => s.GetRequiredService<IOptions<JsonSerializerOptions>>().Value)
+            .CreateGeneratedJsonContext<SimpleDataDeserializationContext>()
+                .WithDataObject<ISimpleData, SimpleData>()
+            .Finish()
             .BuildServiceProvider();
 
-        var jsonOptions = services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+        var context = services.GetRequiredService<FluentSerializerContext>();
         var payload = "{ \"value\": \"booga\" }";
 
-        var value = JsonSerializer.Deserialize<ISimpleData>(payload, jsonOptions);
+        var value = JsonSerializer.Deserialize(payload, typeof(ISimpleData), context) as ISimpleData;
         Assert.NotNull(value);
         Assert.Equal("booga", value.Value);
     }

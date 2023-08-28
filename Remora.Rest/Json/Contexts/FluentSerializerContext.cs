@@ -124,8 +124,10 @@ public class FluentSerializerContext : JsonSerializerContext
             throw new InvalidOperationException();
         }
 
+        #pragma warning disable CS0618
         var isShimInfo = baseInfo.Converter.GetType().IsGenericType
                          && baseInfo.Converter.GetType().GetGenericTypeDefinition() == typeof(InterfaceConverter<,>);
+        #pragma warning restore CS0618
 
         if (isShimInfo)
         {
