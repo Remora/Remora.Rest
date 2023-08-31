@@ -32,7 +32,7 @@ internal class ServiceContainerOptionsFactory<[DynamicallyAccessedMembers(Dynami
     /// <inheritdoc/>
     public TOptions Create(string name)
     {
-        var service = ActivatorUtilities.CreateInstance<TOptions>(_services);
+        var service = ActivatorUtilities.CreateInstance<TOptions>(_services, name);
 
         var configureService = _services.GetServices<IConfigureOptions<TOptions>>();
         var postConfigureOptions = _services.GetServices<IPostConfigureOptions<TOptions>>();

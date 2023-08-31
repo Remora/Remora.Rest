@@ -18,8 +18,7 @@ namespace Remora.Rest.Json.Converters;
 /// </summary>
 /// <typeparam name="TInterface">The interface type.</typeparam>
 /// <typeparam name="TImplementation">The implementation type used for deserialization.</typeparam>
-[Obsolete("This type intended for source-generated code and should not be used directly. Its API is not stable and may change at any time.")]
-public class InterfaceConverter<TInterface, TImplementation> : JsonConverter<TInterface>
+internal class InterfaceConverter<TInterface, TImplementation> : JsonConverter<TInterface>
     where TImplementation : TInterface
     where TInterface : notnull
 {

@@ -5,11 +5,13 @@
 //
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Remora.Rest.Extensions;
 using Remora.Rest.Json;
-using Remora.Rest.Json.Contexts;
+using Remora.Rest.Json.Configuration;
 using Remora.Rest.Json.Policies;
 using Remora.Rest.Tests.Data.DataObjects;
 using Remora.Rest.Xunit;
@@ -20,8 +22,14 @@ namespace Remora.Rest.Tests.Json;
 /// <summary>
 /// Tests the <see cref="DataObjectConverter{TInterface,TImplementation}"/> class.
 /// </summary>
-public class DataObjectConverterTests
+public partial class DataObjectConverterTests
 {
+    [JsonSerializable(typeof(ISimpleData))]
+    [JsonSerializable(typeof(SimpleData))]
+    public partial class SimpleDataSerializerContext : JsonSerializerContext
+    {
+    }
+
     /// <summary>
     /// Tests whether the converter can deserialize a simple data object.
     /// </summary>
@@ -29,17 +37,27 @@ public class DataObjectConverterTests
     public void CanDeserializeSimpleDataObject()
     {
         var services = new ServiceCollection()
+            .AddSingleton<IOptionsFactory<ConfiguredJsonTypeInfoResolver>, ConfiguredJsonTypeInfoResolverOptionsFactory>()
             .Configure<JsonSerializerOptions>(json => json.PropertyNamingPolicy = new SnakeCaseNamingPolicy())
-            .AddSingleton<JsonSerializerOptions>(s => s.GetRequiredService<IOptions<JsonSerializerOptions>>().Value)
-            .CreateGeneratedJsonContext<SimpleDataDeserializationContext>()
-                .WithDataObject<ISimpleData, SimpleData>()
-            .Finish()
+            .AddSingleton<IJsonTypeInfoResolver, SimpleDataSerializerContext>()
+            .Configure<FluentJsonTypeInfoResolver>
+            (
+                fluentResolver => fluentResolver
+                    .WithContext<SimpleDataSerializerContext>()
+                    .ConfigureDataObject<ISimpleData, SimpleData>()
+            )
             .BuildServiceProvider();
 
-        var context = services.GetRequiredService<FluentSerializerContext>();
+        var resolver = services.GetRequiredService<IOptionsFactory<ConfiguredJsonTypeInfoResolver>>()
+            .Create(string.Empty);
+
+        var options = services.GetRequiredService<IOptionsFactory<JsonSerializerOptions>>()
+            .Create(string.Empty);
+
+        var typeInfo = resolver.GetTypeInfo<ISimpleData>(options)!;
         var payload = "{ \"value\": \"booga\" }";
 
-        var value = JsonSerializer.Deserialize(payload, typeof(ISimpleData), context) as ISimpleData;
+        var value = JsonSerializer.Deserialize(payload, typeInfo);
         Assert.NotNull(value);
         Assert.Equal("booga", value.Value);
     }

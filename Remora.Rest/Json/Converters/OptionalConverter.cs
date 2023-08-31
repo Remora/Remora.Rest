@@ -16,26 +16,29 @@ namespace Remora.Rest.Json.Converters;
 /// Converts optional fields to their JSON representation.
 /// </summary>
 /// <typeparam name="TValue">The underlying type.</typeparam>
-[Obsolete("This type intended for source-generated code and should not be used directly. Its API is not stable and may change at any time.")]
-public class OptionalConverter<TValue> : JsonConverter<Optional<TValue?>>
+internal sealed class OptionalConverter<TValue> : JsonConverter<Optional<TValue?>>
 {
+    private JsonTypeInfo<TValue>? _typeInfo;
+
     /// <inheritdoc />
     public override Optional<TValue?> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var typeInfo = (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
+        var typeInfo = _typeInfo ?? (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
+
         return new(JsonSerializer.Deserialize(ref reader, typeInfo));
     }
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, Optional<TValue?> value, JsonSerializerOptions options)
     {
+        // direct access is safe here since logical omission is handled via JsonTypeInfo
         if (value.Value is null)
         {
             writer.WriteNullValue();
             return;
         }
 
-        var typeInfo = (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
+        var typeInfo = _typeInfo ?? (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
         JsonSerializer.Serialize(writer, value.Value, typeInfo);
     }
 }
