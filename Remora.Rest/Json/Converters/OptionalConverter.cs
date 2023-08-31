@@ -18,12 +18,10 @@ namespace Remora.Rest.Json.Converters;
 /// <typeparam name="TValue">The underlying type.</typeparam>
 internal sealed class OptionalConverter<TValue> : JsonConverter<Optional<TValue?>>
 {
-    private JsonTypeInfo<TValue>? _typeInfo;
-
     /// <inheritdoc />
     public override Optional<TValue?> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var typeInfo = _typeInfo ?? (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
+        var typeInfo = (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
 
         return new(JsonSerializer.Deserialize(ref reader, typeInfo));
     }
@@ -38,7 +36,7 @@ internal sealed class OptionalConverter<TValue> : JsonConverter<Optional<TValue?
             return;
         }
 
-        var typeInfo = _typeInfo ?? (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
+        var typeInfo = (JsonTypeInfo<TValue>)options.GetTypeInfo(typeof(TValue));
         JsonSerializer.Serialize(writer, value.Value, typeInfo);
     }
 }
