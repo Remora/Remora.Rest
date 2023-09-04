@@ -7,15 +7,17 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 using Remora.Rest.Core;
 
-namespace Remora.Rest.Json.Internal;
+namespace Remora.Rest.Json;
 
 /// <summary>
 /// Converts optional fields to their JSON representation.
 /// </summary>
 /// <typeparam name="TValue">The underlying type.</typeparam>
-internal class OptionalConverter<TValue> : JsonConverter<Optional<TValue?>>
+[PublicAPI]
+public class OptionalConverter<TValue> : JsonConverter<Optional<TValue?>>
 {
     /// <inheritdoc />
     public override Optional<TValue?> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
