@@ -29,8 +29,8 @@ namespace Remora.Rest.Json;
 public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFactory
     where TImplementation : TInterface
 {
-    // Stores the best-matching constructor
-    private readonly ConstructorInfo _dtoConstructor;
+    // Stores the initialization info.
+    private readonly IInitializationInfo _dtoInitialization;
 
     private readonly IReadOnlyList<PropertyInfo> _dtoProperties;
 
@@ -74,9 +74,17 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var visibleProperties = implementationType.GetPublicProperties().ToArray();
 
         var dtoConstructor = FindBestMatchingConstructor(visibleProperties);
-        _dtoConstructor = dtoConstructor;
 
-        _dtoProperties = ReorderProperties(visibleProperties, dtoConstructor);
+        if (dtoConstructor is not null)
+        {
+            _dtoInitialization = new ConstructorInitializationInfo(dtoConstructor);
+            _dtoProperties = ReorderProperties(visibleProperties, dtoConstructor);
+        }
+        else
+        {
+            _dtoInitialization = new ObjectInitializationInfo(implementationType, visibleProperties);
+            _dtoProperties = visibleProperties;
+        }
 
         var interfaceMap = implementationType.GetInterfaceMap(interfaceType);
         _dtoPropertyWriters = _dtoProperties
@@ -162,9 +170,9 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
     /// need not match.
     /// </summary>
     /// <param name="visibleProperties">The visible set of properties.</param>
-    /// <returns>The constructor.</returns>
-    /// <exception cref="MissingMethodException">Thrown if no appropriate constructor can be found.</exception>
-    private static ConstructorInfo FindBestMatchingConstructor(PropertyInfo[] visibleProperties)
+    /// <returns>The constructor, or <c>null</c> if none was found and construction is to fall back
+    /// to using an object initializer.</returns>
+    private static ConstructorInfo? FindBestMatchingConstructor(PropertyInfo[] visibleProperties)
     {
         var visiblePropertyTypes = visibleProperties
             .Where(p => p.CanWrite)
@@ -178,11 +186,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             var singleCandidate = implementationConstructors[0];
             return IsMatchingConstructor(singleCandidate, visiblePropertyTypes)
                 ? singleCandidate
-                : throw new MissingMethodException
-                (
-                    implementationType.Name,
-                    $"ctor({string.Join(", ", visiblePropertyTypes.Select(t => t.Name))})"
-                );
+                : null;
         }
 
         var matchingConstructors = implementationType.GetConstructors()
@@ -193,11 +197,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
             return matchingConstructors[0];
         }
 
-        throw new MissingMethodException
-        (
-            implementationType.Name,
-            $"ctor({string.Join(", ", visiblePropertyTypes.Select(t => t.Name))})"
-        );
+        return null;
     }
 
     /// <summary>
@@ -514,27 +514,32 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var writeProperties = new List<DTOPropertyInfo>();
         var readProperties = new List<DTOPropertyInfo>();
 
-        var parameters = _dtoConstructor.GetParameters();
+        var parameters = (this._dtoInitialization as ConstructorInitializationInfo)?.Constructor.GetParameters();
         var properties = _dtoProperties;
         for (int i = 0; i < properties.Count; i++)
         {
             var property = properties[i];
 
-            // Properties are currently sorted to match the parameter order, followed by read-only properties.
-            // As such, we assume that this code will give us the matching parameter for a property.
-            var parameter = (uint)i < (uint)parameters.Length ? parameters[i] : null;
+            Optional<object?> defaultValue = default;
 
-            // Just to be sure, we assert this behavior here. This is essentially how property reordering associated property and parameter.
-            Debug.Assert
-            (
-                parameter == null || (property.Name.Equals(parameter.Name, StringComparison.InvariantCultureIgnoreCase) && property.PropertyType == parameter.ParameterType),
-                "Expectations around property/parameter order are upheld."
-            );
+            if (this._dtoInitialization is ConstructorInitializationInfo ctor)
+            {
+                // Properties are currently sorted to match the parameter order, followed by read-only properties.
+                // As such, we assume that this code will give us the matching parameter for a property.
+                var parameter = (uint)i < (uint)parameters!.Length ? parameters[i] : null;
+
+                // Just to be sure, we assert this behavior here. This is essentially how property reordering associated property and parameter.
+                Debug.Assert
+                (
+                    parameter == null || (property.Name.Equals(parameter.Name, StringComparison.InvariantCultureIgnoreCase) && property.PropertyType == parameter.ParameterType),
+                    "Expectations around property/parameter order are upheld."
+                );
+
+                defaultValue = GetDefaultValueForParameter(property.PropertyType, parameter);
+            }
 
             var converter = GetConverter(property, options);
             var propertyOptions = converter == null ? options : CreatePropertyConverterOptions(options, converter);
-
-            var defaultValue = GetDefaultValueForParameter(property.PropertyType, parameter);
             var readNames = GetReadJsonPropertyName(property, options);
             var writeNames = GetWriteJsonPropertyName(property, options);
             var writer = GetPropertyWriter(property);
@@ -570,7 +575,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
 
         if (typeToConvert == typeof(TInterface))
         {
-            _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoConstructor);
+            _interfaceDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TInterface>(_dtoInitialization);
             return new BoundDataObjectConverter<TInterface>
             (
                 _interfaceDtoFactory,
@@ -583,7 +588,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         // ReSharper disable once InvertIf
         if (typeToConvert == typeof(TImplementation))
         {
-            _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoConstructor);
+            _implementationDtoFactory ??= ExpressionFactoryUtilities.CreateFactory<TImplementation>(_dtoInitialization);
             return new BoundDataObjectConverter<TImplementation>
             (
                 _implementationDtoFactory,

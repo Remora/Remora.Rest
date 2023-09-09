@@ -29,6 +29,9 @@
       <Compile Update="Data\DataObjects\IConstructorArgumentData.cs">
         <DependentUpon>ConstructorArgumentData.cs</DependentUpon>
       </Compile>
+      <Compile Update="Data\DataObjects\IOldStyleData.cs">
+        <DependentUpon>OldStyleData.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>
