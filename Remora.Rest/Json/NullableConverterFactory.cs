@@ -7,14 +7,16 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 using Remora.Rest.Extensions;
 
-namespace Remora.Rest.Json.Internal;
+namespace Remora.Rest.Json;
 
 /// <summary>
 /// Creates instances of <see cref="NullableConverter{TValue}"/>.
 /// </summary>
-internal class NullableConverterFactory : JsonConverterFactory
+[PublicAPI]
+public class NullableConverterFactory : JsonConverterFactory
 {
     /// <inheritdoc />
     public override bool CanConvert(Type typeToConvert)

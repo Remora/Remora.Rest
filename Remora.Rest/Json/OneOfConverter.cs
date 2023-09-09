@@ -11,17 +11,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 using OneOf;
 using Remora.Rest.Core;
 using Remora.Rest.Extensions;
 
-namespace Remora.Rest.Json.Internal;
+namespace Remora.Rest.Json;
 
 /// <summary>
 /// Converts instances of <see cref="IOneOf"/> to and from JSON.
 /// </summary>
 /// <typeparam name="TOneOf">The OneOf type.</typeparam>
-internal class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
+[PublicAPI]
+public class OneOfConverter<TOneOf> : JsonConverter<TOneOf>
     where TOneOf : IOneOf
 {
     /// <summary>

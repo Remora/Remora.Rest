@@ -8,14 +8,16 @@ using System;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 using OneOf;
 
-namespace Remora.Rest.Json.Internal;
+namespace Remora.Rest.Json;
 
 /// <summary>
 /// Creates OneOf converters.
 /// </summary>
-internal class OneOfConverterFactory : JsonConverterFactory
+[PublicAPI]
+public class OneOfConverterFactory : JsonConverterFactory
 {
     /// <inheritdoc />
     public override bool CanConvert(Type typeToConvert)

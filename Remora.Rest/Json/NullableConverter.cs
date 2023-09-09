@@ -7,14 +7,16 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
-namespace Remora.Rest.Json.Internal;
+namespace Remora.Rest.Json;
 
 /// <summary>
 /// Converts from to and from <see cref="Nullable{T}"/>.
 /// </summary>
 /// <typeparam name="TValue">The inner nullable value.</typeparam>
-internal class NullableConverter<TValue> : JsonConverter<TValue?>
+[PublicAPI]
+public class NullableConverter<TValue> : JsonConverter<TValue?>
     where TValue : struct
 {
     /// <inheritdoc />
