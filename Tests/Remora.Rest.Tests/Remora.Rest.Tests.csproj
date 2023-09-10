@@ -33,4 +33,9 @@
       </Compile>
     </ItemGroup>
 
+
+    <ItemGroup>
+      <Folder Include="Tests\Json\Extended\" />
+    </ItemGroup>
+
 </Project>
