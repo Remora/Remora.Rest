@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Remora.Rest.Json;
-using Remora.Rest.Json.Internal;
 
 namespace Remora.Rest.Extensions;
 

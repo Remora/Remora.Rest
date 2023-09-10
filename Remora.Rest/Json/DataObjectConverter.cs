@@ -514,7 +514,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
         var writeProperties = new List<DTOPropertyInfo>();
         var readProperties = new List<DTOPropertyInfo>();
 
-        var parameters = (this._dtoInitialization as ConstructorInitializationInfo)?.Constructor.GetParameters();
+        var parameters = (_dtoInitialization as ConstructorInitializationInfo)?.Constructor.GetParameters();
         var properties = _dtoProperties;
         for (int i = 0; i < properties.Count; i++)
         {
@@ -522,7 +522,7 @@ public class DataObjectConverter<TInterface, TImplementation> : JsonConverterFac
 
             Optional<object?> defaultValue = default;
 
-            if (this._dtoInitialization is ConstructorInitializationInfo ctor)
+            if (_dtoInitialization is ConstructorInitializationInfo)
             {
                 // Properties are currently sorted to match the parameter order, followed by read-only properties.
                 // As such, we assume that this code will give us the matching parameter for a property.

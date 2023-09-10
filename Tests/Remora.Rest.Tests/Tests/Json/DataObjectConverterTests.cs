@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Remora.Rest.Extensions;
 using Remora.Rest.Json;
-using Remora.Rest.Json.Internal;
 using Remora.Rest.Json.Policies;
 using Remora.Rest.Tests.Data.DataObjects;
 using Remora.Rest.Xunit;
