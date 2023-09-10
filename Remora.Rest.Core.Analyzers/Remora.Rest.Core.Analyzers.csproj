@@ -12,7 +12,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <VersionPrefix>1.0.0-preview3</VersionPrefix>
+        <VersionPrefix>1.0.0-preview4</VersionPrefix>
     </PropertyGroup>
 
     <ItemGroup>
