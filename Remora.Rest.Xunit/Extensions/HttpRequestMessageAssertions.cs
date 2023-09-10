@@ -102,7 +102,7 @@ public static class HttpRequestMessageAssertions
         }
         catch (JsonException)
         {
-            throw new IsTypeException("JSON", "Unknown");
+            throw IsTypeException.ForMismatchedType("JSON", "Unknown");
         }
     }
 
@@ -195,7 +195,7 @@ public static class HttpRequestMessageAssertions
         }
         catch (JsonException)
         {
-            throw new IsTypeException("JSON", "Unknown");
+            throw IsTypeException.ForMismatchedType("JSON", "Unknown");
         }
     }
 
