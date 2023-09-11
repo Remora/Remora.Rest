@@ -7,7 +7,7 @@
         </PackageReleaseNotes>
     </PropertyGroup>
 
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(IsNETStandard)' == 'false'">
         <IsAotCompatible>true</IsAotCompatible>
         <IsTrimmable>true</IsTrimmable>
         <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
