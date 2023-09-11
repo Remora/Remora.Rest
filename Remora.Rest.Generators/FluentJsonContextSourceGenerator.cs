@@ -85,7 +85,12 @@ public class FluentJsonContextSourceGenerator : IIncrementalGenerator
             return default;
         }
 
-        if (type.BaseType?.Name != "JsonSerializerContext")
+        var jsonSerializerContext = context.SemanticModel.Compilation.GetTypeByMetadataName
+        (
+            "System.Text.Json.Serialization.JsonSerializerContext"
+        );
+
+        if (type.BaseType?.Equals(jsonSerializerContext, SymbolEqualityComparer.Default) == true)
         {
             // diagnostic
             return default;
@@ -203,7 +208,7 @@ public class FluentJsonContextSourceGenerator : IIncrementalGenerator
         converterInitializations.AddRange
         (
             optionalTypes.Select
-                (o => $"new OptionalConverter<{GetFullyQualifiedSymbolName(o.TypeArguments.Single())}>()")
+                (o => $"new OptionalConverter<{o.TypeArguments.Single().ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}>()")
         );
 
         return converterInitializations.ToImmutableArray();
@@ -236,16 +241,5 @@ public class FluentJsonContextSourceGenerator : IIncrementalGenerator
                 ExpandReferencedTypes(property.Type, foundTypes);
             }
         }
-    }
-
-    private static string GetFullyQualifiedSymbolName(ITypeSymbol type)
-    {
-        var typeNamespace = type.ContainingNamespace;
-
-        var namespaceString = typeNamespace.IsGlobalNamespace
-            ? "global::"
-            : $"{typeNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}.";
-
-        return $"{namespaceString}{type.Name}";
     }
 }
