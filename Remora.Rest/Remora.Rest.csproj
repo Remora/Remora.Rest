@@ -1,10 +1,9 @@
 <Project Sdk="Remora.Sdk">
     <PropertyGroup>
-        <VersionPrefix>3.3.0</VersionPrefix>
+        <VersionPrefix>3.3.1</VersionPrefix>
         <Description>Core functionality of basic REST-focused API tooling, allowing you to easily build new wrappers around your favourite services.</Description>
         <PackageReleaseNotes>
-            Enable deserialization of entities via object initializers.
-            Make various supporting converters public.
+            Update nuget packages.
         </PackageReleaseNotes>
     </PropertyGroup>
 

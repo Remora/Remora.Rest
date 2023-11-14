@@ -6,7 +6,7 @@
     <PackageVersion Include="JsonDocumentPath" Version="1.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="7.0.0" />
     <PackageVersion Include="OneOf" Version="3.0.263" />
-    <PackageVersion Include="Remora.Results" Version="7.3.0" />
+    <PackageVersion Include="Remora.Results" Version="7.4.0" />
     <PackageVersion Include="Remora.Results.Analyzers" Version="1.0.1" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="6.0.0" />
     <PackageVersion Include="System.Text.Json" Version="7.0.3" />

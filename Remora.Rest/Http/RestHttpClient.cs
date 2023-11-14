@@ -529,7 +529,7 @@ public class RestHttpClient<TError> : IRestHttpClient
     {
         if (response.IsSuccessStatusCode)
         {
-            return Result.FromSuccess();
+            return Result.Success;
         }
 
         // See if we have a JSON error to get some more details from
