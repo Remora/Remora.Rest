@@ -148,7 +148,7 @@ public class JsonArrayMatcherBuilder
 
             return matchingCount switch
             {
-                > 1 => throw SingleException.MoreThanOne(matchingCount, null, "element", new()),
+                > 1 => throw SingleException.MoreThanOne(matchingCount, null, "element", Array.Empty<int>()),
                 < 1 => throw SingleException.Empty(null, "element"),
                 _ => true
             };

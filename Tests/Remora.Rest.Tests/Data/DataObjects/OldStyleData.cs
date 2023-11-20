@@ -12,8 +12,8 @@ namespace Remora.Rest.Tests.Data.DataObjects;
 public sealed class OldStyleData : IOldStyleData
 {
     /// <inheritdoc/>
-    required public string Value { get; init; }
+    public required string Value { get; init; }
 
     /// <inheritdoc/>
-    required public int OtherValue { get; init; }
+    public required int OtherValue { get; init; }
 }

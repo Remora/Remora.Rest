@@ -6,6 +6,8 @@
 
 namespace Remora.Rest.Tests.Data.DataObjects;
 
+#pragma warning disable SA1402
+
 /// <summary>
 /// A data class that serves as an implementation for <see cref="IExcludedData"/>.
 /// </summary>
