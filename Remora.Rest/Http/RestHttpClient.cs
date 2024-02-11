@@ -651,7 +651,7 @@ public class RestHttpClient<TError> : IRestHttpClient
         }
 
         // See if we have a JSON error to get some more details from
-        if (response.Content.Headers.ContentLength is not > 0)
+        if (response.Content.Headers.ContentLength == 0)
         {
             return new HttpResultError(response.StatusCode, response.ReasonPhrase);
         }
