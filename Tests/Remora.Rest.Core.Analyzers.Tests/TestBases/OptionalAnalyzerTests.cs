@@ -8,7 +8,6 @@ using System.IO;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
-using Microsoft.CodeAnalysis.Testing.Verifiers;
 
 namespace Remora.Rest.Core.Analyzers.Tests.TestBases;
 
@@ -16,7 +15,7 @@ namespace Remora.Rest.Core.Analyzers.Tests.TestBases;
 /// Serves as a base class for Optional-targeted analyzer tests.
 /// </summary>
 /// <typeparam name="TAnalyzer">The analyzer under test.</typeparam>
-public abstract class OptionalAnalyzerTests<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, XUnitVerifier>
+public abstract class OptionalAnalyzerTests<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, DefaultVerifier>
     where TAnalyzer : DiagnosticAnalyzer, new()
 {
     /// <summary>
@@ -26,9 +25,9 @@ public abstract class OptionalAnalyzerTests<TAnalyzer> : CSharpAnalyzerTest<TAna
     {
         this.ReferenceAssemblies = new ReferenceAssemblies
         (
-            "net7.0",
-            new PackageIdentity("Microsoft.NETCore.App.Ref", "7.0.0"),
-            Path.Combine("ref", "net7.0")
+            "net8.0",
+            new PackageIdentity("Microsoft.NETCore.App.Ref", "8.0.1"),
+            Path.Combine("ref", "net8.0")
         );
 
         this.TestState.AdditionalReferences.Add(typeof(Optional<>).Assembly);
