@@ -117,4 +117,23 @@ public class StringEnumConverter<TEnum> : JsonConverter<TEnum>
 
         writer.WriteStringValue(_enumsToNames[value]);
     }
+
+    /// <inheritdoc />
+    public override TEnum ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        => this.Read(ref reader, typeToConvert, options);
+
+    /// <inheritdoc/>
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
+    {
+        if (_asInteger)
+        {
+            writer.WritePropertyName(Enum.GetUnderlyingType(typeof(TEnum)).IsUnsigned()
+                ? Convert.ToUInt64(value).ToString()
+                : Convert.ToInt64(value).ToString());
+
+            return;
+        }
+
+        writer.WritePropertyName(_enumsToNames[value]);
+    }
 }
