@@ -59,7 +59,7 @@ public class StringEnumConverter<TEnum> : JsonConverter<TEnum>
 
         switch (reader.TokenType)
         {
-            case JsonTokenType.String:
+            case JsonTokenType.String or JsonTokenType.PropertyName:
             {
                 var value = reader.GetString();
                 if (value is null)
