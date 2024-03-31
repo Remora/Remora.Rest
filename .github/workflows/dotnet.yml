@@ -33,11 +33,10 @@ jobs:
       - name: Inspect
         uses: JetBrains/ReSharper-InspectCode@v0.3
         with:
+          tool-version: 2023.3.4
           solution: Remora.Rest.sln
           no-build: true
           telemetry-optout: true
-          output: results.sarif.json
-          format: sarif
 
       - name: Package
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
