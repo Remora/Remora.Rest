@@ -64,6 +64,7 @@ jobs:
       - name: Prune packages older than 4 versions (new version is the 5th)
         uses: smartsquaregmbh/delete-old-packages@v0.8.0
         with:
+          organization: Remora
           type: nuget
           keep: 4
           names: |
