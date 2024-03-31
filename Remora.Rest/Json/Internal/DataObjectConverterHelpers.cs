@@ -14,9 +14,7 @@ internal static class DataObjectConverterHelpers
     /// <summary>
     /// Type of <see cref="Missing"/>.
     /// </summary>
-    private sealed class MissingValue
-    {
-    }
+    private sealed class MissingValue;
 
     /// <summary>
     /// Sentinel value for use by <see cref="BoundDataObjectConverter{T}"/>.

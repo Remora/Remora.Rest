@@ -98,9 +98,7 @@ public class TypeExtensionTests
     public class GetPublicProperties
     {
         // ReSharper disable UnassignedGetOnlyAutoProperty
-        private interface IEmptyInterface
-        {
-        }
+        private interface IEmptyInterface;
 
         private interface IInterfaceWithSingleProperty
         {
@@ -117,13 +115,9 @@ public class TypeExtensionTests
         private interface IInterfaceWithInheritedProperties
             :
                 IInterfaceWithSingleProperty,
-                IInterfaceWithMultipleProperties
-        {
-        }
+                IInterfaceWithMultipleProperties;
 
-        private class EmptyClass
-        {
-        }
+        private class EmptyClass;
 
         private class ClassWithSingleProperty
         {
