@@ -120,7 +120,7 @@ public class StringEnumConverter<TEnum> : JsonConverter<TEnum>
 
     /// <inheritdoc />
     public override TEnum ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => this.Read(ref reader, typeToConvert, options);
+        => Read(ref reader, typeToConvert, options);
 
     /// <inheritdoc/>
     public override void WriteAsPropertyName(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
