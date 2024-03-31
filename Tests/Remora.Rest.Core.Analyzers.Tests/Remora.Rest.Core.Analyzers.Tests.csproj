@@ -4,6 +4,10 @@
         <ProjectReference Include="..\..\Remora.Rest.Core\Remora.Rest.Core.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <TargetNetStandard>false</TargetNetStandard>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" />
