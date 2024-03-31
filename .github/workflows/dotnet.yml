@@ -36,6 +36,8 @@ jobs:
           solution: Remora.Rest.sln
           no-build: true
           telemetry-optout: true
+          output: results.sarif.json
+          format: sarif
 
       - name: Package
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -44,6 +46,8 @@ jobs:
         with:
           name: nupkg
           path: nuget/*
+    permissions:
+      security-events: write
   prerelease:
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
