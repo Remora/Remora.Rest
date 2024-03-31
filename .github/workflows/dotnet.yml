@@ -30,6 +30,13 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-restore --no-build --verbosity minimal
 
+      - name: Inspect
+        uses: JetBrains/ReSharper-InspectCode@v0.3
+        with:
+          solution: Remora.Rest.sln
+          no-build: true
+          telemetry-optout: true
+
       - name: Package
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: dotnet pack -c Release --no-restore --no-build --version-suffix "github$GITHUB_RUN_ID"
