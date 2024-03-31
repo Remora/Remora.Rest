@@ -1,16 +1,16 @@
 <Project Sdk="Remora.Sdk">
-
     <!-- Override target frameworks -->
     <PropertyGroup>
-        <LibraryFrameworks>$(ExecutableFrameworks)</LibraryFrameworks>
+        <TargetNetStandard>false</TargetNetStandard>
     </PropertyGroup>
 
     <PropertyGroup>
-        <VersionPrefix>3.0.3</VersionPrefix>
+        <VersionPrefix>3.0.4</VersionPrefix>
         <Description>Supporting types for writing expressive unit tests of REST-focused API wrappers, allowing simple and direct testing of expected clientside behaviour.
         </Description>
         <PackageReleaseNotes>
-            Fix build for .NET 8.
+            Update SDK.
+            Update target frameworks.
         </PackageReleaseNotes>
     </PropertyGroup>
 

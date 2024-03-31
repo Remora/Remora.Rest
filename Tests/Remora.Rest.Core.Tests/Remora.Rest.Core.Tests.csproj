@@ -3,4 +3,8 @@
         <ProjectReference Include="..\..\Remora.Rest.Core\Remora.Rest.Core.csproj" />
         <ProjectReference Include="..\..\Remora.Rest.Xunit\Remora.Rest.Xunit.csproj" />
     </ItemGroup>
+
+    <PropertyGroup>
+        <TargetNetStandard>false</TargetNetStandard>
+    </PropertyGroup>
 </Project>

@@ -1,5 +1,4 @@
 <Project Sdk="Remora.Tests.Sdk">
-
     <ItemGroup>
         <ProjectReference Include="..\..\Remora.Rest.Core.Analyzers\Remora.Rest.Core.Analyzers.csproj" />
         <ProjectReference Include="..\..\Remora.Rest.Core\Remora.Rest.Core.csproj" />
@@ -10,5 +9,4 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
     </ItemGroup>
-
 </Project>

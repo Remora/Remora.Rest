@@ -4,6 +4,10 @@
       <ProjectReference Include="..\..\Remora.Rest.Xunit\Remora.Rest.Xunit.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <TargetNetStandard>false</TargetNetStandard>
+    </PropertyGroup>
+
     <ItemGroup>
       <Compile Update="Tests\JsonElementMatcherBuilderTests.cs">
         <DependentUpon>JsonElementMatcherTests.cs</DependentUpon>
