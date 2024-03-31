@@ -35,7 +35,7 @@ jobs:
         with:
           tool-version: 2023.3.4
           solution: Remora.Rest.sln
-          no-build: true
+          build: false
           telemetry-optout: true
 
       - name: Package
