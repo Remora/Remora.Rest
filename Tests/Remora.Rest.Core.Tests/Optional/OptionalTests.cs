@@ -734,6 +734,27 @@ public static class OptionalTests
         }
     }
 
+    public static class FlatMap
+    {
+        private static Optional<int> ParseInt(string s) => int.TryParse(s, out int i) ? i : default(Optional<int>);
+
+        [Fact]
+        public static void CanFlatMap()
+        {
+            Optional<string> one = "1";
+            var flatMapped = one.FlatMap(ParseInt);
+            Assert.Equal(new Optional<int>(1), flatMapped);
+        }
+
+        [Fact]
+        public static void ReturnsOptionalWithNoValueIfInputHasNoValue()
+        {
+            var a = default(Optional<string>);
+            var flatMapped = a.FlatMap(ParseInt);
+            Assert.False(flatMapped.HasValue);
+        }
+    }
+
     public static class ConvertNullToEmpty
     {
         public static class Struct
