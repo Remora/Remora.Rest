@@ -152,7 +152,7 @@ public readonly struct Optional<TValue> : IOptional
     /// Applies a mapping function to the value of the <see cref="Optional{TValue}"/> if it has one; otherwise, returns
     /// a new <see cref="Optional{TValue}"/> of the resulting type with no value.
     /// </summary>
-    /// <param name="mappingFunc">The mapping function.</param>
+    /// <param name="mappingFunc">The mapping function, returning <typeparamref name="TResult" />.</param>
     /// <typeparam name="TResult">The value type for the output of the mapping result.</typeparam>
     /// <returns>
     /// A new optional with the mapping result if <see cref="Optional{TValue}"/> has a value; an optional with no value
@@ -163,6 +163,23 @@ public readonly struct Optional<TValue> : IOptional
         return this.HasValue
             ? mappingFunc(_value)
             : default(Optional<TResult>);
+    }
+
+    /// <summary>
+    /// Applies a mapping function to the value of the <see cref="Optional{TValue}"/> if it has one; otherwise, returns
+    /// a new <see cref="Optional{TValue}"/> of the resulting type with no value.
+    /// </summary>
+    /// <param name="mappingFunc">The mapping function, returning <see cref="Optional{TValue}"/>.</param>
+    /// <typeparam name="TResult">The value type for the output of the mapping result.</typeparam>
+    /// <returns>
+    /// A new optional with the mapping result if <see cref="Optional{TValue}"/> has a value; an optional with no value
+    /// otherwise.
+    /// </returns>
+    public Optional<TResult> FlatMap<TResult>(Func<TValue, Optional<TResult>> mappingFunc)
+    {
+        return this.HasValue
+            ? mappingFunc(_value)
+            : default;
     }
 
     /// <summary>
