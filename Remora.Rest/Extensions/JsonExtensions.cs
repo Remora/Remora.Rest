@@ -34,6 +34,8 @@ public static class JsonExtensions
         using var writer = new Utf8JsonWriter(bufferWriter);
         element.WriteTo(writer);
 
+        writer.Flush();
+
         return JsonSerializer.Deserialize<TEntity>(bufferWriter.WrittenSpan, options);
     }
 
