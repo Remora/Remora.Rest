@@ -72,7 +72,8 @@ public class JsonArrayMatcherBuilder
         _matchers.Add(array =>
         {
             array
-                .Should().HaveCountGreaterOrEqualTo(count);
+                .Should()
+                .HaveCountGreaterThanOrEqualTo(count);
 
             return true;
         });

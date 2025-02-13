@@ -28,9 +28,9 @@ public abstract class OptionalCodeFixTests<TAnalyzer, TCodeFix> : CSharpCodeFixT
     {
         this.ReferenceAssemblies = new ReferenceAssemblies
         (
-            "net8.0",
-            new PackageIdentity("Microsoft.NETCore.App.Ref", "8.0.1"),
-            Path.Combine("ref", "net8.0")
+            "net9.0",
+            new PackageIdentity("Microsoft.NETCore.App.Ref", "9.0.2"),
+            Path.Combine("ref", "net9.0")
         );
 
         this.TestState.AdditionalReferences.Add(typeof(Optional<int>).Assembly);

@@ -4,6 +4,7 @@
 //  SPDX-License-Identifier: LGPL-3.0-or-later
 //
 
+using System.Linq;
 using System.Text.Json;
 using Xunit;
 using BindingFlags = System.Reflection.BindingFlags;
@@ -210,14 +211,10 @@ public static class JsonAssertOptionTests
         [Fact]
         public static void AllowMissingByReturnsTrueForUnderscorePrefixedOnDefaultInstance()
         {
+            var document = JsonDocument.Parse("""{ "_property": "value" }""");
+            var property = document.RootElement.EnumerateObject().Single();
+
             var options = JsonAssertOptions.Default;
-            var property = (JsonProperty)typeof(JsonProperty)
-                .GetConstructor
-                (
-                    BindingFlags.NonPublic | BindingFlags.Instance,
-                    new[] { typeof(JsonElement), typeof(string) }
-                )!
-                .Invoke(new object[] { default(JsonElement), "_property" });
 
             Assert.True(options.AllowMissingBy(property));
         }
@@ -229,14 +226,10 @@ public static class JsonAssertOptionTests
         [Fact]
         public static void AllowMissingByReturnsFalseForNonUnderscorePrefixedOnDefaultInstance()
         {
+            var document = JsonDocument.Parse("""{ "property": "value" }""");
+            var property = document.RootElement.EnumerateObject().Single();
+
             var options = JsonAssertOptions.Default;
-            var property = (JsonProperty)typeof(JsonProperty)
-                .GetConstructor
-                (
-                    BindingFlags.NonPublic | BindingFlags.Instance,
-                    new[] { typeof(JsonElement), typeof(string) }
-                )!
-                .Invoke(new object[] { default(JsonElement), "property" });
 
             Assert.False(options.AllowMissingBy(property));
         }
