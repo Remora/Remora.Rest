@@ -34,11 +34,11 @@ public static class TypeExtensions
 
         switch (type.GetGenericTypeDefinition())
         {
-            case var _ when type == typeof(IReadOnlyList<>):
-            case var _ when type == typeof(IReadOnlyCollection<>):
-            case var _ when type == typeof(IList<>):
-            case var _ when type == typeof(ICollection<>):
-            case var _ when type == typeof(List<>):
+            case var readonlyList when readonlyList == typeof(IReadOnlyList<>):
+            case var readonlyCollection when readonlyCollection == typeof(IReadOnlyCollection<>):
+            case var interfaceList when interfaceList == typeof(IList<>):
+            case var collection when collection == typeof(ICollection<>):
+            case var list when list == typeof(List<>):
             {
                 return true;
             }
